@@ -1,0 +1,36 @@
+{% extends "main.html" %}
+
+{% block sidebar_toolbar %}
+<button onclick="clearWorkspace()" class="sidebar-btn">
+    Clear Workspace
+</button>
+
+<button onclick="applyFilters()" class="sidebar-btn">
+    Apply Filters
+</button>
+{% endblock %}
+
+{% block sidebar %}
+
+<div class="sidebar-main-content">
+
+    <!-- Module-specific filters/content goes here later -->
+
+</div>
+
+{% endblock %}
+
+{% block top_center %}
+<div class="module-title-pill">
+    Common Layout Test
+</div>
+{% endblock %}
+
+{% block toolbar_left %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Reusable Layout Testing</h2>
+</div>
+{% endblock %}

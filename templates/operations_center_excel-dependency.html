@@ -1,0 +1,754 @@
+{% extends "main.html" %}
+
+{% block page_title %}
+Operations Center
+{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static',
+      filename='css/operations_center.css') }}">
+{% endblock %}
+
+<div class="dockbar">
+    <button id="trackerDockBtn" class="dock-btn active">
+        <img src="/static/images/tracker.png">
+    </button>
+
+    <button id="downloadDockBtn" class="dock-btn">
+        <img src="/static/images/download.png">
+    </button>
+</div>
+
+{% block top_center %}
+<div class="module-title-pill">
+    Operations Center
+</div>
+{% endblock %}
+
+{% block dock_icons %}
+
+<!-- Filters -->
+<div class="dock-item active-dock"
+     onclick="showSidebarSection('filters-section')">
+
+    <img src="{{ url_for('static',
+         filename='images/filter.png') }}"
+         alt="Filter">
+
+</div>
+
+<!-- Downloads -->
+<div class="dock-item"
+     onclick="showSidebarSection('download-section', this)">
+    ⬇
+</div>
+
+<!-- Trackers -->
+<!--<div class="dock-item"
+     onclick="showSidebarSection('tracker-section')">
+    📊
+</div>-->
+
+{% endblock %}
+
+{% block toolbar_left %}
+
+<button class="primary-btn"
+        onclick="refreshOperationsData()">
+    Refresh Data
+</button>
+
+<button class="primary-btn tracker-btn active"
+        id="supportToolbarBtn"
+        onclick="showSection('support')">
+    📧 Support
+</button>
+
+<button class="primary-btn tracker-btn"
+        id="failureToolbarBtn"
+        onclick="showSection('failure')">
+    ⚠️ Failures
+</button>
+
+<button class="primary-btn tracker-btn"
+        id="incidentToolbarBtn"
+        onclick="showSection('incident')">
+    🎫 Incidents
+</button>
+
+<button class="primary-btn tracker-btn"
+        id="azureToolbarBtn"
+        onclick="showSection('azure')">
+    ☁ Azure
+</button>
+
+<button class="primary-btn tracker-btn"
+        id="ptcToolbarBtn"
+        onclick="showSection('ptc')">
+    🛠 PTC
+</button>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<button class="sidebar-btn"
+        onclick="refreshPowerQuery()">
+    Refresh Power Query
+</button>
+
+<div id="lastRefreshTime"
+     style="
+        color:white;
+        font-size:12px;
+        margin-top:8px;
+        margin-bottom:16px;
+        text-align:center;
+        line-height:1.4;
+     ">
+    Last Refresh: Loading...
+</div>
+
+<div class="sidebar-content">
+
+    <!-- FILTERS -->
+
+    <div id="filters-section"
+        class="dock-section active-dock-section">
+
+        <div class="sidebar-section">
+
+            <div class="sidebar-group-title">
+                Filters
+            </div>
+
+            <div id="dynamicFilters"></div>
+
+        </div>
+
+    </div>
+
+    <!-- DOWNLOADS -->
+
+    <div id="download-section"
+         class="dock-section">
+
+        <div class="sidebar-section">
+
+            <div class="sidebar-group-title">
+                Downloads
+            </div>
+
+            <button class="sidebar-btn">
+                Export Current View
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="operations-summary-grid" id="summaryGrid">
+</div>
+
+<!-- ===================================================== -->
+<!-- SUPPORT KPI TEMPLATE                                  -->
+<!-- ===================================================== -->
+
+<div id="supportKpis" style="display:none;">
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Support Emails
+        </div>
+
+        <div class="summary-value"
+             id="supportCountCard">
+
+            {{ support_data|length }}
+
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Pending Actions
+        </div>
+
+        <div class="summary-value"
+             id="pendingActionCard">
+
+            {{
+                support_data
+                | selectattr("Categories", "equalto", "Action Required")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- FAILURE KPI TEMPLATE                                  -->
+<!-- ===================================================== -->
+
+<div id="failureKpis" style="display:none;">
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Integration Failures
+        </div>
+
+        <div class="summary-value">
+            {{ failure_data|length }}
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Critical Servers
+        </div>
+
+        <div class="summary-value">
+            {{ summary.critical_servers }}
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- INCIDENT KPI TEMPLATE                                 -->
+<!-- ===================================================== -->
+
+<div id="incidentKpis" style="display:none;">
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Total Incidents
+        </div>
+
+        <div class="summary-value">
+            {{ incident_data|length }}
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            On Hold
+        </div>
+
+        <div class="summary-value">
+
+            {{
+                incident_data
+                | selectattr("Status","equalto","On Hold")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            In Progress
+        </div>
+
+        <div class="summary-value">
+
+            {{
+                incident_data
+                | selectattr("Status","equalto","In Progress")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- AZURE KPI TEMPLATE                                    -->
+<!-- ===================================================== -->
+
+<div id="azureKpis" style="display:none;">
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Azure Cases
+        </div>
+
+        <div class="summary-value">
+            {{ azure_data|length }}
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            New
+        </div>
+
+        <div class="summary-value">
+
+            {{
+                azure_data
+                | selectattr("Status","equalto","New")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Active
+        </div>
+
+        <div class="summary-value">
+
+            {{
+                azure_data
+                | selectattr("Status","equalto","Active")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- PTC KPI TEMPLATE                                      -->
+<!-- ===================================================== -->
+
+<div id="ptcKpis" style="display:none;">
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            PTC Cases
+        </div>
+
+        <div class="summary-value">
+            {{ ptc_data|length }}
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Information Received
+        </div>
+
+        <div class="summary-value">
+
+            {{
+                ptc_data
+                | selectattr("Status","equalto","Information Received")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            SPR Filed
+        </div>
+
+        <div class="summary-value">
+
+            {{
+                ptc_data
+                | selectattr("Status","equalto","SPR Filed")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+    <div class="summary-card">
+
+        <div class="summary-title">
+            Closed
+        </div>
+
+        <div class="summary-value">
+
+            {{
+                ptc_data
+                | selectattr("Status","equalto","Closed")
+                | list
+                | length
+            }}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SUPPORT EMAILS -->
+
+<div id="supportSection"
+     class="operations-section active-section">
+
+    <div class="card">
+
+        <div class="section-title">
+            Support Emails
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="ops-table">
+
+                <thead>
+                    <tr>
+                        <th>Date Received</th>
+                        <th>Name</th>
+                        <th>Subject</th>
+                        <!--<th>Address</th> -->
+                        <!--<th>Status</th> -->
+                        <th>Importance</th>
+                        <th>Category</th>
+                        
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for row in support_data %}
+
+                    <tr>
+
+                        <td>{{ row.DateTimeReceived }}</td>
+                        <td>{{ row.Name }}</td>
+                        <td>{{ row.Subject }}</td>
+                        <!--<td>{{ row.Address }}</td> -->
+                        <td>{{ row.Importance }}</td>
+                        <td>{{ row.Categories }}</td>
+                        <!--<td>{{ row.Status }}</td> -->
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- INTEGRATION FAILURES -->
+
+<div id="failureSection"
+     class="operations-section">
+
+    <div class="card">
+
+        <div class="section-title">
+            PROD Integration Failures
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="ops-table">
+
+                <thead>
+                    <tr>
+                        <th>Failure Time</th>
+                        <th>Subject</th>
+                        <th>Object Number</th>
+                        <th>Error Message</th>
+                        <th>Windchill Server</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for row in failure_data %}
+
+                    <tr>
+
+                        <td>{{ row['Failure Time'] }}</td>
+                        <td>{{ row.Subject }}</td>
+                        <td>{{ row['Object Number'] }}</td>
+                        <td>{{ row['Error Message'] }}</td>
+                        <td>{{ row['Windchill Server'] }}</td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- INCIDENT TRACKER -->
+
+<div id="incidentSection"
+     class="operations-section">
+
+    <div class="card">
+
+        <div class="section-title">
+            Incident Tracker
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="ops-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Number</th>
+                        <th>Vendor Ticket</th>
+                        <th>Description</th>
+                        <th>Assigned To</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Created Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for row in incident_data %}
+
+                    <tr>
+
+                        <td>{{ row.Number }}</td>
+
+                        <td>{{ row['Vendor Ticket'] }}</td>
+
+                        <td>
+                            <div class="desc-cell"
+                                title="{{ row.Description }}">
+                                {{ row.Description }}
+                            </div>
+                        </td>
+
+                        <td>{{ row['Assigned To'] }}</td>
+
+                        <td>{{ row.Status }}</td>
+
+                        <td>{{ row.Priority }}</td>
+
+                        <td>{{ row['Created Date'] }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- AZURE TRACKER -->
+
+<div id="azureSection"
+     class="operations-section">
+
+    <div class="card">
+
+        <div class="section-title">
+            Azure Tracker
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="ops-table">
+
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Created By</th>
+                    <th>Created Date</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                {% for row in azure_data %}
+
+                <tr>
+
+                    <td>{{ row.Number }}</td>
+
+                    <td>
+                        <div class="desc-cell"
+                            title="{{ row.Description }}">
+                            {{ row.Description }}
+                        </div>
+                    </td>
+
+                    <td>{{ row['Assigned To'] }}</td>
+
+                    <td>{{ row.Status }}</td>
+
+                    <td>{{ row.Priority }}</td>
+
+                    <td>{{ row['Created By'] }}</td>
+
+                    <td>{{ row['Created Date'] }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- PTC CASES TRACKER-->
+
+<div id="ptcSection"
+     class="operations-section">
+
+    <div class="card">
+
+        <div class="section-title">
+            PTC Cases
+        </div>
+
+        <div class="table-wrapper">
+
+            <table class="ops-table">
+
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Created By</th>
+                    <th>Created Date</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                {% for row in ptc_data %}
+
+                <tr>
+
+                    <td>{{ row.Number }}</td>
+
+                    <td>
+                        <div class="desc-cell"
+                            title="{{ row.Description }}">
+                            {{ row.Description }}
+                        </div>
+                    </td>
+
+                    <td>{{ row['Assigned To'] }}</td>
+
+                    <td>{{ row.Status }}</td>
+
+                    <td>{{ row.Priority }}</td>
+
+                    <td>{{ row['Created By'] }}</td>
+
+                    <td>{{ row['Created Date'] }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block page_js %}
+
+<script>
+
+const supportData = {{ support_data|tojson }};
+const failureData = {{ failure_data|tojson }};
+const incidentData = {{ incident_data|tojson }};
+const azureData = {{ azure_data|tojson }};
+const ptcData = {{ ptc_data|tojson }};
+
+</script>
+
+<script src="{{ url_for('static',
+filename='js/operations_center.js') }}"></script>
+{% endblock %}

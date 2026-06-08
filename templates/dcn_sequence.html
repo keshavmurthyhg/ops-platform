@@ -1,0 +1,218 @@
+{% extends "main.html" %}
+
+<!-- ====================================================== -->
+<!-- PAGE TITLE -->
+<!-- ====================================================== -->
+{% block page_title %}
+DCN Sequence Finder
+{% endblock %}
+
+
+<!-- ====================================================== -->
+<!-- PAGE CSS -->
+<!-- ====================================================== -->
+{% block page_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/dcn_sequence.css') }}"
+>
+
+{% endblock %}
+
+
+<!-- ====================================================== -->
+<!-- TOP CENTER TITLE -->
+<!-- ====================================================== -->
+{% block top_center %}
+
+<div class="module-title-pill">
+    DCN Sequence Finder
+</div>
+
+{% endblock %}
+
+
+<!-- ====================================================== -->
+<!-- TOOLBAR LEFT -->
+<!-- ====================================================== -->
+{% block toolbar_left %}
+
+<!-- Upload Button -->
+<label class="upload-toolbar-btn">
+
+    <input
+        type="file"
+        id="excelFile"
+        accept=".xlsx,.xls"
+        hidden
+    >
+
+    📂 Upload Excel
+
+</label>
+
+
+<!-- Process -->
+<button id="processBtn"
+        class="toolbar-btn primary-btn">
+
+    Find Missing Sequence
+
+</button>
+
+
+<!-- Download -->
+<a id="downloadBtn"
+   class="toolbar-btn success-btn disabled-btn"
+   href="#">
+
+    Download Result
+
+</a>
+
+{% endblock %}
+
+
+<!-- ====================================================== -->
+<!-- SIDEBAR -->
+<!-- ====================================================== -->
+{% block sidebar %}
+
+<div class="module-sidebar-section">
+
+    <div class="sidebar-info-card">
+
+        <div class="sidebar-info-title">
+            DCN Sequence Finder
+        </div>
+
+        <div class="sidebar-info-text">
+
+            Upload SearchResults Excel
+            from toolbar and identify
+            missing DCN sequence numbers.
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block dock_icons %}
+
+<div class="dock-icon"
+     title="Missing Count">
+
+    <div class="dock-icon-label">
+        KPI
+    </div>
+
+    <div class="dock-icon-value"
+         id="dockMissingCount">
+
+        0
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+<!-- ====================================================== -->
+<!-- STATUS -->
+<!-- ====================================================== -->
+{% block module_status %}
+
+<div class="status-item">
+    Missing Sequence Module Ready
+</div>
+
+{% endblock %}
+
+
+<!-- ====================================================== -->
+<!-- CONTENT -->
+<!-- ====================================================== -->
+{% block content %}
+
+<div class="content-wrapper">
+
+    <!-- Summary Card -->
+    <div class="summary-card">
+
+        <div class="summary-title">
+            DCN Sequence Analysis
+        </div>
+
+        <div class="summary-value"
+             id="missingCount">
+
+            0
+
+        </div>
+
+        <div class="summary-subtitle">
+            Missing Sequences
+        </div>
+
+    </div>
+
+
+    <!-- Preview Card -->
+    <div class="preview-card">
+
+        <div class="preview-header">
+            Missing Sequence Preview
+        </div>
+
+        <div class="table-container">
+
+            <table id="previewTable">
+
+                <thead>
+
+                    <tr>
+                        <th>SL NO</th>
+                        <th>Missing DCN Number</th>
+                        <th>Numeric Value</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td colspan="3"
+                            class="empty-table">
+
+                            No data loaded
+
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+<!-- ====================================================== -->
+<!-- PAGE JS -->
+<!-- ====================================================== -->
+{% block page_js %}
+
+<script
+    src="{{ url_for('static', filename='js/dcn_sequence.js') }}"
+></script>
+
+{% endblock %}

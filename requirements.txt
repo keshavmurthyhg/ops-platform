@@ -1,0 +1,58 @@
+# =====================================================
+#  OPS Platform — Python Dependencies
+# =====================================================
+#
+#  Quick install (run from project root):
+#
+#    pip install -r requirements.txt
+#
+#  Windows-only packages (win32com, pythoncom) are
+#  listed at the bottom — only needed for the
+#  Outlook email collectors in Operations Center.
+# =====================================================
+
+# ── Web framework ─────────────────────────────────
+flask>=3.0.0
+
+# ── Data / Excel / CSV ────────────────────────────
+pandas>=2.0.0
+openpyxl>=3.1.0
+xlrd>=2.0.1
+
+# ── Word documents ────────────────────────────────
+python-docx>=1.1.0
+
+# ── PowerPoint ────────────────────────────────────
+python-pptx>=0.6.23
+
+# ── PDF generation ────────────────────────────────
+reportlab>=4.0.0
+
+# ── PDF → image (used by converter slide preview) ─
+pdf2image>=1.17.0
+# NOTE: pdf2image also requires poppler installed on the OS:
+#   Windows → https://github.com/oschwartz10612/poppler-windows/releases
+#             then add the bin/ folder to your PATH
+#   Mac     → brew install poppler
+#   Linux   → sudo apt install poppler-utils
+
+# ── Image processing ──────────────────────────────
+Pillow>=10.0.0
+
+# ── HTTP / API calls ──────────────────────────────
+requests>=2.31.0
+
+# ── Environment variables / .env file ─────────────
+python-dotenv>=1.0.0
+
+# ── Browser automation (ops_ptc_auto_download) ────
+selenium>=4.18.0
+webdriver-manager>=4.0.0  # auto-downloads msedgedriver
+# NOTE: Also requires Microsoft Edge and msedgedriver in drivers/
+
+# ── Windows-only (Outlook email collectors) ───────
+# Uncomment these if you use the support email /
+# integration failure collectors in Operations Center.
+# These only work on Windows with Outlook installed.
+#
+# pywin32>=306

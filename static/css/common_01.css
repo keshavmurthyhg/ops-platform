@@ -1,0 +1,595 @@
+/* =====================================================
+   OPS PLATFORM COMMON FRAMEWORK CSS
+   -----------------------------------------------------
+   Used by ALL modules:
+   - report
+   - bulk
+   - search
+   - converter
+   - analytics
+   - compare modules
+
+   This file should ONLY contain:
+   ✓ Layout framework
+   ✓ Sidebar framework
+   ✓ Top navbar framework
+   ✓ Toolbar framework
+   ✓ Common buttons
+   ✓ Common cards
+   ✓ Common KPI/status containers
+
+   DO NOT add module-specific styles here.
+===================================================== */
+
+
+/* =========================
+   GLOBAL RESET
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f5f7fa;
+    overflow: hidden;
+}
+
+
+/* =========================
+   APP LAYOUT
+========================= */
+.app-layout {
+    display: flex;
+    height: 100vh;
+}
+
+
+/* =====================================================
+   SIDEBAR FRAMEWORK
+===================================================== */
+
+.sidebar {
+    width: 250px;
+    background: #172b46;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+
+/* fixed title */
+.sidebar-title {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+
+/* fixed action section */
+.sidebar-action-area {
+    height: 42px;
+    padding: 5px 10px;
+    flex-shrink: 0;
+}
+
+.sidebar-action-area button {
+    width: 100%;
+    height: 32px;
+}
+
+
+/* scrollable module-specific area */
+.sidebar-scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+
+/* fixed bottom section */
+.sidebar-bottom-fixed {
+    flex-shrink: 0;
+    padding: 10px;
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+
+/* =========================
+   SIDEBAR CARDS
+========================= */
+.sidebar-card {
+    background: #243f66;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: white;
+}
+
+
+/* generic sidebar inputs */
+.sidebar label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.sidebar select {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.12);
+    color: white;
+    margin-bottom: 10px;
+}
+
+.sidebar select option {
+    color: black;
+}
+
+
+/* =====================================================
+   MAIN CONTENT FRAMEWORK
+===================================================== */
+
+.main-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+/* =====================================================
+   TOP NAVBAR (FIXED)
+===================================================== */
+
+.top-nav-bar {
+    height: 40px;
+    background: #172b46;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+}
+
+.top-nav-left {
+    width: 100px;
+}
+
+.top-nav-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.top-nav-right {
+    width: 50px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* Home button */
+.top-home-btn {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+/* Module title */
+.module-title-pill {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.4);
+    padding: 6px 30px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 320px;
+    text-align: center;
+}
+
+
+/* Help button */
+.help-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.4);
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   TOOLBAR FRAMEWORK (FIXED)
+===================================================== */
+
+.top-toolbar {
+    height: 42px;
+    background: #223b5c;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+
+/* left section */
+.toolbar-left-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* right section */
+.toolbar-right-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* search/global inputs */
+.toolbar-search-input {
+    height: 30px;
+    width: 220px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
+    padding: 0 12px;
+    border-radius: 6px;
+    outline: none;
+}
+
+.toolbar-search-input::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+
+
+/* dropdowns */
+.toolbar-select {
+    height: 30px;
+    min-width: 60px;
+    background: white;
+    color: #172b46;
+    border: none;
+    border-radius: 6px;
+    padding: 0 8px;
+}
+
+
+/* =====================================================
+   COMMON BUTTONS
+===================================================== */
+
+.primary-btn {
+    height: 30px;
+    padding: 0 18px;
+    background: white;
+    color: #172b46;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.secondary-btn {
+    height: 30px;
+    padding: 0 14px;
+    background: #4a6387;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.clear-btn {
+    width: 100%;
+    height: 30px;
+    background: #4a6387;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   CONTENT FRAMEWORK
+===================================================== */
+
+.scrollable-report-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+
+/* =====================================================
+   GENERIC CARD
+===================================================== */
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+
+/* =====================================================
+   Processing spacing
+=================================================== */
+
+.processing-status-container {
+    margin-bottom: 12px;
+}
+
+
+/* =====================================================
+   GENERIC KPI/STATUS
+===================================================== */
+
+.status-box {
+    background: rgba(255,255,255,0.08);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.kpi-box {
+    background: rgba(255,255,255,0.08);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.kpi-box span {
+    font-size: 11px;
+    color: #cbd5e1;
+}
+
+.kpi-box h3 {
+    color: white;
+    font-size: 20px;
+}
+
+
+/* =====================================================
+   HOME PAGE CARDS
+===================================================== */
+
+.home-module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.home-module-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    text-decoration: none;
+    color: #172b46;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.home-module-card:hover {
+    transform: translateY(-3px);
+}
+
+
+/* =====================================================
+   UTILITIES
+===================================================== */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #8b8b8b;
+    border-radius: 4px;
+}
+
+
+/* ==========================================
+   EXCEL COMPARE MODULE
+========================================== */
+
+.excel-sidebar {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Top section */
+.sidebar-top-fixed {
+    padding: 20px 16px;
+    overflow-y: auto;
+}
+
+/* Upload card */
+.upload-card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    min-height: auto;
+}
+
+.upload-card h4 {
+    margin-bottom: 15px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.upload-card label {
+    display: block;
+    margin-bottom: 8px;
+    margin-top: 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1b1b1b;
+}
+
+.upload-card input {
+    width: 100%;
+    font-size: 13px;
+}
+
+
+/* Buttons */
+.sidebar-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.sidebar-action-buttons button {
+    width: 100%;
+    height: 42px;
+    border-radius: 8px;
+}
+
+/* Clear button */
+.clear-workspace-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+}
+
+/* Bottom fixed status */
+.sidebar-bottom-fixed {
+    padding: 16px;
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+/* Status card */
+.processing-status-card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+}
+
+.processing-status-card h4 {
+    margin-bottom: 10px;
+}
+
+.processing-status-card p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* KPI layout cleanup */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.kpi-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.report-toolbar button {
+    background: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.compare-table th {
+    text-align: left;
+    padding: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid #ddd;
+}
+
+.compare-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.empty-table-message {
+    text-align: center;
+    color: #777;
+    padding: 30px;
+    font-style: italic;
+}

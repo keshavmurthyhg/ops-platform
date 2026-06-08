@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>
+        {% block page_title %}
+        Ops Platform
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    {% block module_css %}{% endblock %}
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <!-- Fixed title -->
+        <div class="sidebar-title">
+            Ops Platform
+        </div>
+
+        <!-- Fixed action button -->
+        <div class="sidebar-action-area">
+            {% block sidebar_actions %}{% endblock %}
+        </div>
+
+        <!-- Scrollable module section -->
+        <div class="sidebar-scrollable-content">
+            {% block sidebar %}{% endblock %}
+        </div>
+
+        <!-- Fixed bottom -->
+        <div class="sidebar-bottom-fixed">
+
+            <div class="processing-status-container">
+                {% block processing_status %}{% endblock %}
+            </div>
+
+            <div class="kpi-container">
+                {% block sidebar_kpi %}{% endblock %}
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- Top navbar -->
+        <div class="top-nav-bar">
+
+            <div class="top-nav-left">
+                <button class="top-home-btn" onclick="goHome()">
+                    🏠 Home
+                </button>
+            </div>
+
+            <div class="top-nav-center">
+                <div class="module-title-pill">
+                    {% block module_title %}Module{% endblock %}
+                </div>
+            </div>
+
+            <div class="top-nav-right">
+                <button class="help-btn">?</button>
+            </div>
+
+        </div>
+
+
+        <!-- Fixed toolbar -->
+        <div class="top-toolbar">
+            {% block toolbar %}{% endblock %}
+        </div>
+
+
+        <!-- Content -->
+        <div class="scrollable-report-content">
+            {% block content %}{% endblock %}
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+{% block module_js %}{% endblock %}
+
+</body>
+</html>

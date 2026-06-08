@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>{% block title %}Ops Platform{% endblock %}</title>
+
+    <!-- Common CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <!-- Module CSS -->
+    {% block page_css %}
+    {% endblock %}
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <!-- Fixed title -->
+        <div class="sidebar-title">
+            Ops Platform
+        </div>
+
+        <!-- Fixed clear section -->
+        <div class="sidebar-action-area">
+            {% block clear_section %}
+            {% endblock %}
+        </div>
+
+        <!-- Scrollable module section -->
+        <div class="sidebar-scrollable-content">
+            {% block sidebar %}
+            {% endblock %}
+        </div>
+
+        <!-- Fixed bottom -->
+        <div class="sidebar-bottom-fixed">
+
+            {% block processing_section %}
+            {% endblock %}
+
+            {% block kpi_section %}
+            {% endblock %}
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        {% block top_nav %}
+        {% endblock %}
+
+        <div class="top-toolbar">
+            {% block toolbar %}
+            {% endblock %}
+        </div>
+
+        <main class="page-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+    </div>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+
+{% block page_js %}
+{% endblock %}
+
+</body>
+</html>

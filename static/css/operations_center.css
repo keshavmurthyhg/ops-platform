@@ -1,0 +1,1111 @@
+.operations-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   KPI CARDS
+========================================== */
+
+.summary-card {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #dcdcdc;
+
+    min-height: 72px;
+
+    padding: 10px 16px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    box-sizing: border-box;
+}
+
+.summary-title {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.summary-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f28c38;
+    line-height: 1;
+}
+
+/* ==========================================
+   SECTIONS
+========================================== */
+
+.operations-section {
+    display: none;
+    height: calc(100vh - 210px);
+    overflow: hidden;
+}
+
+.active-section {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================
+   MAIN CARD
+========================================== */
+
+.operations-section .card {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 20px;
+
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 0;
+
+    overflow: hidden;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 14px;
+
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   TABLE WRAPPER
+========================================== */
+
+.table-wrapper {
+
+    flex: 1;
+
+    min-height: 0;
+
+    height: 100%;
+
+    overflow-y: auto;
+
+    overflow-x: auto;
+
+    width: 100%;
+}
+
+/* ==========================================
+   TABLE
+========================================== */
+
+.ops-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+}
+
+.ops-table thead {
+    background: #f28c38;
+    color: white;
+}
+
+.ops-table thead th {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 5;
+
+    background: #ef8b35;
+}
+
+.ops-table th {
+    padding: 10px;
+    text-align: left;
+    font-size: 13px;
+}
+
+.ops-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ececec;
+    font-size: 11px;
+}
+
+.ops-table tbody tr:hover {
+    background: #f8f8f8;
+}
+
+.ops-table td,
+.ops-table th {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+
+.ops-toolbar-wrapper{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+/* ==========================================
+   TOOLBAR
+========================================== */
+
+.toolbar-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:nowrap;
+    overflow:hidden;
+}
+
+/* ==========================================
+   OPERATIONS CENTER ONLY
+   HIDE DEFAULT MAIN TOOLBAR BUTTONS
+========================================== */
+
+body:has(#supportSection),
+body:has(#failureSection),
+body:has(#incidentSection),
+body:has(#azureSection),
+body:has(#ptcSection) {
+
+}
+
+/* Clear Workspace */
+.toolbar-left button:nth-child(1) {
+    display: none !important;
+}
+
+/* Apply Filters */
+.toolbar-left button:nth-child(2) {
+    display: none !important;
+}
+
+/* ==========================================
+   SIDEBAR
+========================================== */
+
+.sidebar-section{
+
+    padding:0;
+
+    margin-left:-12px;
+
+    margin-top: 0 !important;
+
+    padding-top: 0 !important;
+}
+
+.sidebar-group-title {
+    margin-top:0;
+
+    margin-left:0;
+
+    padding-left:0;
+
+    color:#ffffff;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    margin-bottom:20px;
+}
+
+.sidebar-item {
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+
+.sidebar-item:hover {
+    background: #f4f4f4;
+}
+
+.sidebar-item.active {
+    background: #f28c38;
+    color: white;
+}
+
+#dynamicFilters{
+
+    margin-top:0px;
+}
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.primary-btn{
+    background:#ffffff;
+    color:#183153;
+
+    border:1px solid #d7dde7;
+    border-radius:8px;
+
+    font-weight:600;
+}
+
+.primary-btn:hover{
+    background:#f5f7fa;
+}
+
+.sidebar-btn{
+    width:100%;
+    height:18px;
+
+    background:#ffffff;
+    color:#183153;
+
+    border:1px solid #d7dde7;
+    border-radius:6px;
+
+    font-size:12px;
+    font-weight:600;
+
+    cursor:pointer;
+}
+
+.sidebar-btn:hover{
+    background:#f5f7fa;
+}
+
+.collection-status {
+
+    margin-top: auto;
+
+    padding: 12px;
+
+    background: rgba(255,255,255,0.06);
+
+    border-radius: 10px;
+
+    color: white;
+
+    text-align: center;
+
+    flex-shrink: 0;
+}
+
+.sidebar-content {
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: flex-start !important;
+
+    align-items: stretch;
+
+    gap: 0;
+
+    padding-top: 10px;
+
+    padding-bottom: 120px !important;
+}
+
+.collection-title {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #ffffff;
+}
+
+.collection-value {
+
+    margin-top: 4px;
+
+    color: #4ade80;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+.collection-refresh {
+
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    color: #cfd8e3;
+
+    line-height: 1.5;
+}
+
+.export-btn{
+
+    width:100%;
+    height:38px;
+
+    margin-bottom:10px;
+
+    font-size:14px;
+    font-weight:600;
+
+    border-radius:8px;
+}
+
+/* PTC Data buttons */
+.ptc-launch-btn,
+.ptc-refresh-btn {
+
+    width:100%;
+    height:36px;
+
+    margin-bottom:8px;
+
+    padding:0 10px;
+
+    font-size:12px;
+    font-weight:600;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.ptc-launch-btn {
+    background:#1a3a5c;
+    color:#90caf9;
+    border:1px solid #2a5298;
+}
+
+.ptc-launch-btn:hover {
+    background:#1e4a7a;
+}
+
+.ptc-refresh-btn {
+    background:#1a4a2e;
+    color:#81c784;
+    border:1px solid #2e7d32;
+}
+
+.ptc-refresh-btn:hover {
+    background:#1b5e20;
+}
+
+.ptc-launch-btn:disabled,
+.ptc-refresh-btn:disabled {
+    opacity:0.55;
+    cursor:not-allowed;
+}
+
+/* ==========================================
+   FILTERS
+========================================== */
+
+.ops-filter {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    font-size: 13px;
+    min-width: 150px;
+}
+
+.dock-item img{
+    width:18px;
+    height:18px;
+    object-fit:contain;
+    display:block;
+    margin:auto;
+}
+
+.dock-section{
+    display:none;
+}
+
+.dock-section.active-dock-section{
+    display:block;
+}
+
+.sidebar-date {
+
+    width:100%;
+
+    height:36px;
+
+    background:white;
+
+    color:black;
+
+    border:none;
+
+    border-radius:6px;
+
+    padding:0 10px;
+
+    font-size:12px;
+
+    margin-bottom:10px;
+
+    box-sizing:border-box;
+}
+
+.date-sub-section {
+
+    display:none;
+
+    margin-top:10px;
+}
+
+.active-date-section {
+
+    display:block;
+}
+
+.filter-label {
+
+    display:block;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    color:#dbeafe;
+
+    margin-bottom:6px;
+}
+
+/* ==========================================
+   BADGES
+========================================== */
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-action {
+    background: #ffe3e3;
+    color: #d63031;
+}
+
+.badge-awaiting {
+    background: #fff4d6;
+    color: #e67e22;
+}
+
+.badge-completed {
+    background: #e4f7e7;
+    color: #27ae60;
+}
+
+/* ==========================================
+   TOOLBAR TRACKER BUTTONS
+========================================== */
+
+.tracker-btn{
+    min-width: 90px;
+    height: 32px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    white-space:nowrap;
+
+    background:#ffffff;
+    color:#183153;
+
+    border:1px solid #d7dde7;
+    border-radius:6px;
+
+    font-size:13px;
+    font-weight:600;
+
+    padding:0 12px;
+}
+
+.tracker-btn.active{
+    background:#233f68;
+    color:#ffffff;
+}
+
+/* ==========================================
+   DYNAMIC FILTER PANEL
+========================================== */
+
+.filter-group{
+    margin-bottom:16px;
+}
+
+.filter-label {
+
+    display:block;
+
+    color:#dbeafe;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    margin-bottom:8px;
+}
+
+.sidebar-filter {
+
+    width:100%;
+
+    min-width:165px;
+
+    height:38px;
+
+    background:#445b7c;
+
+    color:white;
+
+    border:1px solid rgba(255,255,255,0.12);
+
+    border-radius:8px;
+
+    padding:0 12px;
+
+    font-size:12px;
+
+    margin-bottom:14px;
+
+    box-sizing:border-box;
+}
+
+.sidebar-filter option {
+
+    color:black;
+}
+
+/* ==========================================
+   TRUNCATING DESCRIPTION CELLS
+========================================== */
+
+.desc-cell{
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+
+    line-height:1.3;
+    max-height:34px;
+
+    cursor:help;
+}
+
+/* ==========================================
+   PROCESSING STATUS AND PROGRESS BAR
+========================================== */
+
+.search-status-heading{
+
+    font-size:15px;
+    font-weight:700;
+
+    color:white;
+}
+
+.search-status-text{
+
+    font-size:12px;
+
+    color:#dbeafe;
+
+    margin-top:4px;
+
+    min-height:18px;
+}
+
+.search-progress-bar{
+    width:100%;
+    height:14px;
+    background:#3c547e;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.search-progress-fill{
+    width:0;
+    height:100%;
+    transition:all .4s ease;
+}
+
+.active-progress{
+    animation:pulseBar 1.5s infinite;
+}
+
+@keyframes pulseBar{
+    0%{opacity:.7;}
+    50%{opacity:1;}
+    100%{opacity:.7;}
+}
+
+/* ==========================================
+   SUPPORT TABLE WIDTHS
+========================================== */
+
+#supportSection .ops-table th:nth-child(1),
+#supportSection .ops-table td:nth-child(1) {
+    width: 110px;
+}
+
+#supportSection .ops-table th:nth-child(2),
+#supportSection .ops-table td:nth-child(2) {
+    width: 170px;
+}
+
+#supportSection .ops-table th:nth-child(3),
+#supportSection .ops-table td:nth-child(3) {
+    width: auto;
+}
+
+#supportSection .ops-table th:nth-child(4),
+#supportSection .ops-table td:nth-child(4) {
+    width: 130px;
+}
+
+#supportSection .ops-table th:nth-child(5),
+#supportSection .ops-table td:nth-child(5) {
+    width: 140px;
+}
+
+/* ==========================================
+   FAILURE TABLE WIDTHS
+========================================== */
+
+#failureSection .ops-table th:nth-child(1),
+#failureSection .ops-table td:nth-child(1) {
+    width: 110px;
+}
+
+#failureSection .ops-table th:nth-child(2),
+#failureSection .ops-table td:nth-child(2) {
+    width: 90px;
+}
+
+#failureSection .ops-table th:nth-child(3),
+#failureSection .ops-table td:nth-child(3) {
+    width: 160px;
+}
+
+#failureSection .ops-table th:nth-child(4),
+#failureSection .ops-table td:nth-child(4) {
+    width: auto;
+}
+
+#failureSection .ops-table th:nth-child(5),
+#failureSection .ops-table td:nth-child(5) {
+    width: 100px;
+}
+
+#failureSection .ops-table th:nth-child(6),
+#failureSection .ops-table td:nth-child(6) {
+    width: 100px;
+}
+
+/* ==========================================
+   INCIDENT TABLE WIDTHS
+========================================== */
+
+
+#incidentSection .ops-table th:nth-child(1),
+#incidentSection .ops-table td:nth-child(1) {
+    width: 140px;
+}
+
+#incidentSection .ops-table th:nth-child(2),
+#incidentSection .ops-table td:nth-child(2) {
+    width: 130px;
+}
+
+#incidentSection .ops-table th:nth-child(3),
+#incidentSection .ops-table td:nth-child(3) {
+    width: auto;
+}
+
+#incidentSection .ops-table th:nth-child(4),
+#incidentSection .ops-table td:nth-child(4) {
+    width: 160px;
+}
+
+#incidentSection .ops-table th:nth-child(5),
+#incidentSection .ops-table td:nth-child(5) {
+    width: 110px;
+}
+
+#incidentSection .ops-table th:nth-child(6),
+#incidentSection .ops-table td:nth-child(6) {
+    width: 110px;
+}
+
+#incidentSection .ops-table th:nth-child(7),
+#incidentSection .ops-table td:nth-child(7) {
+    width: 130px;
+}
+
+/* ==========================================
+   AZURE TABLE WIDTHS
+========================================== */
+
+
+#azureSection .ops-table th:nth-child(1),
+#azureSection .ops-table td:nth-child(1) {
+    width: 110px;
+}
+
+#azureSection .ops-table th:nth-child(2),
+#azureSection .ops-table td:nth-child(2) {
+    width: auto;
+}
+
+#azureSection .ops-table th:nth-child(3),
+#azureSection .ops-table td:nth-child(3) {
+    width: 150px;
+}
+
+#azureSection .ops-table th:nth-child(4),
+#azureSection .ops-table td:nth-child(4) {
+    width: 110px;
+}
+
+#azureSection .ops-table th:nth-child(5),
+#azureSection .ops-table td:nth-child(5) {
+    width: 95px;
+}
+
+#azureSection .ops-table th:nth-child(6),
+#azureSection .ops-table td:nth-child(6) {
+    width: 140px;
+}
+
+#azureSection .ops-table th:nth-child(7),
+#azureSection .ops-table td:nth-child(7) {
+    width: 130px;
+}
+
+/* ==========================================
+   PTC TABLE WIDTHS
+========================================== */
+
+#ptcSection .ops-table th:nth-child(1),
+#ptcSection .ops-table td:nth-child(1) {
+    width: 110px;
+}
+
+#ptcSection .ops-table th:nth-child(2),
+#ptcSection .ops-table td:nth-child(2) {
+    width: auto;
+}
+
+#ptcSection .ops-table th:nth-child(3),
+#ptcSection .ops-table td:nth-child(3) {
+    width: 150px;
+}
+
+#ptcSection .ops-table th:nth-child(4),
+#ptcSection .ops-table td:nth-child(4) {
+    width: 110px;
+}
+
+#ptcSection .ops-table th:nth-child(5),
+#ptcSection .ops-table td:nth-child(5) {
+    width: 95px;
+}
+
+#ptcSection .ops-table th:nth-child(6),
+#ptcSection .ops-table td:nth-child(6) {
+    width: 140px;
+}
+
+#ptcSection .ops-table th:nth-child(7),
+#ptcSection .ops-table td:nth-child(7) {
+    width: 130px;
+}
+
+/* Hide main layout progress bar only for Operations Center */
+
+.operations-section ~ .search-progress-bar,
+#content .search-progress-bar:not(.sidebar .search-progress-bar) {
+    display: none !important;
+}
+
+/* ==========================================
+   NUMBER LINK STYLE
+========================================== */
+
+.ops-table .number-link,
+.ops-table .number-link:visited,
+.ops-table .number-link:hover,
+.ops-table .number-link:active {
+
+    color: #111827 !important;
+
+    font-weight: 400 !important;
+
+    text-decoration: none !important;
+}
+
+/* =====================================================
+   DASHBOARD OVERVIEW SECTION
+===================================================== */
+
+/* KPI tiles row */
+.dashboard-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+}
+
+.dashboard-kpi-tile {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+}
+
+.dashboard-kpi-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+
+.tile-icon {
+    font-size: 22px;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.tile-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.tile-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.tile-sub {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+/* Tile accent colours — left border only */
+.tile-support  { border-left: 4px solid #3b82f6; }
+.tile-failure  { border-left: 4px solid #ef4444; }
+.tile-snow     { border-left: 4px solid #f28c38; }
+.tile-azure    { border-left: 4px solid #0ea5e9; }
+.tile-ptc      { border-left: 4px solid #8b5cf6; }
+
+.tile-support  .tile-value { color: #3b82f6; }
+.tile-failure  .tile-value { color: #ef4444; }
+.tile-snow     .tile-value { color: #f28c38; }
+.tile-azure    .tile-value { color: #0ea5e9; }
+.tile-ptc      .tile-value { color: #8b5cf6; }
+
+/* Mini tables row */
+.dashboard-tables-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.dashboard-mini-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.mini-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.mini-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.mini-card-link {
+    font-size: 11px;
+    color: #f28c38;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.mini-card-link:hover {
+    text-decoration: underline;
+}
+
+/* ── Notification card list ── */
+.notif-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 4px 0;
+}
+
+/* Each card — Outlook-style two-row layout */
+.notif-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    border-left: 3px solid transparent;
+    transition: background 0.12s;
+    cursor: default;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item:hover {
+    background: #f9fafb;
+}
+
+/* Accent strip colour per panel */
+.notif-snow  { border-left-color: #f28c38; }
+.notif-azure { border-left-color: #0ea5e9; }
+.notif-ptc   { border-left-color: #8b5cf6; }
+
+/* Row 1 — number · person · status pill */
+.notif-row1 {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.notif-number {
+    font-size: 12px;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.notif-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.notif-link:hover {
+    text-decoration: underline;
+    color: #1d4ed8;
+}
+
+/* Person badge — amber pill like the Outlook screenshot */
+.notif-person {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #92400e;
+    color: #fef3c7;
+    white-space: nowrap;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Row 2 — description, truncated to 2 lines */
+.notif-row2 {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notif-empty {
+    text-align: center;
+    color: #9ca3af;
+    padding: 24px 12px;
+    font-size: 12px;
+}
+
+/* Status pills */
+.status-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-in-progress  { background: #dbeafe; color: #1d4ed8; }
+.status-on-hold      { background: #fef3c7; color: #92400e; }
+.status-open         { background: #dcfce7; color: #166534; }
+.status-new          { background: #e0f2fe; color: #0369a1; }
+.status-active       { background: #dcfce7; color: #166534; }
+.status-approved     { background: #ede9fe; color: #5b21b6; }
+.status-committed    { background: #f3e8ff; color: #6b21a8; }
+.status-information-received { background: #fce7f3; color: #9d174d; }
+.status-spr-filed    { background: #fef9c3; color: #713f12; }
+
+/* Dashboard section layout — same as other sections */
+#dashboardSection {
+    height: calc(100vh - 210px);
+    overflow: hidden;
+}
+
+#dashboardSection.active-section {
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,294 @@
+/* =========================================
+   REPORT PAGE STYLES
+========================================= */
+
+
+/* =========================================
+   PREVIEW CARD
+========================================= */
+.preview-card,
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.preview-table td,
+.preview-table th {
+    border: 1px solid #ddd;
+    padding: 12px;
+}
+
+
+/* =========================================
+   RCA EDITOR
+========================================= */
+.rca-editor-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.rca-editor-card h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #172b46;
+    margin-bottom: 30px;
+}
+
+
+/* Each RCA block */
+.rca-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+
+/* Labels */
+.rca-section label {
+    font-size: 18px;
+    font-weight: 600;
+    color: #172b46;
+    margin-bottom: 10px;
+}
+
+
+/* Textareas */
+.rca-section textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 12px;
+    border: 1px solid #dce3ea;
+    border-radius: 8px;
+    resize: vertical;
+    margin-bottom: 12px;
+}
+
+
+/* Upload section */
+.upload-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.upload-row input[type="file"] {
+    width: 100%;
+}
+
+
+/* Uploaded file chips */
+#problem_preview_files,
+#root_preview_files,
+#resolution_preview_files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.file-chip {
+    background: #e8eef7;
+    color: #172b46;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+
+/* Update button */
+.update-btn-wrapper {
+    margin-top: 20px;
+}
+
+/* Update Preview Button */
+.update-preview-btn {
+    background: #3f6ea5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    display: inline-block;
+    transition: 0.2s ease;
+}
+
+.update-preview-btn:hover {
+    background: #5b84b8;
+}
+
+.update-preview-btn:active {
+    transform: scale(0.98);
+}
+
+
+/* =========================================
+   SIDEBAR DOCK PANELS
+========================================= */
+
+/* Hide all dock sections */
+.sidebar-main-content .dock-section {
+    display: none;
+}
+
+/* Show active section only */
+.sidebar-main-content .dock-section.active-section {
+    display: block;
+}
+
+
+/* Active dock icon */
+.dock-item.active-dock {
+    background: rgba(255,255,255,0.15);
+    border-left: 4px solid #4da6ff;
+}
+
+
+/* =========================================
+   DOWNLOAD SECTION
+========================================= */
+
+#downloads-section .sidebar-card {
+    padding: 18px;
+}
+
+#downloads-section h3 {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+#downloadMessage {
+    color: #d8e4ff;
+    font-size: 13px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+/* Single row buttons */
+.download-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+/* Individual buttons */
+.download-row button {
+    flex: 1;
+    background: #4f6fa3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.download-row button:hover {
+    background: #6e8fc7;
+}
+
+/* Downloads panel without blue card */
+.download-panel {
+    background: transparent;
+    padding: 12px 8px;
+}
+
+/* Downloads heading */
+.download-panel h3 {
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+/* Horizontal download buttons */
+.download-row {
+    display: flex;
+    gap: 8px;
+}
+
+.download-row button {
+    flex: 1;
+    background: #4f6fa3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.download-row button:hover {
+    background: #6e8fc7;
+}
+/* =========================================
+   KPI SECTION
+========================================= */
+
+.kpi-grid {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.kpi-box {
+    background: #4b6ea5;
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 90px;
+    text-align: center;
+}
+
+/* FIX label text */
+.kpi-box span {
+    display: block;
+    color: white;          /* <-- add this */
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+/* FIX number text */
+.kpi-box strong {
+    color: white;          /* <-- add this */
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* =========================================
+   REPORT PROCESS STATUS
+========================================= */
+
+.report-status-meta {
+    margin-top: 10px;
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: white;
+}
+
+.status-label {
+    font-weight: 600;
+    opacity: 0.8;
+}

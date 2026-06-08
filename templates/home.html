@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Ops Platform</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar compact-sidebar">
+
+        <div class="sidebar-title">
+            Ops Platform
+        </div>
+
+        {% block sidebar %}
+        {% endblock %}
+
+    </aside>
+
+
+    <!-- MAIN AREA -->
+    <div class="main-content">
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

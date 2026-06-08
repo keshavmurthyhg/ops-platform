@@ -1,0 +1,140 @@
+{% extends "home.html" %}
+
+{% block sidebar %}
+
+<!-- Empty sidebar for home page -->
+<div class="sidebar-content">
+    <!-- intentionally empty -->
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ========================= -->
+<!-- TOP NAVIGATION BAR -->
+<!-- ========================= -->
+<div class="top-nav-bar">
+
+    <div class="top-nav-left">
+        <button class="top-home-btn">
+            🏠 Home
+        </button>
+    </div>
+
+    <div class="top-nav-center">
+        <div class="module-title-pill">
+            Ops Platform Dashboard
+        </div>
+    </div>
+
+    <div class="top-nav-right">
+        <button class="help-btn">?</button>
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- HOME DASHBOARD CONTENT
+========================= -->
+<div class="scrollable-report-content">
+
+    <!-- Welcome Card -->
+    <div class="card">
+        <h2>Welcome to Ops Platform</h2>
+        <p>
+            Select a module below to continue.
+        </p>
+    </div>
+
+
+    <!-- Module Grid -->
+    <div class="home-module-grid">
+
+        <!-- Operations Center -->
+        <a href="/operations-center"
+           class="home-module-card">
+            <h3>Operations Center</h3>
+            <p>Monitor support emails, integration failures, incidents and daily operations</p>
+        </a>
+
+        <!-- Search -->
+        <a href="/search" class="home-module-card">
+            <h3>Search Module</h3>
+            <p>Search incidents using filters, sources and advanced queries</p>
+        </a>
+
+        <!-- DCN Analytics  -->
+        <a href="/dcn-analytics"
+            class="home-module-card">
+            <h3>DCN Analytics Dashboard</h3>
+            <p>Historical analytics and trends for skipped DCN sequences</p>
+        </a>        
+
+        <!-- RCA -->
+        <a href="/report" class="home-module-card">
+            <h3>RCA Report Generator</h3>
+            <p>Create RCA reports with preview/edit/download support</p>
+        </a>
+
+        <!-- Bulk -->
+        <a href="/bulk" class="home-module-card">
+            <h3>Bulk Generator</h3>
+            <p>Generate reports in bulk with ZIP exports</p>
+        </a>
+
+        <!-- Converter -->
+        <a href="/converter" class="home-module-card">
+            <h3>Document Converter</h3>
+            <p>Convert PPT/PDF/Word files</p>
+        </a>
+
+        <!-- Excel Compare -->
+        <a href="/excel-compare" class="home-module-card">
+            <h3>Excel Compare</h3>
+            <p>Compare Excel sheets and identify changes</p>
+        </a>
+
+        <!-- Word Compare -->
+        <a href="/word-compare" class="home-module-card">
+            <h3>Word Compare</h3>
+            <p>Compare Word documents and highlight differences</p>
+        </a>
+
+        <!-- Excel Merge -->
+        <a href="/excel-merge" class="home-module-card">
+            <h3>Excel Merge</h3>
+            <p>Merge Excel files intelligently without duplicates</p>
+        </a>
+                
+        <!-- Analytics -->
+        <a href="/analytics" class="home-module-card">
+            <h3>Analytics Dashboard</h3>
+            <p>Visualize KPIs, trends and operational insights</p>
+        </a>
+
+        <!-- DCN Sequence -->
+        <a href="/dcn-sequence" class="home-module-card">
+            <h3>DCN Sequence Finder</h3>
+            <p>Find missing DCN sequence numbers from SearchResults Excel</p>
+        </a>
+
+        <!-- Generic Compare (optional keep/remove) -->
+        <a href="/compare" class="home-module-card">
+            <h3>Document Compare</h3>
+            <p>Compare old/new documents and highlight differences</p>
+        </a>
+
+        <!-- Optional test card -->
+        <a href="/common-layout" class="home-module-card">
+            <h3>Common Layout Test</h3>
+            <p>Reusable shell testing</p>
+        </a>
+        
+    </div>
+
+</div>
+
+{% endblock %}

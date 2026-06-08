@@ -1,0 +1,232 @@
+{% extends "main.html" %}
+
+{% block page_title %}
+RCA Report Generator
+{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/report.css') }}">
+{% endblock %}
+
+
+<!-- =========================================
+     DOCK ICONS
+========================================= -->
+{% block dock_icons %}
+
+<div class="dock-item active-dock"
+     title="Downloads"
+     onclick="showReportSection('downloads')">
+    ⬇
+</div>
+
+<div class="dock-item"
+     title="KPI"
+     onclick="showReportSection('kpi')">
+    📊
+</div>
+
+{% endblock %}
+
+
+<!-- =========================================
+     SIDEBAR CONTENT
+========================================= -->
+{% block sidebar %}
+
+<!-- DOWNLOAD SECTION -->
+<div id="downloads-section" class="dock-section active-section">
+
+    <div class="download-panel">
+        <h3>Downloads</h3>
+
+        <p id="downloadMessage">
+            Generate preview to enable downloads
+        </p>
+
+        <div id="downloadButtons" class="download-row">
+            <button onclick="downloadReport('word')">
+                Word
+            </button>
+
+            <button onclick="downloadReport('pdf')">
+                PDF
+            </button>
+
+            <button onclick="downloadReport('zip')">
+                ZIP
+            </button>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- KPI SECTION -->
+<div class="dock-section" id="kpi-section">
+
+    <div class="card-title">KPI</div>
+
+    <div class="kpi-grid">
+        <div class="kpi-box">
+            <span>Reports Today</span>
+            <strong id="reportsCount">12</strong>
+        </div>
+
+        <div class="kpi-box">
+            <span>Pending</span>
+            <strong id="pendingCount">4</strong>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<!-- =========================================
+     Clear button
+========================================= -->
+
+{% block sidebar_toolbar %}
+
+<div class="sidebar-toolbar">
+
+    <button onclick="clearPreview()">
+        Clear Workspace
+    </button>
+
+    <button onclick="alert('Filters coming soon')">
+        Apply Filters
+    </button>
+
+</div>
+
+{% endblock %}
+
+<!-- =========================================
+     TOP TITLE
+========================================= -->
+{% block top_center %}
+<div class="module-title-pill">
+    RCA Report Generator
+</div>
+{% endblock %}
+
+
+<!-- =========================================
+     TOOLBAR LEFT
+========================================= -->
+{% block toolbar_left %}
+
+<input
+    type="text"
+    id="incident_number"
+    class="toolbar-search-input"
+    placeholder="Enter Incident Number">
+
+<button class="primary-btn"
+        onclick="loadPreview()">
+    Preview
+</button>
+
+{% endblock %}
+
+
+<!-- =========================================
+     TOOLBAR RIGHT
+========================================= -->
+{% block toolbar_right %}
+
+<input
+    type="text"
+    class="toolbar-search-input"
+    placeholder="Global Search (Later)"
+    disabled>
+
+{% endblock %}
+
+
+<!-- =========================================
+     MAIN CONTENT
+========================================= -->
+{% block content %}
+
+<!-- Preview -->
+<div class="card preview-card">
+    <h3>Preview</h3>
+
+    <div id="previewContainer">
+        Preview will appear here
+    </div>
+</div>
+
+
+<!-- Editable RCA -->
+<div class="card rca-editor-card">
+    <h3>Editable RCA</h3>
+
+    <div class="rca-section">
+        <label>Problem Statement</label>
+        <textarea id="problem_statement"></textarea>
+
+        <div class="upload-row">
+            <input type="file" id="problem_images" multiple>
+            <div id="problem_preview_files"></div>
+        </div>
+    </div>
+
+    <div class="rca-section">
+        <label>Root Cause</label>
+        <textarea id="root_cause"></textarea>
+
+        <div class="upload-row">
+            <input type="file" id="root_images" multiple>
+            <div id="root_preview_files"></div>
+        </div>
+    </div>
+
+    <div class="rca-section">
+        <label>Resolution</label>
+        <textarea id="resolution_text"></textarea>
+
+        <div class="upload-row">
+            <input type="file" id="resolution_images" multiple>
+            <div id="resolution_preview_files"></div>
+        </div>
+    </div>
+
+    <div class="update-btn-wrapper">
+        <button class="update-preview-btn" onclick="updatePreview()">
+            Update Preview
+        </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block module_status %}
+
+<div class="report-status-meta">
+
+    <div class="status-row">
+        <span class="status-label">Incident:</span>
+        <span id="activeIncident">-</span>
+    </div>
+
+    <div class="status-row">
+        <span class="status-label">Last Action:</span>
+        <span id="lastAction">Waiting for input</span>
+    </div>
+
+    <div class="status-row">
+        <span class="status-label">Downloads:</span>
+        <span id="downloadStatus">Not generated</span>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/report.js') }}"></script>
+{% endblock %}
