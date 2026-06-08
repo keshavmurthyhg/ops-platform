@@ -1,12 +1,3 @@
-import os
-from io import BytesIO
-from datetime import datetime, timedelta
-import pandas as pd
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
-from openpyxl.chart import BarChart, Reference
-
 from flask import (
     Blueprint,
     render_template,
@@ -15,19 +6,23 @@ from flask import (
     request
 )
 
-# ─────────────────────────────────────────────────────────
-#  LOGGING ENGINE & CORE SERVICES IMPORT
-# ─────────────────────────────────────────────────────────
-from common.logger import setup_logger
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from openpyxl.chart import BarChart, Reference
+from io import BytesIO
+import pandas as pd  # <-- THIS WAS MISSING!
+from datetime import datetime
+from datetime import timedelta
+import os
+
+
 from dcn_analytics.module.services.dashboard_service import (
     load_dashboard_data
 )
 
 # Import your data file path variable from your validator module
 from dcn_analytics.module.logic.validator import DATA_FILE
-
-# Instantiate the centralized module logger
-logger = setup_logger("dcn_analytics")
 
 dcn_analytics_bp = Blueprint(
     "dcn_analytics",
@@ -45,38 +40,41 @@ from dcn_analytics.module.logic.analytics_engine import (
 )
 
 # =========================================================
-# PAGE PANEL RENDER
+# PAGE
 # =========================================================
 @dcn_analytics_bp.route(
     "/dcn-analytics"
 )
 def dcn_analytics_page():
-    logger.info("User requested page view render: /dcn-analytics")
+
     return render_template(
         "dcn_analytics.html"
     )
 
 
 # =========================================================
-# DASHBOARD BASE JSON API
+# DASHBOARD API
 # =========================================================
 @dcn_analytics_bp.route(
     "/api/dcn-analytics/dashboard"
 )
 def dashboard_api():
-    logger.info("API execution initiated: Fetching baseline dashboard metrics data.")
+
     try:
+
         result = load_dashboard_data()
-        logger.info("Baseline dashboard data structure loaded successfully.")
+
         return jsonify(result)
 
     except Exception as error:
-        logger.error(f"Dashboard base API loading exception encountered: {str(error)}")
-        return jsonify({
-            "success": False,
-            "message": str(error)
-        })
 
+        return jsonify({
+
+            "success": False,
+
+            "message": str(error)
+
+        })
 
 # =========================================================
 # UPLOAD EXCEL DATA FILE
@@ -86,10 +84,8 @@ def dashboard_api():
     methods=["POST"]
 )
 def upload_excel_api():
-    logger.info("Upload event captured: User attempting master tracker dataset rewrite.")
     try:
         if "file" not in request.files:
-            logger.warning("Upload rejected: No multi-part file block found inside request body.")
             return jsonify({
                 "success": False,
                 "message": "No file part in the request"
@@ -98,7 +94,6 @@ def upload_excel_api():
         file = request.files["file"]
         
         if file.filename == "":
-            logger.warning("Upload rejected: Selected file input cache target is empty.")
             return jsonify({
                 "success": False,
                 "message": "No file selected"
@@ -110,33 +105,28 @@ def upload_excel_api():
             
             # Save and overwrite master file
             file.save(DATA_FILE)
-            logger.info(f"Upload completed successfully! Overwrote master spreadsheet storage file target: '{DATA_FILE}'")
             
             return jsonify({
                 "success": True,
                 "message": "Master dataset uploaded and refreshed successfully!"
             })
             
-        logger.warning(f"Upload rejected: File type restriction violation rule triggered by filename: '{file.filename}'")
         return jsonify({
             "success": False,
             "message": "Invalid file type. Please upload a valid Excel spreadsheet (.xlsx)"
         }), 400
 
     except Exception as error:
-        logger.error(f"Master file upload and overwrite event failed: {str(error)}")
         return jsonify({
             "success": False,
             "message": f"Upload failed: {str(error)}"
         }), 500
 
-
 # =========================================================
-# DOWNLOAD REPORT: MONTHLY PIVOT
+# DOWNLOAD DOWNLOAD REPORT: MONTHLY PIVOT
 # =========================================================
 @dcn_analytics_bp.route("/api/dcn-analytics/download/monthly")
 def download_monthly_report():
-    logger.info("Download Request: Generating isolated Monthly Pivot Summary workbook.")
     try:
         data = load_dashboard_data()
         pivot_records = data.get("monthly_pivot", [])
@@ -149,7 +139,6 @@ def download_monthly_report():
             
         output.seek(0)
         timestamp = datetime.now().strftime("%d%b%Y_%H%M")
-        logger.info(f"Monthly standalone report file built cleanly at timestamp tracking token: {timestamp}")
         
         return send_file(
             output,
@@ -158,7 +147,6 @@ def download_monthly_report():
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     except Exception as e:
-        logger.error(f"Monthly pivot spreadsheet generation processing error: {str(e)}")
         return str(e), 500
 
 
@@ -167,7 +155,6 @@ def download_monthly_report():
 # =========================================================
 @dcn_analytics_bp.route("/api/dcn-analytics/download/daily")
 def download_daily_report():
-    logger.info("Download Request: Generating isolated Daily Skipped Summary workbook.")
     try:
         data = load_dashboard_data()
         daily_records = data.get("daily_summary", [])
@@ -183,7 +170,6 @@ def download_daily_report():
             
         output.seek(0)
         timestamp = datetime.now().strftime("%d%b%Y_%H%M")
-        logger.info(f"Daily standalone summary report file built cleanly at timestamp tracking token: {timestamp}")
         
         return send_file(
             output,
@@ -192,16 +178,13 @@ def download_daily_report():
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     except Exception as e:
-        logger.error(f"Daily standalone summary spreadsheet generation processing error: {str(e)}")
         return str(e), 500
-
 
 # =========================================================
 # DOWNLOAD REPORT: FULL EXCEL DASHBOARD
 # =========================================================
 @dcn_analytics_bp.route("/api/dcn-analytics/download/full-dashboard")
 def download_full_excel_dashboard():
-    logger.info("Download Request: Generating production-grade stylized Master Excel Dashboard.")
     try:
         data = load_dashboard_data()
         pivot_records = data.get("monthly_pivot", [])
@@ -317,7 +300,7 @@ def download_full_excel_dashboard():
         for row_idx in range(total_row + 2, 100):
             ws_dash.row_dimensions[row_idx].hidden = True
 
-        # ---------------------------------------------------------
+        # --------------------------------────────────────---------
         # SHEET 2: DAILY SKIPPED DETAILS (FORMATTED & FROZEN)
         # ---------------------------------------------------------
         ws_daily = wb.create_sheet(title="Daily Skipped Details")
@@ -375,12 +358,10 @@ def download_full_excel_dashboard():
         output.seek(0)
         
         timestamp = datetime.now().strftime("%d%b%Y_%H%M")
-        logger.info(f"Master multi-sheet Calibri dashboard report compiled successfully: 'DCN_Operations_Dashboard_{timestamp}.xlsx'")
         return send_file(
             output, as_attachment=True,
             download_name=f"DCN_Operations_Dashboard_{timestamp}.xlsx",
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     except Exception as error:
-        logger.error(f"Master multi-sheet custom dashboard layout engine failed: {str(error)}")
         return jsonify({"success": False, "message": str(error)}), 500

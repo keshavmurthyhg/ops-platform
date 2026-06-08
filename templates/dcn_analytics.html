@@ -6,6 +6,25 @@ DCN Analytics Dashboard
 
 {% block page_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dcn_analytics.css') }}">
+<style>
+    /* Inline helper style for the icon controls */
+    .chart-icon-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        font-size: 15px;
+        padding: 2px 6px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+    .chart-icon-btn:hover {
+        background: #e5e7eb;
+    }
+    .chart-icon-btn.active-chart-view {
+        background: #dbeafe;
+        border-color: #bfdbfe;
+    }
+</style>
 {% endblock %}
 
 {% block top_center %}
@@ -20,6 +39,13 @@ DCN Analytics Dashboard
     <input type="file" id="uploadExcel" hidden>
     Upload Latest Excel
 </label>
+{% endblock %}
+
+{% block sidebar_toolbar %}
+<div class="sidebar-toolbar">
+    <button onclick="clearWorkspace()">Clear Workspace</button>
+    <button id="applyFiltersBtn">Apply Filters</button>
+</div>
 {% endblock %}
 
 {% block dock_icons %}
@@ -85,29 +111,12 @@ DCN Analytics Dashboard
 </div>
 
 <div class="dock-section" id="download-section">
-
     <div class="sidebar-card">
-
-        <div class="card-title">
-            Download Reports
-        </div>
-
-        <button id="downloadFullDashboardBtn" 
-                class="download-report-btn" 
-                style="background: rgba(77, 163, 255, 0.15); border-color: #4da3ff;">
-            📊 Full Excel Dashboard
-        </button>
-
-        <button id="downloadMonthlyBtn" class="download-report-btn">
-            Monthly Missing DCNs
-        </button>
-
-        <button id="downloadDailyBtn" class="download-report-btn">
-            Daily Missing Summary
-        </button>
-
+        <div class="card-title">Download Reports</div>
+        <button id="downloadFullDashboardBtn" class="download-report-btn" style="background: rgba(77, 163, 255, 0.15); border-color: #4da3ff;">📊 Full Excel Dashboard</button>
+        <button id="downloadMonthlyBtn" class="download-report-btn">Monthly Missing DCNs</button>
+        <button id="downloadDailyBtn" class="download-report-btn">Daily Missing Summary</button>
     </div>
-
 </div>
 {% endblock %}
 
@@ -123,9 +132,15 @@ DCN Analytics Dashboard
 <div class="dashboard-grid-container">
 
     <div class="dashboard-left-column">
-        
         <div class="dashboard-card chart-card-wrapper">
-            <div class="card-header">Monthly DCN Skipped Trend</div>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Monthly DCN Skipped Trend</span>
+                <div id="chartTypeIconGroup" style="display: flex; gap: 4px;">
+                    <button class="chart-icon-btn active-chart-view" data-type="bar" title="Bar Chart">📊</button>
+                    <button class="chart-icon-btn" data-type="line" title="Line Chart">📈</button>
+                    <button class="chart-icon-btn" data-type="pie" title="Pie Chart (Yearly Summary)">🍕</button>
+                </div>
+            </div>
             <div class="chart-wrapper">
                 <canvas id="monthlyTrendChart"></canvas>
             </div>
@@ -170,6 +185,29 @@ DCN Analytics Dashboard
         </div>
     </div>
 
+</div>
+
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">💡</span>
+                <h2 id="helpModuleTitle">Module Help Center</h2>
+            </div>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane" id="helpModalIndexPane">
+                </div>
+            
+            <div class="help-modal-right-pane" id="helpModalContentPane">
+                <div class="help-empty-state">
+                    <p>Select a topic from the index panel to view setup details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

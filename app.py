@@ -31,6 +31,9 @@ from dcn_sequence.dcn_sequence_routes import dcn_sequence_bp
 from dcn_analytics.dcn_analytics_routes import dcn_analytics_bp
 from operations_center.operations_center_routes import operations_center_bp
 
+# ── Help Blueprint imports ─────────────────────────────────────────────
+from help.dcn_analytics_help import dcn_help_bp
+
 # ── App init ──────────────────────────────────────────────────────
 app = Flask(__name__)
 app.secret_key = "report_app_secret"
@@ -54,6 +57,8 @@ app.register_blueprint(dcn_sequence_bp)
 app.register_blueprint(dcn_analytics_bp)
 app.register_blueprint(operations_center_bp)
 
+# ── Help blueprints ───────────────────────────────────────────
+app.register_blueprint(dcn_help_bp)
 
 # ── Home page ─────────────────────────────────────────────────────
 @app.route("/")

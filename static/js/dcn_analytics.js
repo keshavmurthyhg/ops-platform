@@ -47,15 +47,21 @@ function bindEvents() {
 
 
     // ==========================================
-    // APPLY FILTERS
+    // APPLY FILTERS (FIXED EVENT LISTENER MATCHES)
     // ==========================================
+    // 1. Check for standard local ID names
     document
         .getElementById("applyFiltersBtn")
-        ?.addEventListener(
-            "click",
-            applyDashboardFilters
-        );
+        ?.addEventListener("click", applyDashboardFilters);
 
+    // 2. Add structural string match fallback for the top platform layout action header
+    const topBarFilterBtn = Array.from(document.querySelectorAll("button")).find(
+        btn => btn.textContent.trim() === "Apply Filters"
+    );
+    if (topBarFilterBtn) {
+        topBarFilterBtn.addEventListener("click", applyDashboardFilters);
+        console.log("✓ Attached filter interceptor to Platform Header Button");
+    }
 
     // ==========================================
     // DOWNLOAD BUTTONS
@@ -94,6 +100,28 @@ function bindEvents() {
             () => { window.open("/api/dcn-analytics/download/full-dashboard", "_blank"); }
         );
 
+    // Inside bindEvents() function
+    document.getElementById("chartTypeSelector")?.addEventListener("change", (e) => {
+        // Grab cached global chart data or reload dashboard to update instantly
+        loadDashboard();
+    });
+
+    // Clear Workspace Fix
+    document.getElementById("clearWorkspaceBtn")?.addEventListener("click", () => {
+        // Reset inputs
+        if(document.getElementById("dateFilterType")) document.getElementById("dateFilterType").value = "none";
+        if(document.getElementById("startDate")) document.getElementById("startDate").value = "";
+        if(document.getElementById("endDate")) document.getElementById("endDate").value = "";
+        
+        // Check all year checkboxes
+        document.querySelectorAll('#yearSection .year-checkbox-grid input[type="checkbox"]').forEach(cb => cb.checked = true);
+        
+        // Uncheck quick radio buttons
+        document.querySelectorAll('input[name="quickDate"]').forEach(rb => rb.checked = false);
+        
+        handleDateFilterType();
+        loadDashboard(); // Restores baseline dataset view
+    });
 }
 
 
@@ -371,117 +399,55 @@ function renderKPI(kpi) {
 // MONTHLY CHART
 // ======================================================
 function renderMonthlyChart(chartData) {
-
-    const canvas =
-        document.getElementById(
-            "monthlyTrendChart"
-        );
-
+    const canvas = document.getElementById("monthlyTrendChart");
     if (!canvas) return;
 
-    const ctx =
-        canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
+    if (monthlyChartInstance) { monthlyChartInstance.destroy(); }
+    if (!chartData || !chartData.labels || !chartData.datasets) { return; }
 
-    // ==========================================
-    // DESTROY OLD
-    // ==========================================
-    if (monthlyChartInstance) {
+    const selectedType = document.getElementById("chartTypeSelector")?.value || "bar";
+    const colors = ["#4e79a7", "#f28e2b", "#e15759", "#bab0ac"];
 
-        monthlyChartInstance.destroy();
+    let datasets = [];
+    let processedLabels = chartData.labels;
 
+    if (selectedType === "pie") {
+        // Pie charts display aggregate counts for the newest active dataset year (e.g., 2026)
+        const latestDataset = chartData.datasets[chartData.datasets.length - 1];
+        datasets = [{
+            label: latestDataset ? latestDataset.label : "Data",
+            data: latestDataset ? latestDataset.data : [],
+            backgroundColor: ["#4e79a7", "#f28e2b", "#e15759", "#76b7b2", "#59a14f", "#edc948", "#b07aa1", "#ff9da7", "#9c755f", "#bab0ac", "#2563eb", "#db2777"]
+        }];
+    } else {
+        // Bar or Line layout structure configurations
+        datasets = chartData.datasets.map((dataset, index) => ({
+            label: dataset.label,
+            data: dataset.data,
+            borderColor: colors[index],
+            backgroundColor: selectedType === "line" ? "transparent" : colors[index],
+            borderWidth: selectedType === "line" ? 2.5 : 1,
+            pointRadius: selectedType === "line" ? 4 : 0,
+            tension: 0.1
+        }));
     }
-
-    if (
-        !chartData ||
-        !chartData.labels ||
-        !chartData.datasets
-    ) {
-        return;
-    }
-
-    const colors = [
-
-        "#4e79a7",
-        "#f28e2b",
-        "#e15759",
-        "#bab0ac"
-
-    ];
-
-    const datasets =
-        chartData.datasets.map(
-            (dataset, index) => {
-
-                return {
-
-                    label:
-                        dataset.label,
-
-                    data:
-                        dataset.data,
-
-                    backgroundColor:
-                        colors[index],
-
-                    borderWidth: 1
-
-                };
-
-            }
-        );
 
     monthlyChartInstance = new Chart(ctx, {
-
-        type: "bar",
-
-        data: {
-
-            labels:
-                chartData.labels,
-
-            datasets:
-                datasets
-
-        },
-
+        type: selectedType === "pie" ? "pie" : selectedType,
+        data: { labels: processedLabels, datasets: datasets },
         options: {
-
             responsive: true,
-
             maintainAspectRatio: false,
-
             plugins: {
-
-                legend: {
-
-                    display: true,
-
-                    position: "top"
-
-                }
-
+                legend: { display: true, position: "top" }
             },
-
-            scales: {
-
-                y: {
-
-                    beginAtZero: true,
-
-                    ticks: {
-
-                        precision: 0
-
-                    }
-
-                }
-
+            scales: selectedType === "pie" ? {} : {
+                x: { grid: { display: false } }, // Kills vertical gridlines
+                y: { beginAtZero: true, grid: { display: false }, ticks: { precision: 0 } } // Kills horizontal gridlines
             }
-
         }
-
     });
-
     window.dispatchEvent(new Event("resize"));
 }
 
@@ -599,139 +565,62 @@ function renderDailySummary(rows) {
 
 
 // ======================================================
-// APPLY FILTERS
+// APPLY FILTERS (FIXED DOM SCANNER & EXPLICIT MAPPINGS)
 // ======================================================
 async function applyDashboardFilters() {
-
     try {
+        updateProcessingStatus("Applying filters...", "processing");
 
-        updateProcessingStatus(
-            "Applying filters...",
-            "processing"
-        );
+        // 1. Fetch exact element choices based on your sidebar HTML structure
+        const filterType = document.getElementById("dateFilterType")?.value || "none";
+        const startDate = document.getElementById("startDate")?.value || "";
+        const endDate = document.getElementById("endDate")?.value || "";
 
-        // ==========================================
-        // GET FILTER VALUES
-        // ==========================================
-        const dateField =
-            document.getElementById("dateField")?.value || ""; // Fixed from dateFieldSelect
+        // 2. Extract ALL checked checkboxes from your year-checkbox-grid
+        const checkedYearBoxes = document.querySelectorAll('#yearSection .year-checkbox-grid input[type="checkbox"]:checked');
+        const selectedYears = Array.from(checkedYearBoxes).map(box => parseInt(box.value, 10));
 
-        const filterType =
-            document.getElementById("dateFilterType")?.value || "";
+        // 3. Extract checked quick-select radio button
+        const quickOptionEl = document.querySelector('input[name="quickDate"]:checked');
+        const quickOption = quickOptionEl ? quickOptionEl.value : "";
 
-        const startDate =
-            document.getElementById("startDate")?.value || ""; // Fixed from startDateInput
-
-        const endDate =
-            document.getElementById("endDate")?.value || ""; // Fixed from endDateInput
-
-        // Year select handling (pulls the checked checkbox instead of a dropdown)
-        const checkedYearEl = document.querySelector('.year-checkbox-grid input[type="checkbox"]:checked');
-        const selectedYear = checkedYearEl ? checkedYearEl.value : ""; // Fixed from yearSelect
-
-        const quickOption =
-            document.querySelector(
-                'input[name="quickDate"]:checked' // Fixed from quickFilterRadio
-            )?.value || "";
-
-
-        // ==========================================
-        // PAYLOAD
-        // ==========================================
+        // Assemble precise payload profile matching the new multi-select structure
         const payload = {
-
-            date_field: dateField,
-
             filter_type: filterType,
-
             start_date: startDate,
-
             end_date: endDate,
-
-            year: selectedYear,
-
+            years: selectedYears, // Transmits as an array, e.g., [2025, 2026]
             quick_option: quickOption
-
         };
 
-        console.log("FILTER PAYLOAD:", payload);
+        console.log("SENDING FILTER PAYLOAD:", payload);
 
-
-        // ==========================================
-        // API CALL
-        // ==========================================
-        const response = await fetch(
-            "/api/dcn-analytics/apply-filters",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify(payload)
-            }
-        );
+        // 4. API Request
+        const response = await fetch("/api/dcn-analytics/apply-filters", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
 
         const data = await response.json();
 
-        console.log(data);
-
-
-        // ==========================================
-        // FAILED
-        // ==========================================
         if (!data.success) {
-
-            updateProcessingStatus(
-                data.message || "Filter failed",
-                "failed"
-            );
-
+            updateProcessingStatus(data.message || "Filter execution failed", "failed");
             return;
         }
 
+        // 5. Live UI Components Refresh
+        renderKPI(data.kpi);
+        renderMonthlyChart(data.chart_data);
+        renderPivotTable(data.monthly_pivot);
+        renderDailySummary(data.daily_summary);
 
-        // ==========================================
-        // REFRESH DASHBOARD
-        // ==========================================
-        renderKPI(
-            data.kpi
-        );
+        updateProcessingStatus("Filters applied successfully", "completed");
 
-        renderMonthlyChart(
-            data.chart_data
-        );
-
-        renderPivotTable(
-            data.monthly_pivot
-        );
-
-        renderDailySummary(
-            data.daily_summary
-        );
-
-
-        // ==========================================
-        // SUCCESS
-        // ==========================================
-        updateProcessingStatus(
-            "Filters applied successfully",
-            "completed"
-        );
-
+    } catch (error) {
+        console.error("Filter Interception Error:", error);
+        updateProcessingStatus(error.message, "failed");
     }
-    catch (error) {
-
-        console.error(error);
-
-        updateProcessingStatus(
-            error.message,
-            "failed"
-        );
-
-    }
-
 }
 
 
@@ -922,5 +811,152 @@ async function handleExcelUpload(event) {
             "failed"
         );
         fileInput.value = "";
+    }
+}
+
+// Active tracking variable for visual control selections
+let selectedChartType = "bar";
+
+// Bind active chart button group toggles
+document.querySelectorAll("#chartTypeIconGroup .chart-icon-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+        document.querySelectorAll("#chartTypeIconGroup .chart-icon-btn").forEach(b => b.classList.remove("active-chart-view"));
+        this.classList.add("active-chart-view");
+        selectedChartType = this.getAttribute("data-type");
+        loadDashboard(); // Instant redraw
+    });
+});
+
+// OVERRIDE CORE MODULE WORKSPACE CLEANING MECHANIC
+window.clearWorkspace = function() {
+    console.log("Utilizing standard main framework workspace reset...");
+    
+    // Reset filters
+    if(document.getElementById("dateFilterType")) document.getElementById("dateFilterType").value = "none";
+    if(document.getElementById("startDate")) document.getElementById("startDate").value = "";
+    if(document.getElementById("endDate")) document.getElementById("endDate").value = "";
+    
+    document.querySelectorAll('#yearSection .year-checkbox-grid input[type="checkbox"]').forEach(cb => cb.checked = true);
+    document.querySelectorAll('input[name="quickDate"]').forEach(rb => rb.checked = false);
+    
+    if(typeof handleDateFilterType === "function") handleDateFilterType();
+    
+    // Clear status fill bars
+    const progressWrapper = document.getElementById("progressWrapper");
+    if (progressWrapper) progressWrapper.classList.add("hidden");
+    
+    loadDashboard(); // Force baseline metric restore
+};
+
+// FIX PIE CHART RENDER LOGIC
+function renderMonthlyChart(chartData) {
+    const canvas = document.getElementById("monthlyTrendChart");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (monthlyChartInstance) { monthlyChartInstance.destroy(); }
+    if (!chartData || !chartData.labels || !chartData.datasets) { return; }
+
+    const colors = ["#4e79a7", "#f28e2b", "#e15759", "#bab0ac"];
+    let datasets = [];
+    let processedLabels = chartData.labels;
+
+    if (selectedChartType === "pie") {
+        // FIXED: Sum rows to present a pure yearly count dataset responsive to filter slices
+        processedLabels = chartData.datasets.map(d => d.label);
+        const yearlySums = chartData.datasets.map(d => d.data.reduce((a, b) => a + b, 0));
+        
+        datasets = [{
+            data: yearlySums,
+            backgroundColor: colors.slice(0, yearlySums.length)
+        }];
+    } else {
+        datasets = chartData.datasets.map((dataset, index) => ({
+            label: dataset.label,
+            data: dataset.data,
+            borderColor: colors[index],
+            backgroundColor: selectedChartType === "line" ? "transparent" : colors[index],
+            borderWidth: selectedChartType === "line" ? 2.5 : 1,
+            pointRadius: selectedChartType === "line" ? 4 : 0,
+            tension: 0.1
+        }));
+    }
+
+    monthlyChartInstance = new Chart(ctx, {
+        type: selectedChartType,
+        data: { labels: processedLabels, datasets: datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, position: "top" }
+            },
+            scales: selectedChartType === "pie" ? {} : {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { display: false }, ticks: { precision: 0 } }
+            }
+        }
+    });
+}
+
+// Local cache placeholder for runtime topic indices
+let cachedHelpTopics = [];
+
+async function loadModuleHelpData() {
+    const indexPane = document.getElementById("helpModalIndexPane");
+    const contentPane = document.getElementById("helpModalContentPane");
+    if (!indexPane || !contentPane) return;
+
+    try {
+        indexPane.innerHTML = "<div style='font-size:12px;color:#64748b;padding:10px;'>Loading topics...</div>";
+        
+        const response = await fetch("/api/help/dcn-analytics");
+        const data = await response.json();
+        
+        document.getElementById("helpModuleTitle").innerText = data.module_title || "Help Center";
+        cachedHelpTopics = data.topics || [];
+        
+        indexPane.innerHTML = "";
+        
+        if (cachedHelpTopics.length === 0) {
+            indexPane.innerHTML = "<div style='font-size:12px;color:#64748b;padding:10px;'>No help documentation found.</div>";
+            return;
+        }
+
+        // Generate left index buttons smoothly
+        cachedHelpTopics.forEach((topic, idx) => {
+            const btn = document.createElement("button");
+            btn.className = "help-index-item";
+            btn.innerText = topic.title;
+            btn.setAttribute("data-topic-id", topic.id);
+            btn.addEventListener("click", () => switchHelpTopic(topic.id));
+            indexPane.appendChild(btn);
+        });
+
+        // Auto-select the first documentation folder entry by default
+        switchHelpTopic(cachedHelpTopics[0].id);
+
+    } catch (err) {
+        console.error("Help System Fault:", err);
+        indexPane.innerHTML = "<div style='font-size:12px;color:#ef4444;padding:10px;'>Error fetching guides.</div>";
+    }
+}
+
+function switchHelpTopic(topicId) {
+    // Sync graphical active toggles
+    document.querySelectorAll("#helpModalIndexPane .help-index-item").forEach(btn => {
+        if (btn.getAttribute("data-topic-id") === topicId) {
+            btn.classList.add("active-help-topic");
+        } else {
+            btn.classList.remove("active-help-topic");
+        }
+    });
+
+    // Inject targeted raw html document package safely into the preview viewport
+    const contentPane = document.getElementById("helpModalContentPane");
+    const targetTopic = cachedHelpTopics.find(t => t.id === topicId);
+    
+    if (contentPane && targetTopic) {
+        contentPane.innerHTML = targetTopic.content;
     }
 }

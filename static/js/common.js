@@ -176,3 +176,27 @@ function resetProcessingStatus() {
         progressWrapper.classList.add("hidden");
     }
 }
+
+// Target and link the framework help icon directly to our helper window interceptor
+document.addEventListener("DOMContentLoaded", () => {
+    const frameworkHelpBtn = document.querySelector(".help-btn");
+    if (frameworkHelpBtn) {
+        frameworkHelpBtn.setAttribute("onclick", "toggleHelpSystemModal()");
+        console.log("✓ Framework Help Button successfully linked to current active module context.");
+    }
+});
+
+// Structural controller to toggle modal state safely
+function toggleHelpSystemModal() {
+    const modal = document.getElementById("helpSystemModal");
+    if (!modal) return;
+    
+    modal.classList.toggle("hidden");
+    
+    // Auto-load topics from API when shown
+    if (!modal.classList.contains("hidden")) {
+        if (typeof loadModuleHelpData === "function") {
+            loadModuleHelpData();
+        }
+    }
+}
