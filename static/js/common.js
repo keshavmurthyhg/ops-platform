@@ -1,4 +1,97 @@
 /* ==========================================
+   GLOBAL TOPBAR SEARCH CONTROLLER
+========================================== */
+
+function toggleGlobalSearch() {
+    const wrapper = document.getElementById("topSearchWrapper");
+    const input = document.getElementById("globalSearchInput");
+    
+    if (!wrapper || !input) return;
+    
+    wrapper.classList.toggle("expanded");
+    
+    if (wrapper.classList.contains("expanded")) {
+        input.focus();
+    } else {
+        input.value = "";
+        executePageSearch(""); // Clear page highlights when collapsing
+    }
+}
+
+/**
+ * Functional client-side context parsing mechanism.
+ * Scans the primary active document container, matching text fragments dynamically.
+ */
+function executePageSearch(query) {
+    const contentArea = document.querySelector(".scrollable-report-content");
+    if (!contentArea) return;
+
+    // Remove existing highlights to avoid duplication errors
+    removePageSearchHighlights(contentArea);
+
+    const cleanQuery = query.trim().toLowerCase();
+    if (!cleanQuery || cleanQuery.length < 2) return;
+
+    // Simple recursive DOM tree text-node walker execution loop
+    const walkDOM = (node) => {
+        if (node.nodeType === 3) { // Text Node
+            const textValue = node.nodeValue;
+            const index = textValue.toLowerCase().indexOf(cleanQuery);
+            
+            if (index >= 0) {
+                const span = document.createElement("span");
+                span.className = "page-search-highlight";
+                span.style.backgroundColor = "#fef08a"; // Soft yellow highlight
+                span.style.color = "#0f172a";
+                span.style.borderRadius = "2px";
+                span.style.padding = "0 2px";
+
+                const match = textValue.substring(index, index + cleanQuery.length);
+                const before = textValue.substring(0, index);
+                const after = textValue.substring(index + cleanQuery.length);
+
+                node.nodeValue = before;
+                span.textContent = match;
+                
+                const nextNode = node.nextSibling;
+                if (nextNode) {
+                    node.parentNode.insertBefore(span, nextNode);
+                    node.parentNode.insertBefore(document.createTextNode(after), nextNode);
+                } else {
+                    node.parentNode.appendChild(span);
+                    node.parentNode.appendChild(document.createTextNode(after));
+                }
+            }
+        } else if (node.nodeType === 1 && node.childNodes && !["SCRIPT", "STYLE", "INPUT", "TEXTAREA"].includes(node.tagName)) {
+            for (let i = 0; i < node.childNodes.length; i++) {
+                walkDOM(node.childNodes[i]);
+            }
+        }
+    };
+
+    walkDOM(contentArea);
+}
+
+function removePageSearchHighlights(container) {
+    const highlights = container.querySelectorAll(".page-search-highlight");
+    highlights.forEach(span => {
+        const parent = span.parentNode;
+        if (parent) {
+            parent.replaceChild(document.createTextNode(span.textContent), span);
+            parent.normalize(); // Merges adjacent text nodes cleanly back together
+        }
+    });
+}
+
+// Close search box automatically if clicking anywhere outside the search container
+document.addEventListener("click", (e) => {
+    const wrapper = document.getElementById("topSearchWrapper");
+    if (wrapper && wrapper.classList.contains("expanded") && !wrapper.contains(e.target)) {
+        toggleGlobalSearch();
+    }
+});
+
+/* ==========================================
    PROGRESS FUNCTIONS
 ========================================== */
 

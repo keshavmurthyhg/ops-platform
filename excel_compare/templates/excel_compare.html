@@ -1,0 +1,129 @@
+{% extends "main.html" %}
+
+{% block page_title %}Excel Compare — OPS Platform{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('excel_compare.static', filename='excel_compare.css') }}">
+{% endblock %}
+
+{% block top_center %}
+<div class="module-title-pill">📊 Excel Comparison Engine</div>
+{% endblock %}
+
+{% block dock_icons %}
+<button class="dock-item" onclick="clearWorkspace()" title="Reset Workspace Layout">🧹</button>
+<button class="dock-item" id="sidebarDownloadBtn" onclick="triggerDownloadPackage()" title="Download Comparison Bundle (ZIP)" disabled>💾</button>
+{% endblock %}
+
+{% block toolbar_left %}
+<div class="toolbar-upload-strip">
+    <div class="file-stub" onclick="document.getElementById('oldFile').click()">
+        <span class="stub-badge removed">OLD</span>
+        <span id="oldFileName" class="stub-text">Select Base File...</span>
+        <input type="file" id="oldFile" accept=".xlsx,.xls" hidden>
+    </div>
+    <div class="file-stub" onclick="document.getElementById('newFile').click()">
+        <span class="stub-badge added">NEW</span>
+        <span id="newFileName" class="stub-text">Select Revision File...</span>
+        <input type="file" id="newFile" accept=".xlsx,.xls" hidden>
+    </div>
+    <button id="compareBtn" class="primary-btn" disabled>⚡ Run Compare</button>
+</div>
+{% endblock %}
+
+{% block toolbar_right %}
+<div class="ec-view-toggle">
+    <button class="ec-view-btn active" id="viewSideBySide">Side by Side</button>
+    <button class="ec-view-btn" id="viewChangelog">Change Log</button>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="ec-sidebar-legend">
+    <div class="legend-title">Comparison Metrics</div>
+    <div class="legend-row"><span class="chip added">Added</span> <span>Rows completely new</span></div>
+    <div class="legend-row"><span class="chip removed">Removed</span> <span>Rows only in Base</span></div>
+    <div class="legend-row"><span class="chip modified">Modified</span> <span>Cell values changed</span></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="ec-fixed-layout-wrapper">
+    
+    <div class="ec-kpi-strip">
+        <div class="kpi-box mod"><strong>—</strong><small>Modified Rows</small></div>
+        <div class="kpi-box add"><strong>—</strong><small>Added Rows</small></div>
+        <div class="kpi-box rem"><strong>—</strong><small>Removed Rows</small></div>
+        <div class="kpi-box tot"><strong>—</strong><small>Total Changes</small></div>
+        <div class="sheet-tabs-container" id="sheetTabs"></div>
+    </div>
+
+    <div class="ec-workspace-pane" id="ecMain">
+        
+        <div class="ec-empty-state" id="emptyState">
+            <div class="empty-icon">📂</div>
+            <h3>No Active Data Workspace Loaded</h3>
+            <p>Select both file revisions from the toolbar above and click Run Compare.</p>
+        </div>
+
+        <div class="ec-split-container" id="sbsView" style="display:none">
+            <div class="view-panel-half">
+                <div class="panel-header-sticky removed-header">Base Workbook (Old File)</div>
+                <div class="scroller-viewport" id="leftScroller">
+                    <table class="matrix-table">
+                        <thead id="leftTableHead"></thead>
+                        <tbody id="leftTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="view-panel-half">
+                <div class="panel-header-sticky added-header">Revised Workbook (New File)</div>
+                <div class="scroller-viewport" id="rightScroller">
+                    <table class="matrix-table">
+                        <thead id="rightTableHead"></thead>
+                        <tbody id="rightTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="ec-log-view" id="logView" style="display:none">
+            <div class="ec-table-scroller">
+                <table class="ec-log-table">
+                    <thead>
+                        <tr>
+                            <th>Sheet</th>
+                            <th>Cell Ref</th>
+                            <th>Old Content</th>
+                            <th>New Content</th>
+                            <th>Type Mapping</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">💡 Excel Compare Help Guide</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane" id="helpModalIndexPane">
+                </div>
+            <div class="help-modal-right-pane" id="helpModalContentPane">
+                </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('excel_compare.static', filename='excel_compare.js') }}"></script>
+{% endblock %}

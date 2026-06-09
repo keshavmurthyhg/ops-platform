@@ -960,3 +960,45 @@ function switchHelpTopic(topicId) {
         contentPane.innerHTML = targetTopic.content;
     }
 }
+
+// ======================================================
+// STRICT ENTER-KEY GLOBAL SEARCH PATTERN (NO HANGING)
+// ======================================================
+(function() {
+    // Target both standard inputs and top navbar framework overrides
+    const searchInput = document.querySelector(".toolbar-search-input") || document.querySelector(".top-search-input");
+    
+    if (searchInput) {
+        // 1. Clone the node to strip away any implicit typing listeners from common.js
+        const secureInput = searchInput.cloneNode(true);
+        searchInput.parentNode.replaceChild(secureInput, searchInput);
+
+        // 2. Bind exclusively to the 'Enter' key press event
+        secureInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Block accidental layout form refreshes
+                
+                const searchKeyword = this.value.toLowerCase().trim();
+                console.log(`Strict Enter-Key search executed for token: "${searchKeyword}"`);
+                
+                filterTablesByGlobalSearch(searchKeyword);
+            }
+        });
+    }
+})();
+
+function filterTablesByGlobalSearch(keyword) {
+    const dailyRows = document.querySelectorAll("#dailySummaryBody tr");
+    
+    dailyRows.forEach(row => {
+        if (row.cells.length <= 1 && row.textContent.includes("No daily summary")) return;
+        
+        const rowText = row.textContent.toLowerCase();
+        
+        if (keyword === "" || rowText.includes(keyword)) {
+            row.style.display = ""; 
+        } else {
+            row.style.display = "none"; 
+        }
+    });
+}

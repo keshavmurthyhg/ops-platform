@@ -29,8 +29,21 @@
         </div>
     </div>
 
-    <div class="top-nav-right">
-        <button class="help-btn">?</button>
+    <div class="top-nav-right-actions">
+        <div class="top-search-wrapper" id="topSearchWrapper">
+            <button class="search-trigger-btn" onclick="toggleGlobalSearch()" title="Search Dashboard">
+                🔍
+            </button>
+            <input
+                type="text"
+                id="globalSearchInput"
+                class="top-search-input"
+                placeholder="Search page modules..."
+                onkeyup="executePageSearch(this.value)"
+            >
+        </div>
+
+        <button class="help-btn" onclick="toggleHelpSystemModal()">?</button>
     </div>
 
 </div>
@@ -137,4 +150,50 @@
 
 </div>
 
+{% endblock %}
+
+{% block page_js %}
+<script>
+    let platformHelpTopics = [];
+
+    /**
+     * Intercept function fired automatically by common.js layout hooks
+     * when the system overlay modal switches from hidden to visible status.
+     */
+    async function loadModuleHelpData() {
+        const indexPane = document.getElementById("helpModalIndexPane");
+        const contentPane = document.getElementById("helpModalContentPane");
+        if (!indexPane || !contentPane) return;
+
+        indexPane.innerHTML = "<div style='font-size:12px; color:#94a3b8; padding:12px;'>Loading documentation...</div>";
+        
+        try {
+            const response = await fetch("/api/help/home-platform");
+            const data = await response.json();
+            
+            document.getElementById("helpModuleTitle").innerText = data.module_title;
+            platformHelpTopics = data.topics;
+            indexPane.innerHTML = "";
+
+            platformHelpTopics.forEach(topic => {
+                const btn = document.createElement("button");
+                btn.className = "help-index-item";
+                btn.innerText = topic.title;
+                btn.onclick = () => {
+                    document.querySelectorAll('.help-index-item').forEach(b => b.classList.remove('active-help-topic'));
+                    btn.classList.add('active-help-topic');
+                    contentPane.innerHTML = topic.content;
+                };
+                indexPane.appendChild(btn);
+            });
+
+            // Automatically open the first index topic by default
+            if (platformHelpTopics.length > 0) indexPane.firstChild.click();
+
+        } catch (err) {
+            console.error("Home help loader failure:", err);
+            indexPane.innerHTML = "<div style='font-size:12px; color:#ef4444; padding:12px;'>Failed to fetch documentation.</div>";
+        }
+    }
+</script>
 {% endblock %}

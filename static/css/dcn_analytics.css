@@ -83,6 +83,70 @@
 }
 
 /* =========================================================
+   GLOBAL SEARCH BAR DESIGN ALIGNMENT FIXED
+========================================================= */
+.toolbar-search-input {
+    height: 34px; /* Matches exact height of home and module title boxes */
+    padding: 0 14px;
+    font-size: 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #334155;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    width: 240px;
+}
+
+.toolbar-search-input:focus {
+    border-color: #366092;
+    box-shadow: 0 0 0 3px rgba(54, 96, 146, 0.15);
+    width: 280px; /* Smooth elegant expansion animation on active typing */
+}
+
+/* =========================================================
+   TOP-BAR EXPANDED SEARCH VERTICAL SPACING CORRECTION
+========================================================= */
+
+/* Overrides framework .top-search-wrapper expanded state dimensions */
+.top-search-wrapper, 
+.top-search-wrapper.expanded,
+.toolbar-right-section {
+    height: 34px !important;
+    max-height: 34px !important;
+    min-height: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Fixes internal input bounding heights inside header bars */
+.toolbar-search-input,
+.top-search-input,
+.top-search-wrapper.expanded .top-search-input {
+    height: 32px !important;
+    max-height: 32px !important;
+    line-height: 32px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Align trigger buttons to prevent vertical cell line-overflow leaks */
+.search-trigger-btn {
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* =========================================================
    TOOLBAR
 ========================================================= */
 .toolbar-btn {

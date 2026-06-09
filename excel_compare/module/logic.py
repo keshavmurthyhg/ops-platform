@@ -1,235 +1,112 @@
+import os
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.styles import PatternFill
-import tempfile
-import zipfile
-import os
-from datetime import datetime
-from docx import Document
+from openpyxl.styles import PatternFill, Font
 
-
-SECTION_HEADERS = [
-    "New Parts",
-    "Revised Parts",
-    "New Documents",
-    "Revised Documents",
-    "Non Production / Obsolete / RG4 Parts",
-    "Structure Changes",
-    "Line Number Changes",
-    "Associated sBOMs",
-    "Serial No. / Effectivity"
-]
-
+# Highlight styling configuration
+FILL_ADDED    = PatternFill("solid", fgColor="C6EFCE")
+FILL_MODIFIED = PatternFill("solid", fgColor="FFEB9C")
+FILL_REMOVED  = PatternFill("solid", fgColor="FFC7CE")
+FONT_REMOVED  = Font(color="9C0006", strike=True)
 
 def normalize(val):
-    if pd.isna(val):
-        return ""
+    if pd.isna(val): return ""
     return str(val).strip()
 
+def load_all_sheets(path):
+    # FORCE the engine to ensure 'xlsx' is supported
+    engine = "xlrd" if path.lower().endswith(".xls") else "openpyxl"
+    return pd.read_excel(path, sheet_name=None, header=None, engine=engine)
 
-# =========================
-# LOAD DATA
-# =========================
-def compare_excels(file1, file2):
-    df1 = pd.read_excel(file1, header=None)
-    df2 = pd.read_excel(file2, header=None)
+def diff_sheet(df1, df2):
+    max_rows = max(len(df1), len(df2))
+    max_cols = max(len(df1.columns), len(df2.columns))
 
-    df1 = df1.reset_index(drop=True)
-    df2 = df2.reset_index(drop=True)
+    # Pad dataframes
+    for c in range(len(df1.columns), max_cols): df1[c] = ""
+    for c in range(len(df2.columns), max_cols): df2[c] = ""
 
-    return df1, df2
+    diff_mask1 = pd.DataFrame("", index=range(max_rows), columns=range(max_cols))
+    diff_mask2 = pd.DataFrame("", index=range(max_rows), columns=range(max_cols))
 
+    added_count = removed_count = modified_count = 0
 
-# =========================
-# SECTION DETECTION
-# =========================
-def extract_sections(df):
-    sections = {}
-    current_section = None
+    for r in range(max_rows):
+        for c in range(max_cols):
+            v1 = normalize(df1.iloc[r, c]) if r < len(df1) else ""
+            v2 = normalize(df2.iloc[r, c]) if r < len(df2) else ""
 
-    for idx, row in df.iterrows():
-        first_val = normalize(row.iloc[0])
+            if r >= len(df1):
+                diff_mask2.at[r, c] = "added"
+                added_count += 1
+            elif r >= len(df2):
+                diff_mask1.at[r, c] = "removed"
+                removed_count += 1
+            elif v1 != v2:
+                diff_mask2.at[r, c] = "modified"
+                modified_count += 1
 
-        if first_val in SECTION_HEADERS:
-            current_section = first_val
-            sections[current_section] = []
+    summary = {"added": added_count, "removed": removed_count, "modified": modified_count}
+    return diff_mask1, diff_mask2, summary
+    
+def build_side_by_side(df1, df2, diff_mask1, diff_mask2):
+    rows = []
+    max_rows = max(len(df1), len(df2))
+    max_cols = max(len(df1.columns), len(df2.columns))
 
-        elif current_section:
-            sections[current_section].append(idx)
+    for r in range(max_rows):
+        left_cells, right_cells = [], []
+        for c in range(max_cols):
+            lval = normalize(df1.iloc[r, c]) if r < len(df1) and c < len(df1.columns) else ""
+            lstatus = diff_mask1.at[r, c] if r < len(diff_mask1) and c < len(diff_mask1.columns) else ""
+            rval = normalize(df2.iloc[r, c]) if r < len(df2) and c < len(df2.columns) else ""
+            rstatus = diff_mask2.at[r, c] if r < len(diff_mask2) and c < len(diff_mask2.columns) else ""
 
-    return sections
+            left_cells.append({"value": lval, "status": lstatus})
+            right_cells.append({"value": rval, "status": rstatus})
 
+        row_type = ""
+        if any(cell["status"] == "removed" for cell in left_cells): row_type = "removed"
+        elif any(cell["status"] == "added" for cell in right_cells): row_type = "added"
+        elif any(cell["status"] == "modified" for cell in right_cells): row_type = "modified"
 
-# =========================
-# FINAL DIFF LOGIC
-# =========================
-def section_diff_logic(df1, df2):
-    sections1 = extract_sections(df1)
-    sections2 = extract_sections(df2)
+        rows.append({"row_num": r + 1, "type": row_type, "left": left_cells, "right": right_cells})
+    return rows
 
-    diff_mask1 = pd.DataFrame("", index=df1.index, columns=df1.columns)
-    diff_mask2 = pd.DataFrame("", index=df2.index, columns=df2.columns)
+def run_compare(path1, path2):
+    sheets1 = load_all_sheets(path1)
+    sheets2 = load_all_sheets(path2)
+    all_sheets = list(dict.fromkeys(list(sheets1.keys()) + list(sheets2.keys())))
+    results = {}
+    t_added = t_removed = t_modified = 0
 
-    summary = {}
-    total_diff = 0
-    removed_rows_data = []
+    for s_name in all_sheets:
+        df1 = sheets1.get(s_name, pd.DataFrame()).reset_index(drop=True)
+        df2 = sheets2.get(s_name, pd.DataFrame()).reset_index(drop=True)
+        if df1.empty and df2.empty: continue
 
-    for section in SECTION_HEADERS:
-        rows1 = sections1.get(section, [])
-        rows2 = sections2.get(section, [])
+        dm1, dm2, summary = diff_sheet(df1, df2)
+        sbs = build_side_by_side(df1, df2, dm1, dm2)
 
-        map1 = {}
-        map2 = {}
+        t_added += summary["added"]; t_removed += summary["removed"]; t_modified += summary["modified"]
 
-        for i in rows1:
-            val = normalize(df1.iloc[i, 0])
-            if val and val != "Number" and val not in map1:
-                map1[val] = i
+        log = []
+        for r in range(len(df2)):
+            for c in range(len(df2.columns)):
+                status = dm2.at[r, c]
+                if status in ("added", "modified"):
+                    log.append({
+                        "sheet": s_name, "cell": f"{chr(65+c)}{r+1}" if c < 26 else f"Col{c+1}R{r+1}",
+                        "oldValue": normalize(df1.iloc[r, c]) if r < len(df1) and c < len(df1.columns) else "",
+                        "newValue": normalize(df2.iloc[r, c]), "status": status.capitalize()
+                    })
 
-        for i in rows2:
-            val = normalize(df2.iloc[i, 0])
-            if val and val != "Number" and val not in map2:
-                map2[val] = i
-
-        added = set(map2.keys()) - set(map1.keys())
-        removed = set(map1.keys()) - set(map2.keys())
-        common = set(map1.keys()) & set(map2.keys())
-
-        modified = 0
-
-        # 🟢 Added (file2)
-        for key in added:
-            idx = map2[key]
-            diff_mask2.iloc[idx, :] = "added"
-
-        # 🔴 Removed (file1)
-        for key in removed:
-            idx = map1[key]
-            diff_mask1.iloc[idx, :] = "removed"
-
-            removed_rows_data.append({
-                "section": section,
-                "number": key
-            })
-
-        # 🟡 Modified (column-level)
-        for key in common:
-            i1 = map1[key]
-            i2 = map2[key]
-
-            row1 = df1.iloc[i1].fillna("")
-            row2 = df2.iloc[i2].fillna("")
-
-            if not row1.equals(row2):
-                for col in df2.columns:
-                    if normalize(row1[col]) != normalize(row2[col]):
-                        diff_mask2.loc[i2, col] = "modified"
-                modified += 1
-
-        summary[section] = {
-            "added": len(added),
-            "removed": len(removed),
-            "modified": modified
+        results[s_name] = {
+            "sbs": sbs, "change_log": log, "col_count": max(len(df1.columns), len(df2.columns)),
+            "added": summary["added"], "removed": summary["removed"], "modified": summary["modified"]
         }
 
-        total_diff += len(added) + len(removed) + modified
-
-    return diff_mask1, diff_mask2, summary, total_diff, removed_rows_data
-
-
-# =========================
-# STYLE
-# =========================
-def style_dataframe(df, diff_mask):
-    def highlight(row):
-        styles = []
-        for col in df.columns:
-            val = diff_mask.loc[row.name, col]
-
-            if val == "added":
-                styles.append("background-color: #90EE90")  # green
-            elif val == "modified":
-                styles.append("background-color: #FFD700")  # yellow
-            elif val == "removed":
-                styles.append("background-color: #FF7F7F")  # red
-            else:
-                styles.append("")
-        return styles
-
-    return df.style.apply(highlight, axis=1)
-
-
-# =========================
-# EXCEL OUTPUT
-# =========================
-def generate_output(file1, file2):
-    wb1 = load_workbook(file1)
-    wb2 = load_workbook(file2)
-
-    ws1 = wb1.active
-    ws2 = wb2.active
-
-    fill_added = PatternFill(start_color="90EE90", end_color="90EE90", fill_type="solid")
-    fill_modified = PatternFill(start_color="FFD700", end_color="FFD700", fill_type="solid")
-    fill_removed = PatternFill(start_color="FF7F7F", end_color="FF7F7F", fill_type="solid")
-
-    df1, df2 = compare_excels(file1, file2)
-    diff_mask1, diff_mask2, summary, total_diff, removed_rows = section_diff_logic(df1, df2)
-
-    # File2 (added + modified)
-    for r in range(len(df2)):
-        for c in range(len(df2.columns)):
-            val = diff_mask2.iloc[r, c]
-            if val == "added":
-                ws2.cell(r + 1, c + 1).fill = fill_added
-            elif val == "modified":
-                ws2.cell(r + 1, c + 1).fill = fill_modified
-
-    # File1 (removed)
-    for r in range(len(df1)):
-        for c in range(len(df1.columns)):
-            if diff_mask1.iloc[r, c] == "removed":
-                ws1.cell(r + 1, c + 1).fill = fill_removed
-
-    base1 = os.path.splitext(file1.name)[0]
-    base2 = os.path.splitext(file2.name)[0]
-
-    name1 = f"{base1}_Removed.xlsx"
-    name2 = f"{base2}_Highlighted.xlsx"
-
-    temp_dir = tempfile.mkdtemp()
-
-    path1 = os.path.join(temp_dir, name1)
-    path2 = os.path.join(temp_dir, name2)
-
-    wb1.save(path1)
-    wb2.save(path2)
-
-    # Word Report
-    doc = Document()
-    doc.add_heading("Excel Comparison Summary", 0)
-
-    for section, data in summary.items():
-        if any(data.values()):
-            doc.add_paragraph(
-                f"{section} → Added: {data['added']} | Removed: {data['removed']} | Modified: {data['modified']}"
-            )
-
-    doc.add_heading("Removed Items", level=1)
-    for item in removed_rows:
-        doc.add_paragraph(f"{item['section']} → {item['number']}")
-
-    word_path = os.path.join(temp_dir, "Comparison_Report.docx")
-    doc.save(word_path)
-
-    # ZIP
-    date_str = datetime.now().strftime("%d%b%Y")
-    zip_name = f"Excel-Compare_{date_str}.zip"
-    zip_path = os.path.join(temp_dir, zip_name)
-
-    with zipfile.ZipFile(zip_path, "w") as z:
-        z.write(path1, name1)
-        z.write(path2, name2)
-        z.write(word_path, "Comparison_Report.docx")
-
-    return zip_path, zip_name
+    return {
+        "sheets": list(results.keys()), "sheet_data": results,
+        "totals": {"added": t_added, "removed": t_removed, "modified": t_modified, "total": t_added + t_removed + t_modified}
+    }

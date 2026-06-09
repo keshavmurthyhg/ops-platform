@@ -11,8 +11,7 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/common.css') }}">
     
-<!-- Module CSS -->
-    {% block page_css %}
+{% block page_css %}
     {% endblock %}
 
 </head>
@@ -20,17 +19,14 @@
 
 <div class="app-layout">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
 
         <div class="sidebar-panel">
 
-            <!-- Title -->
             <div class="sidebar-title">
                 Ops Platform
             </div>
 
-            <!-- Clear / Filter -->
             {% block sidebar_toolbar %}
 
             <div class="sidebar-toolbar">
@@ -47,10 +43,8 @@
 
             {% endblock %}
 
-            <!-- Dynamic Module Content -->
             <div class="sidebar-content-area">
 
-                <!-- Dock bar -->
                 <div class="dock-bar" id="dockBar">
 
                     <div class="dock-toggle" onclick="toggleDock()">
@@ -62,7 +56,6 @@
 
                 </div>
 
-                <!-- THIS is required -->
                 <div class="sidebar-main-content">
                     {% block sidebar %}
                     {% endblock %}
@@ -70,35 +63,39 @@
 
             </div>
 
-{% block processing_status %}
-<div class="processing-footer">
+            {% block processing_status %}
+            <div class="processing-footer">
 
-    <div class="processing-title">
-        Processing Status
-    </div>
+                <div class="processing-title">
+                    Processing Status
+                </div>
 
-    <div id="statusMessage" class="processing-message">
-        Ready
-    </div>
+                <div id="statusMessage" class="processing-message">
+                    Ready
+                </div>
 
-    {% block module_status %}
-    {% endblock %}
+                <div id="progressWrapper" class="progress-container hidden">
+                    <div class="progress-bar-bg">
+                        <div id="progressFill" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="progressText" class="progress-text-label"></span>
+                </div>
 
-</div>
-{% endblock %}
+                {% block module_status %}
+                {% endblock %}
+
+            </div>
+            {% endblock %}
 
         </div>
 
     </aside>
 
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
 
-        <!-- TOP NAV -->
         <div class="top-nav-bar">
 
-            <!-- Home -->
             <div class="top-nav-left">
                 {% block top_left %}
                 <a href="/" class="top-home-btn">
@@ -107,7 +104,6 @@
                 {% endblock %}
             </div>
 
-            <!-- Module Title -->
             <div class="top-nav-center">
                 {% block top_center %}
                 <div class="module-title-pill">
@@ -116,9 +112,22 @@
                 {% endblock %}
             </div>
 
-            <!-- Help -->
-            <div class="top-nav-right">
+            <div class="top-nav-right-actions">
                 {% block top_right %}
+                
+                <div class="top-search-wrapper" id="topSearchWrapper">
+                    <button class="search-trigger-btn" onclick="toggleGlobalSearch()" title="Search Page">
+                        🔍
+                    </button>
+                    <input
+                        type="text"
+                        id="globalSearchInput"
+                        class="top-search-input"
+                        placeholder="Search page content..."
+                        onkeyup="executePageSearch(this.value)"
+                    >
+                </div>
+
                 <button class="help-btn">?</button>
                 {% endblock %}
             </div>
@@ -126,30 +135,21 @@
         </div>
 
 
-        <!-- TOOLBAR -->
         <div class="top-toolbar">
 
-            <!-- Module-specific buttons -->
             <div class="toolbar-left-section">
                 {% block toolbar_left %}
                 {% endblock %}
             </div>
 
-            <!-- Global Search -->
             <div class="toolbar-right-section">
                 {% block toolbar_right %}
-                <input
-                    type="text"
-                    class="toolbar-search-input"
-                    placeholder="Global Search (Later)"
-                >
                 {% endblock %}
             </div>
 
         </div>
 
 
-        <!-- PAGE CONTENT -->
         <div class="scrollable-report-content">
             {% block content %}
             {% endblock %}

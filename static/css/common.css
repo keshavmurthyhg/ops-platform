@@ -516,6 +516,46 @@ body {
     color: rgba(255,255,255,0.7);
 }
 
+/* =========================================================
+   TOP-BAR EXPANDED SEARCH VERTICAL SPACING CORRECTION
+========================================================= */
+
+/* Overrides framework .top-search-wrapper expanded state dimensions */
+.top-search-wrapper, 
+.top-search-wrapper.expanded,
+.toolbar-right-section {
+    height: 34px !important;
+    max-height: 34px !important;
+    min-height: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Fixes internal input bounding heights inside header bars */
+.toolbar-search-input,
+.top-search-input,
+.top-search-wrapper.expanded .top-search-input {
+    height: 32px !important;
+    max-height: 32px !important;
+    line-height: 32px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Align trigger buttons to prevent vertical cell line-overflow leaks */
+.search-trigger-btn {
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
 
 /* dropdowns */
 .toolbar-select {
@@ -803,4 +843,124 @@ body {
     color: #374151;
 
     font-weight: 600;
+}
+
+/* =====================================================
+   TOP NAVIGATION RIGHT ACTIONS & EXPANDING SEARCH
+===================================================== */
+.top-nav-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+/* Base Wrapper Container */
+.top-search-wrapper {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 2px;
+    overflow: hidden;
+    max-width: 38px; /* Initial state dimensions matching circular actions */
+}
+
+/* Trigger Icon Circle Button */
+.search-trigger-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.35);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.search-trigger-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* The Sliding Input Box */
+.top-search-input {
+    width: 0;
+    opacity: 0;
+    height: 30px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 13px;
+    padding: 0;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+
+.top-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Expanded State Applied Via JavaScript */
+.top-search-wrapper.expanded {
+    max-width: 300px;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    padding-right: 12px;
+}
+
+.top-search-wrapper.expanded .top-search-input {
+    width: 220px;
+    opacity: 1;
+    padding-left: 8px;
+}
+
+.top-search-wrapper.expanded .search-trigger-btn {
+    border-color: transparent; /* Clean integration visually */
+}
+
+
+/* =====================================================
+   PROCESSING FOOTER PROGRESS BAR VISUALS
+===================================================== */
+.progress-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.3s ease;
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: #4c7dff; /* Accent primary indicator color */
+    width: 0%;
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.progress-text-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: right;
+    display: block;
+}
+
+/* Retain legacy constraint protection over layout box widths */
+.top-nav-right {
+    display: none !important; /* Superceded by top-nav-right-actions layout */
 }

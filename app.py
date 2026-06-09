@@ -25,7 +25,7 @@ from report.report_routes import report_bp
 from converter.converter_routes import converter_bp
 from search.search_routes import search_bp
 from bulk.bulk_routes import bulk_bp
-from excel_compare.module.layout import excel_compare_bp
+from excel_compare.excel_compare_routes import excel_compare_bp
 from excel_merge.excel_merge_routes import excel_merge_bp
 from dcn_sequence.dcn_sequence_routes import dcn_sequence_bp
 from dcn_analytics.dcn_analytics_routes import dcn_analytics_bp

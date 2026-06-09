@@ -320,7 +320,9 @@ def download_full_excel_dashboard():
         # ---------------------------------------------------------
         # SHEET 2: DAILY SKIPPED DETAILS (FORMATTED & FROZEN)
         # ---------------------------------------------------------
-        ws_daily = wb.create_sheet(title="Daily Skipped Details")
+        # Fixed: Truncate title string to protect against openpyxl character limits
+        sheet_title = "Daily Skipped Details"[:31]
+        ws_daily = wb.create_sheet(title=sheet_title)
         ws_daily.views.sheetView[0].showGridLines = False  # Remove Grid lines
         ws_daily.freeze_panes = "B2"  # Freeze row 1 (and column A padding spacer)
 
@@ -384,3 +386,66 @@ def download_full_excel_dashboard():
     except Exception as error:
         logger.error(f"Master multi-sheet custom dashboard layout engine failed: {str(error)}")
         return jsonify({"success": False, "message": str(error)}), 500
+
+
+# =========================================================
+# APPLY CUSTOM FILTER CONTEXTS
+# =========================================================
+@dcn_analytics_bp.route("/api/dcn-analytics/apply-filters", methods=["POST"])
+def apply_filters_api():
+    payload = request.get_json() or {}
+    filter_type = payload.get("filter_type", "none")
+    logger.info(f"Filter Action Event Triggered: processing rule criteria -> '{filter_type}'")
+    try:
+        start_date_str = payload.get("start_date", "")
+        end_date_str = payload.get("end_date", "")
+        selected_years = payload.get("years", [])
+        quick_option = payload.get("quick_option", "")
+
+        file_path = validate_master_dataset()
+        df = pd.read_excel(file_path)
+        df = prepare_dataframe(df)
+        daily_summary_df = build_daily_summary(df)
+
+        if daily_summary_df.empty:
+            logger.warning("Filtering query completed yielding zero active records.")
+            return jsonify({
+                "success": True, 
+                "kpi": {"total_missing": 0, "latest_dcn": "-", "current_month": 0, "last_updated": "-"},
+                "daily_summary": [], "monthly_pivot": [], "chart_data": {"labels": [], "datasets": []}
+            })
+
+        daily_summary_df["FilterDate"] = pd.to_datetime(daily_summary_df["Date"], format="%d-%b-%Y")
+
+        if filter_type == "range" and start_date_str and end_date_str:
+            start_dt = pd.to_datetime(start_date_str)
+            end_dt = pd.to_datetime(end_date_str) + timedelta(days=1) - timedelta(seconds=1)
+            daily_summary_df = daily_summary_df[(daily_summary_df["FilterDate"] >= start_dt) & (daily_summary_df["FilterDate"] <= end_dt)]
+            logger.info(f"Date Boundary range slice applied: {start_date_str} to {end_date_str}")
+
+        elif filter_type == "year" and selected_years:
+            daily_summary_df = daily_summary_df[daily_summary_df["Year"].isin(selected_years)]
+            logger.info(f"Target Year array inclusion logic applied: {selected_years}")
+
+        elif filter_type == "quick" and quick_option:
+            days_to_subtract = int(quick_option)
+            max_date = daily_summary_df["FilterDate"].max()
+            boundary_date = max_date - timedelta(days=days_to_subtract)
+            daily_summary_df = daily_summary_df[daily_summary_df["FilterDate"] >= boundary_date]
+            logger.info(f"Relative lookback duration subset context loaded: {quick_option} offset days.")
+
+        daily_summary_df = daily_summary_df.drop(columns=["FilterDate"])
+
+        chart_data = build_monthly_chart_data(daily_summary_df)
+        monthly_pivot = build_monthly_pivot(daily_summary_df)
+        kpi = build_kpi(daily_summary_df)
+
+        logger.info("Filter compilation operation finalized successfully.")
+        return jsonify({
+            "success": True, "kpi": kpi, "daily_summary": daily_summary_df.to_dict(orient="records"),
+            "monthly_pivot": monthly_pivot, "chart_data": chart_data
+        })
+
+    except Exception as error:
+        logger.error(f"Metrics collection constraint query processing failed: {str(error)}")
+        return jsonify({"success": False, "message": f"Filter runtime error: {str(error)}"}), 500

@@ -1,0 +1,359 @@
+/* =========================================================================
+   1. MAIN CONTAINER LAYOUT RESET
+   Overrides default framework padding to maximize interactive data display area
+   ========================================================================= */
+.scrollable-report-content { 
+    overflow: hidden !important; 
+    padding: 0 !important; 
+}
+
+.ec-fixed-layout-wrapper {
+    display: flex; 
+    flex-direction: column; 
+    height: 100%; 
+    width: 100%; 
+    background: #f8fafc;
+}
+
+/* =========================================================================
+   2. NAVBAR CONTROLS & DUAL ACTION STRIPS
+   Inline rendering layout definitions for toolbars, dropdown stubs and file stubs
+   ========================================================================= */
+.toolbar-upload-strip { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+}
+
+.file-stub {
+    background: rgba(255, 255, 255, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px; 
+    height: 30px; 
+    padding: 0 10px; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    cursor: pointer;
+}
+
+.stub-badge { 
+    font-size: 10px; 
+    font-weight: 800; 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+}
+.stub-badge.removed { background: #ef4444; color: white; }
+.stub-badge.added { background: #10b981; color: white; }
+
+.stub-text { 
+    color: #e2e8f0; 
+    font-size: 12px; 
+    max-width: 150px; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+}
+
+.ec-view-toggle { 
+    display: flex; 
+    border-radius: 6px; 
+    overflow: hidden; 
+    border: 1px solid rgba(255,255,255,0.2); 
+}
+
+.ec-view-btn { 
+    height: 30px; 
+    padding: 0 12px; 
+    background: rgba(255,255,255,0.1); 
+    border: none; 
+    color: #cbd5e1; 
+    font-size: 12px; 
+    cursor: pointer; 
+}
+.ec-view-btn.active { 
+    background: white; 
+    color: #162f52; 
+    font-weight: 600; 
+}
+
+/* =========================================================================
+   3. METRIC KPI STRIP & SHEET MULTITABS
+   Layout row for dynamic cross-tab comparisons and workbook sheet lookups
+   ========================================================================= */
+.ec-kpi-strip {
+    height: 52px; 
+    background: white; 
+    border-bottom: 1px solid #e2e8f0;
+    display: flex; 
+    align-items: center; 
+    padding: 0 20px; 
+    gap: 20px; 
+    flex-shrink: 0;
+}
+
+.kpi-box { display: flex; align-items: baseline; gap: 6px; font-size: 12px; }
+.kpi-box strong { font-size: 18px; color: #1e293b; }
+.kpi-box.mod strong { color: #b45309; }
+.kpi-box.add strong { color: #15803d; }
+.kpi-box.rem strong { color: #b91c1c; }
+
+.sheet-tabs-container { 
+    margin-left: auto; 
+    display: flex; 
+    gap: 6px; 
+}
+
+.tab-btn { 
+    padding: 4px 12px; 
+    background: #f1f5f9; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 4px; 
+    font-size: 12px; 
+    cursor: pointer; 
+}
+.tab-btn.active { 
+    background: #162f52; 
+    color: white; 
+}
+
+/* =========================================================================
+   4. SIDEBAR ELEMENTS PRESERVATION
+   Protects text styling and formatting rules inside the global sidebar component
+   ========================================================================= */
+.ec-sidebar-legend { 
+    padding: 4px 0; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+}
+
+.legend-title { 
+    font-size: 11px; 
+    font-weight: 700; 
+    color: #94a3b8; 
+    text-transform: uppercase; 
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.legend-row { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    font-size: 12px; 
+    color: #cbd5e1; 
+}
+
+.chip { 
+    font-size: 10px; 
+    font-weight: 700; 
+    padding: 3px 8px; 
+    border-radius: 4px; 
+    min-width: 65px; 
+    text-align: center; 
+}
+.chip.added { background: #dcfce7; color: #14532d; }
+.chip.removed { background: #fee2e2; color: #7f1d1d; }
+.chip.modified { background: #fef9c3; color: #713f12; }
+
+/* =========================================================================
+   5. COMPONENT VIEW MATRIX LAYOUT (SPLIT SCROLL VIEWPORTS)
+   Locks columns together, keeps headers sticky, and controls background row colors
+   ========================================================================= */
+.ec-workspace-pane { 
+    flex: 1; 
+    position: relative; 
+    overflow: hidden; 
+    display: flex; 
+}
+
+.ec-empty-state { 
+    margin: auto; 
+    text-align: center; 
+    color: #94a3b8; 
+}
+
+.ec-split-container { 
+    display: flex; 
+    width: 100%; 
+    height: 100%; 
+    overflow: hidden; 
+}
+
+.view-panel-half {
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    width: 50%; 
+    border-right: 2px solid #cbd5e1; 
+    overflow: hidden;
+}
+.view-panel-half:last-child { 
+    border-right: none; 
+}
+
+.panel-header-sticky {
+    padding: 10px; 
+    font-size: 13px; 
+    font-weight: 700; 
+    text-align: center; 
+    color: white; 
+    flex-shrink: 0;
+}
+.removed-header { background: #2d1a1a; color: #fca5a5; }
+.added-header { background: #1a2d1d; color: #86efac; }
+
+.scroller-viewport { 
+    flex: 1; 
+    overflow: auto; 
+    background: white; 
+}
+
+.matrix-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    table-layout: fixed; 
+}
+
+.matrix-table th {
+    position: sticky; 
+    top: 0; 
+    background: #f1f5f9; 
+    color: #475569;
+    font-size: 11px; 
+    padding: 6px; 
+    border-right: 1px solid #e2e8f0; 
+    border-bottom: 2px solid #cbd5e1; 
+    z-index: 5;
+}
+
+.matrix-table td {
+    padding: 6px; 
+    font-size: 12px; 
+    border-right: 1px solid #e2e8f0; 
+    border-bottom: 1px solid #f1f5f9;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+    min-width: 110px;
+}
+.matrix-table tr:nth-child(even) { 
+    background: #f8fafc; 
+}
+
+/* =========================================================================
+   6. DYNAMIC VARIATION HIGHLIGHT COLORS
+   Exact color definitions for layout changes
+   ========================================================================= */
+td.added { background: #dcfce7 !important; color: #14532d; font-weight: 600; }
+td.removed { background: #fee2e2 !important; color: #7f1d1d; text-decoration: line-through; }
+td.modified { background: #fef9c3 !important; color: #713f12; font-weight: 600; }
+td.gt { background: #e2e8f0; text-align: center; color: #64748b; font-size: 11px; font-weight: bold; width: 45px; min-width: 45px !important; position: sticky; left: 0; z-index: 2; }
+
+/* =========================================================================
+   7. CHANGELOG INTERNAL GRID ELEMENTS
+   Layout formatting for flat lists
+   ========================================================================= */
+.ec-log-view { display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden; }
+.ec-table-scroller { flex: 1; overflow: auto; }
+.ec-log-table { width: 100%; border-collapse: collapse; background: white; text-align: left; }
+.ec-log-table th { background: #1e293b; color: white; padding: 10px; font-size: 12px; position: sticky; top: 0; }
+.ec-log-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+
+
+/* =========================================================================
+   8. WORKSPACE EMPTY STATE VIEWPORTS
+   Handles centering mechanics and layout spacing for the empty workspace screen
+   ========================================================================= */
+.ec-empty-state { 
+    margin: auto; 
+    text-align: center; 
+    color: #94a3b8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    width: 100%;
+    height: 100%;
+}
+
+.empty-icon { 
+    font-size: 48px; 
+    margin-bottom: 16px;
+    line-height: 1;
+}
+
+.ec-empty-state h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #64748b;
+    margin: 0 0 8px 0;
+}
+
+.ec-empty-state p {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.5;
+}
+
+/* =========================================================================
+   8. Help Modal Overlay
+   
+   ========================================================================= */
+.ec-modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.ec-modal-container {
+    background: white;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.ec-modal-header {
+    padding: 16px 24px;
+    background: #1e293b;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 24px;
+}
+
+.help-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+.help-card:hover {
+    transform: translateY(-3px);
+    border-color: #3b82f6;
+}
+
+.help-icon { font-size: 24px; margin-bottom: 12px; }
+.help-card h4 { margin-bottom: 8px; color: #1e293b; }
+.help-card p { font-size: 13px; color: #64748b; line-height: 1.4; }

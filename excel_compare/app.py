@@ -1,43 +1,29 @@
-"""
-Excel Compare — Standalone App
-================================
-Run this file to launch ONLY the Excel Compare module.
-
-    python excel_compare/app.py
-"""
-
-import sys
 import os
+import sys
+from flask import Flask, redirect, url_for
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+# Add parent directory to system path so absolute module importing resolves flawlessly when run directly
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flask import Flask, render_template, send_from_directory
-from excel_compare.module.layout import excel_compare_bp
+from excel_compare.excel_compare_routes import excel_compare_bp
 
 app = Flask(
-    __name__,
-    template_folder=os.path.join(PROJECT_ROOT, "templates"),
-    static_folder=os.path.join(PROJECT_ROOT, "static"),
+    __name__, 
+    template_folder=os.path.join(os.path.dirname(__file__), 'module', 'templates'),
+    static_folder=os.path.join(os.path.dirname(__file__), 'module', 'statics')
 )
-app.secret_key = "excel_compare_secret"
 
-UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, "excel_compare", "module", "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
+app.secret_key = "standalone_secret"
 
+# Register the blueprint at base root prefix for standalone distribution simplicity
 app.register_blueprint(excel_compare_bp, url_prefix="")
 
-
-@app.route("/")
-def home():
-    return render_template("excel_compare/templates/excel_compare.html")
-
-
-@app.route("/uploads/<path:filename>")
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
-
+@app.route('/')
+def home_redirect():
+    # Automatically forward root lookups directly to our tool page
+    return redirect(url_for('excel_compare.index'))
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False, port=5006)
+    print("Running Excel Compare Module as a Standalone Web Application...")
+    app.run(debug=True, port=5006)
