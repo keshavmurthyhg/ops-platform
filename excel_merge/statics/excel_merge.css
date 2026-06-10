@@ -1,0 +1,1013 @@
+/* =====================================================
+SIDEBAR
+===================================================== */
+
+.sidebar-card {
+
+    background: rgba(255,255,255,0.04);
+
+    border: 1px solid rgba(255,255,255,0.06);
+
+    border-radius: 10px;
+
+    padding: 14px;
+
+    margin-top: 12px;
+}
+
+
+/* =====================================================
+INPUTS
+===================================================== */
+
+.sidebar-card input,
+.sidebar-card select {
+
+    width: 100%;
+
+    margin-bottom: 12px;
+}
+
+
+/* =====================================================
+TABLE
+===================================================== */
+
+.table-scroll-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+    margin-top: 20px;
+}
+
+
+#mergeResultsTable {
+
+    border-collapse: collapse;
+
+    width: max-content;
+
+    min-width: 100%;
+}
+
+
+#mergeResultsTable th {
+
+    background: #f3f4f6;
+
+    color: #172b46;
+
+    font-weight: 700;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+
+    white-space: nowrap;
+}
+
+
+#mergeResultsTable td {
+
+    background: white;
+
+    padding: 10px 12px;
+
+    border: 1px solid #e5e7eb;
+
+    white-space: nowrap;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+EMPTY MESSAGE
+===================================================== */
+
+.empty-search-message {
+
+    text-align: center;
+
+    padding: 40px;
+
+    color: #94a3b8;
+}
+
+
+/* =====================================================
+UTILITY
+===================================================== */
+
+.hidden {
+
+    display: none;
+}
+
+/* =====================================================
+TOOLBAR
+===================================================== */
+
+.excel-toolbar-group {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 30px;
+
+    height: 100%;
+}
+
+
+.toolbar-upload-group {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+/* hide native file input */
+.toolbar-upload-group input[type="file"] {
+
+    display: none;
+}
+
+
+.toolbar-file-name {
+
+    color: white;
+
+    font-size: 14px;
+
+    max-width: 180px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+KPI
+===================================================== */
+
+.excel-kpi-row {
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+
+.excel-kpi-card {
+
+    background: white;
+
+    border-radius: 14px;
+
+    padding: 18px;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+
+.excel-kpi-card span {
+
+    display: block;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    margin-bottom: 8px;
+}
+
+
+.excel-kpi-card strong {
+
+    font-size: 30px;
+
+    color: #172b46;
+}
+
+
+/* =====================================================
+PREVIEW
+===================================================== */
+
+.excel-preview-card {
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 24px;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+
+.preview-placeholder {
+
+    color: #64748b;
+
+    margin-top: 8px;
+}
+
+/* =========================================
+   PREVIEW TABLE
+========================================= */
+
+.excel-preview-card {
+    height: calc(100vh - 165px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.table-scroll-wrapper {
+    flex: 1;
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid #d7dce5;
+    background: white;
+}
+
+/* TABLE */
+
+#mergeResultsTable {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+/* HEADER */
+
+#mergeResultsTable thead th {
+
+    position: sticky;
+    top: 0;
+    z-index: 3;
+
+    background: #eef2f7;
+    color: #1e293b;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    padding: 12px 14px;
+
+    border-bottom: 1px solid #d7dce5;
+    border-right: 1px solid #e2e8f0;
+
+    white-space: nowrap;
+}
+
+/* BODY */
+
+#mergeResultsTable tbody td {
+
+    padding: 10px 14px;
+
+    font-size: 14px;
+    color: #334155;
+
+    border-bottom: 1px solid #edf1f5;
+    border-right: 1px solid #edf1f5;
+
+    max-width: 240px;
+    min-width: 140px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ROW HOVER */
+
+#mergeResultsTable tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* FREEZE FIRST COLUMN */
+
+#mergeResultsTable th:first-child,
+#mergeResultsTable td:first-child {
+
+    position: sticky;
+
+    left: 0;
+
+    z-index: 20;
+
+    background: white !important;
+
+    box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+
+    background-clip: padding-box;
+
+    min-width: 160px;
+    max-width: 160px;
+
+    font-weight: 600;
+}
+
+/* HEADER FIRST COLUMN */
+
+#mergeResultsTable thead th:first-child {
+
+    z-index: 30;
+
+    background: #e2e8f0 !important;
+
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+}
+
+/* LONG TEXT COLUMNS */
+
+.long-text-column {
+
+    max-width: 420px !important;
+    min-width: 420px !important;
+}
+
+/* SMALL COLUMNS */
+
+.small-column {
+
+    min-width: 120px !important;
+    max-width: 120px !important;
+}
+
+/* NUMBER COLUMN */
+
+.number-column {
+
+    min-width: 160px !important;
+    max-width: 160px !important;
+    font-weight: 700;
+}
+
+/* CUSTOM SCROLLBAR */
+
+.table-scroll-wrapper::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 10px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-track {
+    background: #e2e8f0;
+}
+
+/* =====================================================
+UPLOAD BUTTONS
+===================================================== */
+
+.upload-btn {
+
+    cursor: pointer;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 170px;
+}
+
+
+/* hide actual input */
+.toolbar-upload-group input[type="file"] {
+
+    display: none;
+}
+
+
+/* toolbar spacing */
+.excel-toolbar-group {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 26px;
+}
+
+
+.toolbar-upload-group {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.toolbar-file-name {
+
+    color: white;
+
+    font-size: 14px;
+
+    max-width: 180px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.excel-toolbar-actions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+
+/* =========================================
+   PROCESSING STATUS
+========================================= */
+
+.report-status-meta {
+
+    margin-top: 10px;
+}
+
+.status-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-bottom: 6px;
+
+    font-size: 13px;
+
+    color: white;
+}
+
+.status-label {
+
+    font-weight: 700;
+
+    color: #cbd5e1;
+
+    min-width: 85px;
+}
+
+#activeSearch,
+#searchResultStatus,
+#lastSearchAction,
+#progressText,
+#statusMessage {
+
+    color: white;
+}
+
+
+/* =========================================
+   SEARCH PROGRESS
+========================================= */
+
+.search-progress-wrapper {
+
+    margin-top: 10px;
+}
+
+.search-status-text {
+
+    color: white;
+
+    font-size: 13px;
+
+    margin-bottom: 10px;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================
+   PROGRESS BAR
+========================================= */
+
+.search-progress-bar {
+
+    width: 100%;
+
+    height: 10px;
+
+    background: rgba(255,255,255,0.15);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    position: relative;
+}
+
+
+/* =========================================
+   PROGRESS FILL
+========================================= */
+
+.search-progress-fill {
+
+    height: 100%;
+
+    width: 0%;
+
+    background: linear-gradient(
+        90deg,
+        #22c55e,
+        #4ade80
+    );
+
+    border-radius: 20px;
+
+    transition: width 0.35s ease;
+
+    position: relative;
+}
+
+
+/* =========================================
+   ACTIVE PROGRESS
+========================================= */
+
+.search-progress-fill.active-progress {
+
+    animation: progressPulse 1s infinite ease-in-out;
+}
+
+
+/* PULSE */
+
+@keyframes progressPulse {
+
+    0% {
+
+        opacity: 0.65;
+
+        transform: scaleY(1);
+    }
+
+    50% {
+
+        opacity: 1;
+
+        transform: scaleY(1.08);
+    }
+
+    100% {
+
+        opacity: 0.65;
+
+        transform: scaleY(1);
+    }
+}
+
+/* =========================================
+   SIDEBAR ACTION TEXT
+========================================= */
+
+.sidebar-card h3,
+.sidebar-card label,
+.sidebar-card span {
+
+    color: white;
+}
+
+
+/* =========================================
+   INPUT TEXT
+========================================= */
+
+.sidebar-card input,
+.sidebar-card select {
+
+    color: white;
+
+    background: rgba(255,255,255,0.08);
+
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+
+/* =========================================
+   PLACEHOLDER
+========================================= */
+
+.sidebar-card input::placeholder {
+
+    color: rgba(255,255,255,0.7);
+}
+
+
+/* =========================================
+   SELECT OPTIONS
+========================================= */
+
+.sidebar-card select option {
+
+    color: black;
+}
+
+
+/* =========================================
+   EXCEL ACTION TITLE
+========================================= */
+
+.sidebar-title,
+.excel-actions-title {
+
+    color: white;
+}
+
+/* =========================================
+   DOCK SECTION SYSTEM
+========================================= */
+
+.dock-section {
+
+    display: none;
+}
+
+.active-section {
+
+    display: block;
+}
+
+
+/* =========================================
+   ACTIVE DOCK ICON
+========================================= */
+
+.active-dock {
+
+    background: rgba(255,255,255,0.12);
+
+    border-left: 3px solid white;
+}
+
+
+/* =========================================
+   ACTION TITLE
+========================================= */
+
+.card-title {
+
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    margin-bottom: 22px;
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.sidebar-card select {
+
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 14px;
+
+    margin-bottom: 18px;
+
+    background: rgba(255,255,255,0.08);
+
+    color: white;
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    border-radius: 10px;
+
+    font-size: 15px;
+
+    font-weight: 500;
+
+    appearance: none;
+
+    -webkit-appearance: none;
+
+    -moz-appearance: none;
+}
+
+.sidebar-card select option {
+
+    color: black;
+}
+
+
+/* =========================================
+   PLACEHOLDER
+========================================= */
+
+.sidebar-card input::placeholder {
+
+    color: rgba(255,255,255,0.75);
+}
+
+/* =========================================
+   KPI GRID
+========================================= */
+
+.excel-kpi-grid {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+
+    margin-top: 8px;
+}
+
+
+/* =========================================
+   KPI MINI CARD
+========================================= */
+
+.excel-kpi-mini {
+
+    background: rgba(255,255,255,0.08);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+    text-align: center;
+}
+
+
+/* KPI LABEL */
+
+.excel-kpi-mini span {
+
+    display: block;
+
+    color: #cbd5e1;
+
+    font-size: 12px;
+
+    margin-bottom: 8px;
+}
+
+
+/* KPI VALUE */
+
+.excel-kpi-mini strong {
+
+    color: white;
+
+    font-size: 24px;
+
+    font-weight: 700;
+}
+
+/* =========================================
+   KPI GRID FIX
+========================================= */
+
+.excel-kpi-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+
+    width: 100%;
+}
+
+
+/* =========================================
+   KPI MINI CARD
+========================================= */
+
+.excel-kpi-mini {
+
+    min-width: 0;
+
+    width: 100%;
+
+    height: 110px;
+
+    border-radius: 14px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    box-sizing: border-box;
+
+    transition: all 0.2s ease;
+}
+
+
+/* =========================================
+   KPI COLORS
+========================================= */
+
+/* TOTAL */
+
+.excel-kpi-mini:nth-child(1) {
+
+    background: linear-gradient(
+        180deg,
+        rgba(59,130,246,0.28),
+        rgba(37,99,235,0.22)
+    );
+}
+
+
+/* UPDATED */
+
+.excel-kpi-mini:nth-child(2) {
+
+    background: linear-gradient(
+        180deg,
+        rgba(249,115,22,0.28),
+        rgba(234,88,12,0.22)
+    );
+}
+
+
+/* NEW */
+
+.excel-kpi-mini:nth-child(3) {
+
+    background: linear-gradient(
+        180deg,
+        rgba(34,197,94,0.28),
+        rgba(22,163,74,0.22)
+    );
+}
+
+
+/* DUPLICATES */
+
+.excel-kpi-mini:nth-child(4) {
+
+    background: linear-gradient(
+        180deg,
+        rgba(239,68,68,0.28),
+        rgba(220,38,38,0.22)
+    );
+}
+
+
+/* =========================================
+   KPI LABEL
+========================================= */
+
+.excel-kpi-mini span {
+
+    display: block;
+
+    color: rgba(255,255,255,0.88);
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    margin-bottom: 10px;
+}
+
+
+/* =========================================
+   KPI VALUE
+========================================= */
+
+.excel-kpi-mini strong {
+
+    color: white;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    line-height: 1;
+}
+
+/* =========================================
+   UPDATED CELLS
+========================================= */
+
+.updated-cell {
+
+    background: #fef3c7 !important;
+    color: #92400e !important;
+    font-weight: 600;
+}
+
+
+/* =========================================
+   NEW ROWS
+========================================= */
+
+.new-cell {
+
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    font-weight: 600;
+}
+
+/* =========================================
+   FREEZE FIRST COLUMN
+========================================= */
+
+#mergeResultsTable th:first-child,
+#mergeResultsTable td:first-child {
+
+    position: sticky;
+
+    left: 0;
+
+    z-index: 20;
+
+    background: white !important;
+
+    background-clip: padding-box;
+
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06);
+}
+
+/* HEADER FROZEN COLUMN */
+
+#mergeResultsTable thead th:first-child {
+
+    z-index: 30;
+
+    background: #e2e8f0 !important;
+}
+
+/* =========================================
+   UPDATED CELLS
+========================================= */
+
+.updated-cell {
+
+    background: #fef3c7 !important;
+
+    color: #92400e !important;
+
+    font-weight: 600;
+}
+
+/* =========================================
+   NEW ROWS
+========================================= */
+
+.new-cell {
+
+    background: #dcfce7 !important;
+
+    color: #166534 !important;
+
+    font-weight: 600;
+}

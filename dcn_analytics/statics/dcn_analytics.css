@@ -1,0 +1,657 @@
+/* =========================================================
+   MAIN 2-COLUMN PARENT CONTAINER
+========================================================= */
+.dashboard-grid-container {
+    padding: 14px;
+    height: calc(100vh - 110px); /* Strict screen constraints to kill page scrolling */
+    display: grid;
+    grid-template-columns: 1.6fr 0.9fr; /* Left column wider, right column tighter */
+    gap: 14px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* =========================================================
+   LEFT COLUMN (CHART ON TOP, DAILY SUMMARY ON BOTTOM)
+========================================================= */
+.dashboard-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Splits vertical space inside the left column equally */
+.chart-card-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+
+.daily-summary-card-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+
+/* =========================================================
+   RIGHT COLUMN (FULL HEIGHT PIVOT)
+========================================================= */
+.dashboard-right-column {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.pivot-full-height-card {
+    height: 100%;
+}
+
+/* =========================================================
+   TABLE SCROLL & WRAPPERS
+========================================================= */
+.table-scroll-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative; /* Fixes sticky header jitter */
+}
+
+/* Explicitly hides vertical scrollbar for the right Pivot section */
+.pivot-no-scroll {
+    overflow-y: hidden !important;
+}
+
+/* Kill generic parent scrolling scopes */
+.module-content {
+    overflow: hidden !important;
+}
+
+/* =========================================================
+   CHART CONTROLS
+========================================================= */
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 58px);
+    padding: 14px 18px 18px 18px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#monthlyTrendChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* =========================================================
+   GLOBAL SEARCH BAR DESIGN ALIGNMENT FIXED
+========================================================= */
+.toolbar-search-input {
+    height: 34px; /* Matches exact height of home and module title boxes */
+    padding: 0 14px;
+    font-size: 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #334155;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    width: 240px;
+}
+
+.toolbar-search-input:focus {
+    border-color: #366092;
+    box-shadow: 0 0 0 3px rgba(54, 96, 146, 0.15);
+    width: 280px; /* Smooth elegant expansion animation on active typing */
+}
+
+/* =========================================================
+   TOP-BAR EXPANDED SEARCH VERTICAL SPACING CORRECTION
+========================================================= */
+
+/* Overrides framework .top-search-wrapper expanded state dimensions */
+.top-search-wrapper, 
+.top-search-wrapper.expanded,
+.toolbar-right-section {
+    height: 34px !important;
+    max-height: 34px !important;
+    min-height: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Fixes internal input bounding heights inside header bars */
+.toolbar-search-input,
+.top-search-input,
+.top-search-wrapper.expanded .top-search-input {
+    height: 32px !important;
+    max-height: 32px !important;
+    line-height: 32px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Align trigger buttons to prevent vertical cell line-overflow leaks */
+.search-trigger-btn {
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+.toolbar-btn {
+    height: 34px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary-btn {
+    background: #0078d4;
+    color: white;
+}
+
+.upload-toolbar-btn {
+    height: 34px;
+    min-width: 180px;
+    background: #445b7c;
+    color: white;
+    border-radius: 6px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   DOCK ITEM
+========================================================= */
+.dock-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    cursor: pointer;
+}
+
+.active-dock {
+    background: rgba(255,255,255,0.12);
+    border-left: 3px solid #4da3ff;
+}
+
+/* =========================================================
+   SIDEBAR GENERAL
+========================================================= */
+.module-sidebar-section {
+    padding: 8px 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sidebar-collapsed .module-sidebar-section {
+    display: none;
+}
+
+.sidebar-collapsed .processing-status {
+    display: block;
+}
+
+/* =========================================================
+   KPI SECTION
+========================================================= */
+.sidebar-kpi-title {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.sidebar-kpi-grid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.sidebar-kpi-card {
+    flex: 1;
+    width: 110px;
+    height: 80px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-kpi-label {
+    color: white;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.sidebar-kpi-value {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.success-kpi {
+    color: #4ade80;
+}
+
+/* =========================================================
+   LATEST DCN
+========================================================= */
+.latest-dcn-wrapper {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.latest-dcn-title {
+    color: #9eb6d8;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.latest-dcn-list {
+    color: #ff6b6b;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.7;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* =========================================================
+   LAST UPDATED
+========================================================= */
+.sidebar-last-updated {
+    margin-top: 16px;
+    text-align: center;
+    color: #9eb6d8;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.sidebar-last-updated span {
+    display: block;
+    color: white;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+/* =========================================================
+   DASHBOARD CARDS & HEADERS
+========================================================= */
+.dashboard-card {
+    background: white;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+    background: #fafafa;
+    color: #333;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   TABLES CORE DESIGN
+========================================================= */
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Ensures strict assignment constraints */
+}
+
+.analytics-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f5f5f5;
+    box-shadow: 0 1px 0 #d9d9d9;
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.analytics-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+}
+
+.analytics-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* Tight strict column measurements to maximize room */
+.analytics-table th.col-sl-no,
+.analytics-table td:nth-child(1) {
+    width: 55px !important;
+    text-align: center;
+}
+
+.analytics-table th.col-date,
+.analytics-table td:nth-child(2) {
+    width: 105px !important;
+}
+
+.analytics-table th.col-sequence,
+.analytics-table td:nth-child(3) {
+    width: 140px !important;
+    text-align: center;
+}
+
+/* Align values neatly under metrics headers */
+#dailySummaryBody td:nth-child(1),
+#dailySummaryBody td:nth-child(3) {
+    text-align: center;
+}
+
+#dailySummaryBody td:last-child {
+    min-width: 350px;
+    color: #d63031;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   PROCESSING STATUS
+========================================================= */
+.search-progress-wrapper {
+    margin-top: 10px;
+}
+
+.search-status-heading {
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.search-status-text {
+    color: white;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.search-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.search-progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.35s ease;
+}
+
+.search-progress-fill.active-progress {
+    animation: progressPulse 1s infinite ease-in-out;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes progressPulse {
+    0% { opacity: 0.65; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.08); }
+    100% { opacity: 0.65; transform: scaleY(1); }
+}
+
+/* =========================================================
+   DOWNLOAD PANEL
+========================================================= */
+#download-section {
+    padding: 8px 16px 16px 16px;
+    box-sizing: border-box;
+}
+
+#download-section .sidebar-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.download-report-btn {
+    width: 100%;
+    height: 46px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.download-report-btn:hover {
+    background: rgba(255,255,255,0.16);
+}
+
+/* =========================================================
+   FILTER PANEL
+========================================================= */
+#filter-section {
+    padding: 8px 16px 16px 16px;
+    box-sizing: border-box;
+}
+
+#filter-section select,
+#filter-section input[type="date"] {
+    width: 100%;
+    height: 40px;
+    margin-bottom: 14px;
+    background: #445b7c;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+#filter-section select option {
+    color: black;
+}
+
+#filter-section .filter-label {
+    color: #dbeafe;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.date-sub-section {
+    display: none;
+    margin-top: 14px;
+}
+
+.date-sub-section.active-date-section {
+    display: block;
+}
+
+.year-checkbox-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.year-checkbox-grid label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.year-checkbox-grid input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #4da3ff;
+    cursor: pointer;
+}
+
+.quick-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quick-radio-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.quick-radio-item input[type="radio"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #4da3ff;
+    cursor: pointer;
+}
+
+#filter-section .card-title,
+#download-section .card-title {
+    background: transparent !important;
+    border-bottom: none !important;
+    padding: 0 0 14px 0 !important;
+    color: white !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1.3;
+}
+
+.dock-section {
+    display: none;
+    width: 100%;
+}
+
+.dock-section.active-section {
+    display: block;
+}
+
+/* =========================================================
+   RESPONSIVE & TABLET ADAPTATION
+========================================================= */
+@media (max-width: 1100px) {
+    .dashboard-grid-container {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+        height: auto;
+    }
+    .chart-wrapper {
+        height: 380px;
+    }
+    .sidebar-kpi-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    .sidebar-kpi-card {
+        width: 100%;
+    }
+    .pivot-no-scroll {
+        overflow-y: auto !important;
+    }
+}
+
+
+/* =========================================================
+   TEXT ALIGNMENT CONTROLS FOR ANALYTICS TABLES
+========================================================= */
+
+/* Center align all header blocks across both dashboard tables */
+.analytics-table th {
+    text-align: center !important;
+}
+
+/* Center align all standard cell data values */
+.analytics-table td {
+    text-align: center;
+}
+
+/* Target Left alignment specifically for data columns */
+.analytics-table th:last-child {
+    text-align: left !important; /* Daily: Skipped DCN Numbers header */
+}
+
+#dailySummaryBody td:last-child {
+    text-align: left !important;  /* Daily: Skipped DCN Numbers cell content */
+    padding-left: 14px;
+}
+
+.pivot-full-height-card .analytics-table th:first-child,
+#pivotTableBody td:first-child {
+    text-align: center !important; /* Keep Month text pristine and neat */
+}
+
+/* =========================================================
+   PIVOT SUMMARY FOOTER TOTAL ROW STYLES
+========================================================= */
+.pivot-total-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 9;
+    background: #f1f3f5 !important; /* Distinct grey separator background */
+    font-weight: 700 !important;
+    border-top: 2px solid #ced4da;
+    box-shadow: 0 -1px 0 #ced4da;
+}
+
+.pivot-total-row td {
+    font-size: 13px !important;
+    color: #111827 !important;
+    padding: 10px !important;
+}

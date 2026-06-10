@@ -20,7 +20,10 @@ from dcn_sequence.module.services.dcn_sequence_service import (
 # =========================================================
 dcn_sequence_bp = Blueprint(
     "dcn_sequence",
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/dcn_sequence/static"
 )
 
 

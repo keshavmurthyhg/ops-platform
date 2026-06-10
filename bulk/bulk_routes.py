@@ -16,7 +16,10 @@ from bulk.module.bulk_service import (
 
 bulk_bp = Blueprint(
     "bulk",
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/bulk/static"
 )
 
 

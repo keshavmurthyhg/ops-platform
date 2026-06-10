@@ -1,155 +1,115 @@
 # OPS Platform
 
-A modular Flask application for Operations, Reporting, and Analytics tools.
+A modular Flask operations platform. Every module is **fully self-contained** and can run standalone or together as one combined app.
 
 ---
 
-## Project Structure
+## Running the Platform
 
+### Combined (all modules together)
 ```
-my-apps/
-│
-├── app.py                      ← Combined app (runs ALL modules)
-│
-├── common/                     ← Shared utilities used across modules
-│   ├── config.py               ← Central config (API toggles, credentials)
-│   ├── path_helper.py          ← sys.path helper for standalone runs
-│   ├── logger.py
-│   ├── data/                   ← Shared data loaders (SNOW, etc.)
-│   ├── ui/                     ← Shared UI components (preview, buttons)
-│   └── utils/                  ← Shared utilities (parsers, links, etc.)
-│
-├── operations_center/          ← Operations Center module
-│   ├── app.py                  ← Standalone app (port 5001)
-│   ├── operations_center_routes.py
-│   └── module/                 ← All business logic
-│
-├── report/                     ← RCA Report Generator
-│   ├── app.py                  ← Standalone app (port 5002)
-│   ├── report_routes.py
-│   └── module/
-│
-├── search/                     ← Incident Search
-│   ├── app.py                  ← Standalone app (port 5003)
-│   ├── search_routes.py
-│   └── module/
-│
-├── converter/                  ← PPT → Word Converter
-│   ├── app.py                  ← Standalone app (port 5004)
-│   ├── converter_routes.py
-│   └── module/
-│
-├── bulk/                       ← Bulk Report Generator
-│   ├── app.py                  ← Standalone app (port 5005)
-│   ├── bulk_routes.py
-│   └── module/
-│
-├── excel_compare/              ← Excel Compare (v2)
-│   ├── app.py                  ← Standalone app (port 5006)
-│   └── module/
-│
-├── excel_merge/                ← Excel Merge / Deduplication
-│   ├── app.py                  ← Standalone app (port 5007)
-│   ├── excel_merge_routes.py
-│   └── module/
-│
-├── dcn_sequence/               ← DCN Sequence Processor
-│   ├── app.py                  ← Standalone app (port 5008)
-│   ├── dcn_sequence_routes.py
-│   └── module/
-│
-├── dcn_analytics/              ← DCN Analytics Dashboard
-│   ├── app.py                  ← Standalone app (port 5009)
-│   ├── dcn_analytics_routes.py
-│   └── module/
-│
-├── static/                     ← CSS / JS / Images (shared)
-├── templates/                  ← HTML templates (shared)
-├── data/                       ← Local Excel/CSV data files
-├── jobs/                       ← Background/scheduled jobs
-│
-├── uploads/                    ← Auto-created on first run
-├── outputs/                    ← Auto-created on first run
-│
-├── .env.example                ← Copy to .env and fill credentials
-└── README.md
-```
-
----
-
-## Running the App
-
-### Run All Modules Together
-
-```bash
 python app.py
 ```
+Serves all modules on a single Flask server (default port 5000).
 
-Opens at: http://localhost:5000
+### Standalone (one module at a time)
+```
+python bulk/app.py              → http://localhost:5005
+python converter/app.py         → http://localhost:5004
+python dcn_analytics/app.py     → http://localhost:5009
+python dcn_sequence/app.py      → http://localhost:5008
+python excel_compare/app.py     → http://localhost:5006
+python excel_merge/app.py       → http://localhost:5007
+python operations_center/app.py → http://localhost:5001
+python report/app.py            → http://localhost:5002
+python search/app.py            → http://localhost:5003
+```
 
 ---
 
-### Run a Single Module (Standalone)
+## Architecture
 
-Each module has its own `app.py` and runs independently. Useful for sharing
-a single tool without the whole platform.
-
-| Module            | Command                              | Port  |
-|-------------------|--------------------------------------|-------|
-| Operations Center | `python operations_center/app.py`    | 5001  |
-| Report Generator  | `python report/app.py`               | 5002  |
-| Search            | `python search/app.py`               | 5003  |
-| PPT Converter     | `python converter/app.py`            | 5004  |
-| Bulk Generator    | `python bulk/app.py`                 | 5005  |
-| Excel Compare     | `python excel_compare/app.py`        | 5006  |
-| Excel Merge       | `python excel_merge/app.py`          | 5007  |
-| DCN Sequence      | `python dcn_sequence/app.py`         | 5008  |
-| DCN Analytics     | `python dcn_analytics/app.py`        | 5009  |
-
-> **Important:** Always run from the **project root**, not from inside a
-> module folder. The modules resolve templates, static files, and data
-> files relative to the project root.
->
-> ```bash
-> cd /path/to/my-apps
-> python operations_center/app.py   ✅
-> cd operations_center && python app.py   ❌ (paths will break)
-> ```
-
----
-
-## Configuration
-
-Copy `.env.example` to `.env` and fill in credentials:
-
-```bash
-cp .env.example .env
-```
-
-Then edit `.env`:
+### Module Structure
+Every module follows the same self-contained layout (mirroring `excel_compare`):
 
 ```
-SNOW_PASSWORD=your_password
-AZURE_PAT=your_pat_token
-PTC_PASSWORD=your_password
+<module>/
+├── app.py                  ← Standalone Flask entry point
+├── <module>_routes.py      ← Blueprint with template_folder + static_folder
+├── templates/
+│   └── <module>.html       ← Module page (extends main.html)
+├── statics/
+│   ├── <module>.css        ← Module-specific styles
+│   └── <module>.js         ← Module-specific scripts
+├── module/                 ← Business logic
+│   ├── logic.py / logic/
+│   └── services/
+├── uploads/                ← Created at runtime
+└── __init__.py
 ```
 
-API toggles are in `common/config.py`:
+### Common Package
+Shared layout, CSS, JS, and images live in `common/`:
+
+```
+common/
+├── common_blueprint.py     ← Flask Blueprint named 'common_static'
+├── templates/
+│   ├── main.html           ← Base layout template (extended by all modules)
+│   ├── home.html           ← Home page base
+│   └── index.html          ← Combined platform home page
+├── static/
+│   ├── css/common.css      ← Global styles
+│   ├── js/common.js        ← Global scripts
+│   └── images/             ← Shared images (filter.png etc.)
+├── config.py
+├── home_help_provider.py
+├── logger.py
+├── path_helper.py
+├── data/                   ← SNOW / data fetchers
+├── ui/                     ← Shared UI components
+└── utils/                  ← Shared utilities
+```
+
+### Static Asset URL Conventions
+
+| Asset type        | url_for call                                              |
+|-------------------|-----------------------------------------------------------|
+| Module CSS/JS     | `url_for('<module>.static', filename='<module>.css')`     |
+| excel_merge CSS/JS| `url_for('excel_merge_bp.static', filename='...')`        |
+| Common CSS/JS     | `url_for('common_static.static', filename='css/common.css')`     |
+| Shared images     | `url_for('common_static.static', filename='images/filter.png')`  |
+
+### Blueprint Registration Pattern
+
+Every `app.py` (standalone or root) follows the same pattern:
 
 ```python
-USE_SNOW_API  = False   # True = live ServiceNow API
-USE_AZURE_API = True    # True = live Azure DevOps API
-USE_PTC_API   = False   # True = live PTC REST API
+app.register_blueprint(common_bp)          # always first
+app.register_blueprint(<module>_bp)        # then module blueprints
 ```
 
-When an API is off, the module falls back to the local Excel/CSV files in `data/`.
+`common_bp` must be registered first so Flask discovers `main.html` and shared static assets before any module template tries to extend it.
 
 ---
 
 ## Adding a New Module
 
-1. Create a folder: `my_module/`
-2. Add `my_module/my_module_routes.py` with a Flask Blueprint
-3. Add `my_module/module/` with business logic
-4. Add `my_module/app.py` (copy from any existing module, change blueprint import + port)
-5. Register the blueprint in `app.py`
+1. Create `<module>/` following the structure above.
+2. Define the Blueprint with:
+   ```python
+   <module>_bp = Blueprint(
+       "<module>",
+       __name__,
+       template_folder="templates",
+       static_folder="statics",
+       static_url_path="/<module>/static"
+   )
+   ```
+3. Put `<module>.html`, `<module>.css`, `<module>.js` in the respective folders.
+4. In `<module>.html` reference statics as:
+   ```
+   {{ url_for('<module>.static', filename='<module>.css') }}
+   ```
+5. Write a standalone `app.py` that registers `common_bp` then your blueprint.
+6. Add the blueprint import and registration to the root `app.py`.

@@ -1,0 +1,217 @@
+{% extends "main.html" %}
+
+{% block page_title %}
+DCN Analytics Dashboard
+{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('dcn_analytics.static', filename='dcn_analytics.css') }}">
+<style>
+    /* Inline helper style for the icon controls */
+    .chart-icon-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        font-size: 15px;
+        padding: 2px 6px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+    .chart-icon-btn:hover {
+        background: #e5e7eb;
+    }
+    .chart-icon-btn.active-chart-view {
+        background: #dbeafe;
+        border-color: #bfdbfe;
+    }
+</style>
+{% endblock %}
+
+{% block top_center %}
+<div class="module-title-pill">
+    DCN Analytics Dashboard
+</div>
+{% endblock %}
+
+{% block toolbar_left %}
+<button id="refreshBtn" class="toolbar-btn primary-btn">Refresh Dashboard</button>
+<label class="upload-toolbar-btn">
+    <input type="file" id="uploadExcel" hidden>
+    Upload Latest Excel
+</label>
+{% endblock %}
+
+{% block sidebar_toolbar %}
+<div class="sidebar-toolbar">
+    <button onclick="clearWorkspace()">Clear Workspace</button>
+    <button id="applyFiltersBtn">Apply Filters</button>
+</div>
+{% endblock %}
+
+{% block dock_icons %}
+<div class="dock-item active-dock" id="kpiDockBtn" onclick="showSidebarPanel('kpi')" title="Dashboard KPI">📊</div>
+<div class="dock-item" id="filterDockBtn" onclick="showSidebarPanel('filter')" title="Filters">
+    <img src="{{ url_for('common_static.static', filename='images/filter.png') }}" class="dock-filter-icon">
+</div>
+<div class="dock-item" id="downloadDockBtn" onclick="showSidebarPanel('download')" title="Download Reports">⬇</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="dock-section active-section" id="kpi-section">
+    <div class="sidebar-kpi-title">KPI Summary</div>
+    <div class="sidebar-kpi-grid">
+        <div class="sidebar-kpi-card">
+            <div class="sidebar-kpi-label">Total</div>
+            <div class="sidebar-kpi-value" id="totalMissingKpi">0</div>
+        </div>
+        <div class="sidebar-kpi-card">
+            <div class="sidebar-kpi-label">Current</div>
+            <div class="sidebar-kpi-value success-kpi" id="currentMonthKpi">0</div>
+        </div>
+    </div>
+    <div class="latest-dcn-wrapper">
+        <div class="latest-dcn-title">Latest Missing DCNs</div>
+        <div class="latest-dcn-list" id="latestDcnKpi">-</div>
+    </div>
+    <div class="sidebar-last-updated">Last Updated<span id="lastUpdatedKpi">-</span></div>
+</div>
+
+<div class="dock-section" id="filter-section">
+    <div class="sidebar-card">
+        <div class="card-title">Date Filter</div>
+        <select id="dateField"><option value="created">Created Date</option></select>
+        <select id="dateFilterType" onchange="handleDateFilterType()">
+            <option value="none">No Filter</option>
+            <option value="range">Date Range</option>
+            <option value="year">By Year</option>
+            <option value="quick">Quick Select</option>
+        </select>
+        <div id="dateRangeSection" class="date-sub-section">
+            <input type="date" id="startDate">
+            <input type="date" id="endDate">
+        </div>
+        <div id="yearSection" class="date-sub-section">
+            <div class="filter-label">Select Years</div>
+            <div class="year-checkbox-grid">
+                <label><input type="checkbox" value="2026" checked> 2026</label>
+                <label><input type="checkbox" value="2025" checked> 2025</label>
+                <label><input type="checkbox" value="2024" checked> 2024</label>
+                <label><input type="checkbox" value="2023" checked> 2023</label>
+            </div>
+        </div>
+        <div id="quickSection" class="date-sub-section">
+            <div class="quick-radio-group">
+                <label class="quick-radio-item"><input type="radio" name="quickDate" value="7"><span>Last 7 Days</span></label>
+                <label class="quick-radio-item"><input type="radio" name="quickDate" value="30"><span>Last 30 Days</span></label>
+                <label class="quick-radio-item"><input type="radio" name="quickDate" value="90"><span>Last 90 Days</span></label>
+                <label class="quick-radio-item"><input type="radio" name="quickDate" value="365"><span>Last 1 Year</span></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dock-section" id="download-section">
+    <div class="sidebar-card">
+        <div class="card-title">Download Reports</div>
+        <button id="downloadFullDashboardBtn" class="download-report-btn" style="background: rgba(77, 163, 255, 0.15); border-color: #4da3ff;">📊 Full Excel Dashboard</button>
+        <button id="downloadMonthlyBtn" class="download-report-btn">Monthly Missing DCNs</button>
+        <button id="downloadDailyBtn" class="download-report-btn">Daily Missing Summary</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block module_status %}
+<div id="progressWrapper" class="search-progress-wrapper hidden">
+    <div id="statusMessage" class="search-status-heading"></div>
+    <div id="progressText" class="search-status-text"></div>
+    <div class="search-progress-bar"><div id="progressFill" class="search-progress-fill"></div></div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid-container">
+
+    <div class="dashboard-left-column">
+        <div class="dashboard-card chart-card-wrapper">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Monthly DCN Skipped Trend</span>
+                <div id="chartTypeIconGroup" style="display: flex; gap: 4px;">
+                    <button class="chart-icon-btn active-chart-view" data-type="bar" title="Bar Chart">📊</button>
+                    <button class="chart-icon-btn" data-type="line" title="Line Chart">📈</button>
+                    <button class="chart-icon-btn" data-type="pie" title="Pie Chart (Yearly Summary)">🍕</button>
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="dashboard-card daily-summary-card-wrapper">
+            <div class="card-header">Daily Skipped Summary</div>
+            <div class="table-scroll-wrapper">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th class="col-sl-no">SL NO</th>
+                            <th class="col-date">Date</th>
+                            <th class="col-sequence">Sequence Skipped</th>
+                            <th>Skipped DCN Numbers</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dailySummaryBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-right-column">
+        <div class="dashboard-card pivot-full-height-card">
+            <div class="card-header">Monthly Pivot Summary</div>
+            <div class="table-scroll-wrapper pivot-no-scroll">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>2023</th>
+                            <th>2024</th>
+                            <th>2025</th>
+                            <th>2026</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pivotTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px;">💡</span>
+                <h2 id="helpModuleTitle">Module Help Center</h2>
+            </div>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane" id="helpModalIndexPane">
+                </div>
+            
+            <div class="help-modal-right-pane" id="helpModalContentPane">
+                <div class="help-empty-state">
+                    <p>Select a topic from the index panel to view setup details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('dcn_analytics.static', filename='dcn_analytics.js') }}"></script>
+{% endblock %}

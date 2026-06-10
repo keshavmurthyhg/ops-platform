@@ -31,7 +31,10 @@ logger = setup_logger("dcn_analytics")
 
 dcn_analytics_bp = Blueprint(
     "dcn_analytics",
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/dcn_analytics/static"
 )
 
 # Ensure you import your core logical engines for filters

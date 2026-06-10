@@ -22,7 +22,10 @@ from report.module.doc_generator import (
 
 report_bp = Blueprint(
     "report",
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/report/static"
 )
 
 UPLOAD_FOLDER = "uploads"

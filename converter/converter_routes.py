@@ -28,7 +28,10 @@ from common.ui.preview_ui import (
 
 converter_bp = Blueprint(
     "converter",
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/converter/static"
 )
 
 UPLOAD_FOLDER = "uploads"

@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-
+import subprocess
 
 from io import BytesIO
 from datetime import datetime
@@ -38,11 +38,12 @@ from operations_center.module.ops_azure_collector import (
     azure_cases
 )
 
-
-
 operations_center_bp = Blueprint(
     "operations_center",
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/operations_center/static"
 )
 
 DATA_FILE = os.path.join(
@@ -281,16 +282,26 @@ def launch_edge_debug_route():
 )
 def refresh_ptc_csv_route():
     """
-    Trigger a fresh PTC Case Tracker CSV download via Selenium.
-    Requires Edge to be running in debug mode on port 9222.
+    Executes the direct Python script to hook onto the open Edge session,
+    download the file, and save it to data/Ptc.csv.
     """
-    result = download_latest_ptc_csv()
-
-    return jsonify({
-        "success": result["success"],
-        "message": result["message"],
-        "file":    result.get("file"),
-    })
+    try:
+        # Launch automation process
+        result = download_latest_ptc_csv()
+        
+        # Return status output structure safely to let client handle coloration and display logic
+        return jsonify({
+            "success": result.get("success", False),
+            "message": result.get("message", "Data processing terminated"),
+            "detail": result.get("detail", "")
+        })
+            
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": "Failed to execute PTC data refresh",
+            "detail": str(e)
+        })
 
 
 @operations_center_bp.route(
@@ -380,4 +391,6 @@ def get_azure_cases():
         "success": True,
         "data": azure_cases
     })
+
+
 

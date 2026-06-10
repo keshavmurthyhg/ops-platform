@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block page_title %}
+        Ops Platform
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('common_static.static', filename='css/common.css') }}">
+    
+{% block page_css %}
+    {% endblock %}
+
+</head>
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+
+        <div class="sidebar-panel">
+
+            <div class="sidebar-title">
+                Ops Platform
+            </div>
+
+            {% block sidebar_toolbar %}
+
+            <div class="sidebar-toolbar">
+
+                <button onclick="clearWorkspace()">
+                    Clear Workspace
+                </button>
+
+                <button onclick="applyFilters()">
+                    Apply Filters
+                </button>
+
+            </div>
+
+            {% endblock %}
+
+            <div class="sidebar-content-area">
+
+                <div class="dock-bar" id="dockBar">
+
+                    <div class="dock-toggle" onclick="toggleDock()">
+                        <span id="dockToggleIcon">⮜</span>
+                    </div>
+
+                    {% block dock_icons %}
+                    {% endblock %}
+
+                </div>
+
+                <div class="sidebar-main-content">
+                    {% block sidebar %}
+                    {% endblock %}
+                </div>
+
+            </div>
+
+            {% block processing_status %}
+            <div class="processing-footer">
+
+                <div class="processing-title">
+                    Processing Status
+                </div>
+
+                <div id="statusMessage" class="processing-message">
+                    Ready
+                </div>
+
+                <div id="progressWrapper" class="progress-container hidden">
+                    <div class="progress-bar-bg">
+                        <div id="progressFill" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="progressText" class="progress-text-label"></span>
+                </div>
+
+                {% block module_status %}
+                {% endblock %}
+
+            </div>
+            {% endblock %}
+
+        </div>
+
+    </aside>
+
+
+    <div class="main-content">
+
+        <div class="top-nav-bar">
+
+            <div class="top-nav-left">
+                {% block top_left %}
+                <a href="/" class="top-home-btn">
+                    🏠 Home
+                </a>
+                {% endblock %}
+            </div>
+
+            <div class="top-nav-center">
+                {% block top_center %}
+                <div class="module-title-pill">
+                    Module Name
+                </div>
+                {% endblock %}
+            </div>
+
+            <div class="top-nav-right-actions">
+                {% block top_right %}
+                
+                <div class="top-search-wrapper" id="topSearchWrapper">
+                    <button class="search-trigger-btn" onclick="toggleGlobalSearch()" title="Search Page">
+                        🔍
+                    </button>
+                    <input
+                        type="text"
+                        id="globalSearchInput"
+                        class="top-search-input"
+                        placeholder="Search page content..."
+                        onkeyup="executePageSearch(this.value)"
+                    >
+                </div>
+
+                <button class="help-btn">?</button>
+                {% endblock %}
+            </div>
+
+        </div>
+
+
+        <div class="top-toolbar">
+
+            <div class="toolbar-left-section">
+                {% block toolbar_left %}
+                {% endblock %}
+            </div>
+
+            <div class="toolbar-right-section">
+                {% block toolbar_right %}
+                {% endblock %}
+            </div>
+
+        </div>
+
+
+        <div class="scrollable-report-content">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('common_static.static', filename='js/common.js') }}"></script>
+
+{% block page_js %}
+{% endblock %}
+
+</body>
+</html>

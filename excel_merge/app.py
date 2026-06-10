@@ -6,42 +6,36 @@ Run this file to launch ONLY the Excel Merge module.
     python excel_merge/app.py
 """
 
-import sys
 import os
+import sys
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, redirect, url_for
 from excel_merge.excel_merge_routes import excel_merge_bp
+from common.common_blueprint import common_bp
 
-app = Flask(
-    __name__,
-    template_folder=os.path.join(PROJECT_ROOT, "templates"),
-    static_folder=os.path.join(PROJECT_ROOT, "static"),
-)
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__)
 app.secret_key = "excel_merge_secret"
 
-UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, "uploads", "excel_merge")
-OUTPUT_FOLDER = os.path.join(PROJECT_ROOT, "outputs", "excel_merge")
+UPLOAD_FOLDER = os.path.join(_HERE, "uploads")
+OUTPUT_FOLDER = os.path.join(_HERE, "outputs")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["OUTPUT_FOLDER"] = OUTPUT_FOLDER
 
+app.register_blueprint(common_bp)
 app.register_blueprint(excel_merge_bp)
 
 
 @app.route("/")
-def home():
-    return render_template("excel_merge.html")
-
-
-@app.route("/uploads/<path:filename>")
-def uploaded_file(filename):
-    return send_from_directory(
-        os.path.join(PROJECT_ROOT, "uploads"), filename
-    )
+def home_redirect():
+    return redirect(url_for("excel_merge_bp.excel_merge"))
 
 
 if __name__ == "__main__":
+    print("Running Excel Merge as a Standalone Web Application...")
     app.run(debug=True, use_reloader=False, port=5007)

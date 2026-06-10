@@ -16,7 +16,10 @@ from excel_merge.module.services.excel_merge_service import (
 
 excel_merge_bp = Blueprint(
     'excel_merge_bp',
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/excel_merge/static"
 )
 
 UPLOAD_FOLDER = 'uploads/excel_merge'

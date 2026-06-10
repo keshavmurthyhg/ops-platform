@@ -34,7 +34,10 @@ from search.module.data_loader import (
 # -----------------------------------
 search_bp = Blueprint(
     "search",
-    __name__
+    __name__,
+    template_folder="templates",
+    static_folder="statics",
+    static_url_path="/search/static"
 )
 
 
