@@ -1,0 +1,425 @@
+/* =========================================================================
+   1. LAYOUT RESET
+   ========================================================================= */
+.scrollable-report-content {
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+.wc-fixed-layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background: #f8fafc;
+    position: relative;
+}
+
+/* =========================================================================
+   2. TOOLBAR UPLOAD STRIP
+   ========================================================================= */
+.toolbar-upload-strip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-stub {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    height: 30px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.file-stub:hover { background: rgba(255,255,255,0.18); }
+
+.stub-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.stub-badge.removed { background: #ef4444; color: white; }
+.stub-badge.added   { background: #10b981; color: white; }
+
+.stub-text {
+    color: #e2e8f0;
+    font-size: 12px;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wc-view-toggle {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.wc-view-btn {
+    height: 30px;
+    padding: 0 14px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #cbd5e1;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.wc-view-btn:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.15); }
+.wc-view-btn.active {
+    background: white;
+    color: #162f52;
+    font-weight: 600;
+}
+
+/* =========================================================================
+   3. SIDEBAR LEGEND
+   ========================================================================= */
+.wc-sidebar-legend {
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.legend-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+.legend-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #cbd5e1;
+}
+.chip {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    min-width: 65px;
+    text-align: center;
+}
+.chip.added    { background: #dcfce7; color: #14532d; }
+.chip.removed  { background: #fee2e2; color: #7f1d1d; }
+.chip.modified { background: #fef9c3; color: #713f12; }
+
+/* =========================================================================
+   4. STATS ROW (inside processing footer)
+   ========================================================================= */
+.wc-stats-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.stat-pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.stat-pill.add { background: #dcfce7; color: #14532d; }
+.stat-pill.rem { background: #fee2e2; color: #7f1d1d; }
+.stat-pill.mod { background: #fef9c3; color: #713f12; }
+
+/* =========================================================================
+   5. EMPTY STATE
+   ========================================================================= */
+.wc-empty-state {
+    margin: auto;
+    text-align: center;
+    color: #94a3b8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    width: 100%;
+    height: 100%;
+}
+.empty-icon {
+    font-size: 52px;
+    margin-bottom: 16px;
+    line-height: 1;
+}
+.wc-empty-state h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #64748b;
+    margin: 0 0 8px 0;
+}
+.wc-empty-state p {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+    max-width: 380px;
+    line-height: 1.5;
+}
+
+/* =========================================================================
+   6. DIFF SPLIT VIEW
+   ========================================================================= */
+.wc-split-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.view-panel-half {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #cbd5e1;
+    overflow: hidden;
+}
+.view-panel-half:last-child { border-right: none; }
+
+.panel-header-sticky {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    flex-shrink: 0;
+}
+.removed-header { background: #2d1a1a; color: #fca5a5; }
+.added-header   { background: #1a2d1d; color: #86efac; }
+
+.diff-scroller {
+    flex: 1;
+    overflow: auto;
+    background: white;
+}
+
+.diff-lines {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12.5px;
+}
+
+.diff-line {
+    padding: 5px 10px;
+    min-height: 26px;
+    line-height: 1.5;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.diff-line.normal  { background: white; color: #1e293b; }
+.diff-line.removed { background: #fff0f0; color: #7f1d1d; border-left: 3px solid #ef4444; }
+.diff-line.added   { background: #f0fff4; color: #14532d; border-left: 3px solid #10b981; }
+.diff-line.updated { background: #fffbeb; color: #78350f; border-left: 3px solid #f59e0b; }
+.diff-line.blank   { background: #f8fafc; min-height: 26px; }
+
+/* =========================================================================
+   7. IMAGES VIEW
+   ========================================================================= */
+.wc-images-view {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.images-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #cbd5e1;
+    overflow: hidden;
+}
+.images-panel:last-child { border-right: none; }
+
+.images-scroller {
+    flex: 1;
+    overflow: auto;
+    background: #f8fafc;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.images-empty {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: auto;
+    text-align: center;
+    padding: 40px;
+}
+
+.doc-image-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    max-width: 100%;
+    transition: box-shadow 0.2s;
+}
+.doc-image-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.doc-image-card img {
+    max-width: 100%;
+    max-height: 320px;
+    display: block;
+    border-radius: 4px;
+    object-fit: contain;
+}
+.doc-image-label {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 6px;
+    text-align: center;
+}
+
+/* =========================================================================
+   8. CHANGE LOG VIEW
+   ========================================================================= */
+.wc-log-view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+.wc-table-scroller {
+    flex: 1;
+    overflow: auto;
+}
+.wc-log-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    text-align: left;
+}
+.wc-log-table th {
+    background: #1e293b;
+    color: white;
+    padding: 10px 14px;
+    font-size: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+.wc-log-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 12px;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.wc-log-table tr:nth-child(even) { background: #f8fafc; }
+.wc-log-table tr:hover { background: #f1f5f9; }
+
+/* =========================================================================
+   9. HELP MODAL
+   ========================================================================= */
+.help-modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(15,23,42,0.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.help-modal-backdrop.hidden { display: none; }
+
+.help-modal-window {
+    background: white;
+    width: 92%;
+    max-width: 820px;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.help-modal-header {
+    padding: 16px 24px;
+    background: #1e293b;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+.help-modal-header h2 { margin: 0; font-size: 16px; }
+.help-modal-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 0;
+    line-height: 1;
+}
+.help-modal-close-btn:hover { opacity: 1; }
+
+.help-modal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+.help-modal-left-pane {
+    width: 200px;
+    flex-shrink: 0;
+    border-right: 1px solid #e2e8f0;
+    overflow-y: auto;
+    padding: 10px 0;
+    background: #f8fafc;
+}
+.help-modal-right-pane {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #334155;
+}
+
+.help-index-item {
+    display: block;
+    width: 100%;
+    padding: 9px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 12px;
+    color: #475569;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+}
+.help-index-item:hover { background: #e2e8f0; }
+.active-help-topic {
+    background: #e0f2fe !important;
+    color: #0369a1;
+    font-weight: 600;
+    border-left-color: #0ea5e9 !important;
+}

@@ -28,13 +28,28 @@
 #  PTC CASE TRACKER — ENTERPRISE AUTO DOWNLOAD ENGINE
 # =====================================================
 
+# =====================================================
+#  PTC CASE TRACKER — ENTERPRISE AUTO DOWNLOAD ENGINE
+# =====================================================
+
+# =====================================================
+#  PTC CASE TRACKER — ENTERPRISE AUTO DOWNLOAD ENGINE
+# =====================================================
+
+# =====================================================
+#  PTC CASE TRACKER — ENTERPRISE AUTO DOWNLOAD ENGINE
+# =====================================================
+
+# =====================================================
+#  PTC CASE TRACKER — ENTERPRISE AUTO DOWNLOAD ENGINE
+# =====================================================
+
 import os
 import sys
 import time
 import shutil
 import traceback
 from pathlib import Path
-from datetime import date
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -60,10 +75,8 @@ PTC_CSV_DEST  = _DATA_DIR / "Ptc.csv"
 PTC_URL        = "https://www.ptc.com/en/support/cstracker/casetracker#"
 DEBUG_ADDRESS = "127.0.0.1:9222"
 
-# Watch the actual runtime download landing directory directly
 EDGE_DOWNLOAD_DIR = Path(r"G:\Downloads")
 
-# Broad window timeouts requested for dense multi-year historical table generation
 TABLE_LOAD_TIMEOUT = 120
 FILE_DOWNLOAD_TIMEOUT = 120
 ELEMENT_TIMEOUT = 20
@@ -79,7 +92,6 @@ def _js_click(driver, el):
         driver.execute_script("arguments[0].click();", el)
 
 def _wait_for_table_render(driver, step_name: str, max_wait=120):
-    """Monitors the DOM state to ensure large tabular lists stabilize."""
     logger.info(f"Stabilizing database layout state for: {step_name}...")
     deadline = time.time() + max_wait
     while time.time() < deadline:
@@ -102,33 +114,45 @@ def _wait_for_table_render(driver, step_name: str, max_wait=120):
         time.sleep(3)
     return False
 
-def _click_ptc_filter(driver, label: str) -> bool:
-    """Locates and triggers the target selection criteria matching the UI structure."""
-    return driver.execute_script("""
-        var label = arguments[0].toLowerCase().trim();
+def _ensure_toggle_active(driver, label_text: str):
+    """
+    Finds a toggle block by its button text label string. 
+    Clicks it ONLY if it lacks active visual indicators to avoid untoggling.
+    """
+    driver.execute_script("""
+        var target = arguments[0].toLowerCase().trim();
         var elements = document.querySelectorAll("button, li, span, div, label");
         for (var i = 0; i < elements.length; i++) {
-            var txt = (elements[i].innerText || "").toLowerCase().trim();
-            if (txt === label) {
-                elements[i].scrollIntoView({block: "center"});
-                elements[i].click();
-                return true;
+            var el = elements[i];
+            if ((el.innerText || "").toLowerCase().trim() === target) {
+                var styles = window.getComputedStyle(el);
+                var classes = el.className || "";
+                
+                // Inspect active states (PTC styles use distinct green fill background properties)
+                var isActive = classes.indexOf("active") !== -1 || 
+                               classes.indexOf("selected") !== -1 || 
+                               styles.backgroundColor.indexOf("rgba(0, 0, 0, 0)") === -1;
+                               
+                if (!isActive) {
+                    el.scrollIntoView({block: "center"});
+                    el.click();
+                }
+                break;
             }
         }
-        return false;
-    """, label)
+    """, label_text)
 
-def _apply_custom_date_range(driver):
-    """Selects the standard 2020 context boundary timeline drop-down options."""
+def _select_all_time_dropdown(driver):
+    """Interacts directly with the Date dropdown element box to select All time data."""
     return driver.execute_script("""
-        var dropdowns = document.querySelectorAll('select');
-        for (var i = 0; i < dropdowns.length; i++){
-            var sel = dropdowns[i];
-            for (var j = 0; j < sel.options.length; j++){
+        var selects = document.querySelectorAll("select");
+        for (var i = 0; i < selects.length; i++) {
+            var sel = selects[i];
+            for (var j = 0; j < sel.options.length; j++) {
                 var txt = sel.options[j].text.toLowerCase();
-                if (txt.indexOf('2020') !== -1 || txt.indexOf('all time') !== -1 || txt.indexOf('custom') !== -1){
-                    sel.value = sel.options[j].value;
-                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                if (txt.indexOf("all") !== -1 || txt.indexOf("history") !== -1 || txt.indexOf("custom") !== -1) {
+                    sel.selectedIndex = j;
+                    sel.dispatchEvent(new Event("change", { bubbles: true }));
                     return true;
                 }
             }
@@ -137,28 +161,24 @@ def _apply_custom_date_range(driver):
     """)
 
 def _scan_for_latest_csv(before_mtime: float) -> Path:
-    """Scans G:\\Downloads directly to isolate the newly generated file footprint."""
     deadline = time.time() + FILE_DOWNLOAD_TIMEOUT
     while time.time() < deadline:
         for csv_file in EDGE_DOWNLOAD_DIR.glob("*.csv"):
             if csv_file.name.startswith("PTC_Cases_Report"):
                 if csv_file.stat().st_mtime > before_mtime:
-                    # Guard against incomplete transfers
                     if not csv_file.name.endswith(".crdownload") and not csv_file.name.endswith(".tmp"):
-                        if csv_file.stat().st_size > 1024:  # Confirm payload is written
+                        if csv_file.stat().st_size > 1024:
                             return csv_file
         time.sleep(2)
     raise TimeoutError("The complete file footprint failed to materialize within 120 seconds.")
 
 # ─────────────────────────────────────────────────────────────
-#  CORE AUTOMATION STEP FLOW
+#  MAIN DRIVER METHOD
 # ─────────────────────────────────────────────────────────────
 
 def download_latest_ptc_csv() -> dict:
     try:
         logger.info("Initializing background web testing driver wrapper...")
-        
-        # Resolve path
         driver_path = _PROJECT / "drivers" / "msedgedriver.exe"
         if not driver_path.exists():
             driver_path = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedgedriver.exe")
@@ -168,8 +188,6 @@ def download_latest_ptc_csv() -> dict:
         
         driver = webdriver.Edge(service=Service(str(driver_path)), options=edge_options)
         wait = WebDriverWait(driver, ELEMENT_TIMEOUT)
-        
-        # Use localized epoch time threshold to capture files cleanly
         before_mtime = time.time() - 5
 
         logger.info("Accessing portal workspace view index...")
@@ -177,53 +195,39 @@ def download_latest_ptc_csv() -> dict:
         time.sleep(6)
         _wait_for_table_render(driver, "Initial Portal Load")
 
-        # ── 1. Severity Filter Setup ──
-        # By default, checking all options covers Severity 0, 1, 2, 3
-        logger.info("Applying systemic Severity scope configurations...")
-        for sev in ["Severity 0", "Severity 1", "Severity 2", "Severity 3"]:
-            try:
-                _click_ptc_filter(driver, sev)
-            except Exception:
-                pass
-        _wait_for_table_render(driver, "Severity Options")
+        # ── 1. Update the Date range parameter selection box ──
+        logger.info("Expanding timeline dropdown constraint views to 'All time' historical context...")
+        _select_all_time_dropdown(driver)
+        _wait_for_table_render(driver, "All Time Dropdown Adjustment")
 
-        # ── 2. Opened By Filters ──
-        logger.info("Merging corporate team ownership data views...")
-        _click_ptc_filter(driver, "My Company")
-        _wait_for_table_render(driver, "My Company Scope")
+        # ── 2. Handle 'Opened By' Group Toggles ──
+        logger.info("Merging corporate organizational visibility scopes (Me + My Company)...")
+        _ensure_toggle_active(driver, "My Company")
+        _ensure_toggle_active(driver, "Me")
+        _wait_for_table_render(driver, "Combined Scope View Profiles")
+
+        # ── 3. Handle Status Multiselect Toggles ──
+        logger.info("Activating complete lifecycle history lines (Open + Closed rows)...")
+        _ensure_toggle_active(driver, "Open")
+        _ensure_toggle_active(driver, "Closed")
+        _wait_for_table_render(driver, "Merged Production & Archived Queues")
+
+        # ── 4. Verify Severity Settings ──
+        logger.info("Confirming global severity selection layer...")
+        _ensure_toggle_active(driver, "All")
         
-        _click_ptc_filter(driver, "Me")
-        _wait_for_table_render(driver, "Personal Scope Matrix")
-
-        # ── 3. Status Filters (Both Open & Closed) ──
-        logger.info("Extracting live production ticket lists...")
-        _click_ptc_filter(driver, "Open")
-        _wait_for_table_render(driver, "Active Queues")
-
-        logger.info("Extracting archived historical ticket datasets...")
-        _click_ptc_filter(driver, "Closed")
-        _wait_for_table_render(driver, "Archived Repository Data")
-
-        # ── 4. Date Timeline Settings ──
-        logger.info("Extending history analytical window boundaries (2020 to Present)...")
-        try:
-            _click_ptc_filter(driver, "Custom Date Range")
-            _apply_custom_date_range(driver)
-        except Exception as e:
-            logger.warning(f"Date frame dropdown exception skipped: {e}")
-        
-        # Enforce safety wait cushion requested for massive multi-tier queries to process completely
+        # Enforce the required wait statement to compile thousands of rows safely
         logger.info("Enforcing mandatory portal compilation hold (Waiting 120s for dataset assembly)...")
         time.sleep(120)
         _wait_for_table_render(driver, "Final Consolidated Analytical Sheet", max_wait=60)
 
-        # ── 5. Trigger File Compilation ──
+        # ── 5. Trigger Compilation ──
         logger.info("Requesting remote server generation package...")
         export_btn = wait.until(EC.element_to_be_clickable((By.ID, "btnCaseStrackerCSVexport")))
         _js_click(driver, export_btn)
-        time.sleep(3)
+        time.sleep(4)
 
-        # ── 6. Execute File Download ──
+        # ── 6. Execute Transmission Download ──
         logger.info("Initiating secure browser document transmission download...")
         download_btn = wait.until(EC.element_to_be_clickable((By.ID, "fileExportDownloadbtnId")))
         _js_click(driver, download_btn)
@@ -231,7 +235,7 @@ def download_latest_ptc_csv() -> dict:
         logger.info("Monitoring download landing path directory (Waiting 120s max for disk output write)...")
         downloaded_file = _scan_for_latest_csv(before_mtime)
         
-        # ── 7. Relocate and Copy ──
+        # ── 7. Save and Relocate target data cache ──
         _DATA_DIR.mkdir(parents=True, exist_ok=True)
         shutil.copy2(downloaded_file, PTC_CSV_DEST)
         
@@ -245,14 +249,11 @@ def download_latest_ptc_csv() -> dict:
         }
 
     except Exception as exc:
-        err_stack = traceback.format_exc()
-        logger.error(f"Execution pipeline failure: {str(exc)}\n{err_stack}")
         return {
             "success": False, 
             "message": "Automation completed with errors.", 
             "detail": str(exc)
         }
-
 
 # ─────────────────────────────────────────────────────────────
 #  STANDALONE  (python ops_ptc_auto_download.py)

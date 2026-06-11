@@ -1,0 +1,137 @@
+{% extends "main.html" %}
+
+{% block page_title %}Word Compare — OPS Platform{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('word_compare.static', filename='word_compare.css') }}">
+{% endblock %}
+
+{% block top_center %}
+<div class="module-title-pill">📝 Word Comparison Engine</div>
+{% endblock %}
+
+{% block dock_icons %}
+<button class="dock-item" onclick="clearWorkspace()" title="Reset Workspace">🧹</button>
+<button class="dock-item" id="sidebarDownloadBtn" onclick="triggerDownload()" title="Download Highlighted ZIP" disabled>💾</button>
+{% endblock %}
+
+{% block toolbar_left %}
+<div class="toolbar-upload-strip">
+    <div class="file-stub" onclick="document.getElementById('oldFile').click()">
+        <span class="stub-badge removed">OLD</span>
+        <span id="oldFileName" class="stub-text">Select Base Document...</span>
+        <input type="file" id="oldFile" accept=".docx" hidden>
+    </div>
+    <div class="file-stub" onclick="document.getElementById('newFile').click()">
+        <span class="stub-badge added">NEW</span>
+        <span id="newFileName" class="stub-text">Select Revision Document...</span>
+        <input type="file" id="newFile" accept=".docx" hidden>
+    </div>
+    <button id="compareBtn" class="primary-btn" disabled>⚡ Run Compare</button>
+</div>
+{% endblock %}
+
+{% block toolbar_right %}
+<div class="wc-view-toggle">
+    <button class="wc-view-btn active" id="viewDiff">Diff View</button>
+    <button class="wc-view-btn" id="viewImages">Images</button>
+    <button class="wc-view-btn" id="viewLog">Change Log</button>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="wc-sidebar-legend">
+    <div class="legend-title">Comparison Legend</div>
+    <div class="legend-row"><span class="chip added">Added</span><span>New in revision</span></div>
+    <div class="legend-row"><span class="chip removed">Removed</span><span>Only in base</span></div>
+    <div class="legend-row"><span class="chip modified">Modified</span><span>Content changed</span></div>
+</div>
+{% endblock %}
+
+{% block module_status %}
+<div class="wc-stats-row" id="statsRow" style="display:none">
+    <div class="stat-pill add" id="statAdded">➕ <span>0</span> Added</div>
+    <div class="stat-pill rem" id="statRemoved">❌ <span>0</span> Removed</div>
+    <div class="stat-pill mod" id="statModified">🔄 <span>0</span> Modified</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="wc-fixed-layout-wrapper">
+
+    <!-- ── EMPTY STATE ─────────────────────── -->
+    <div class="wc-empty-state" id="emptyState">
+        <div class="empty-icon">📄</div>
+        <h3>No Documents Loaded</h3>
+        <p>Select both .docx files from the toolbar above and click Run Compare.</p>
+    </div>
+
+    <!-- ── DIFF VIEW ───────────────────────── -->
+    <div class="wc-split-container" id="diffView" style="display:none">
+        <div class="view-panel-half">
+            <div class="panel-header-sticky removed-header" id="oldDocHeader">Base Document</div>
+            <div class="diff-scroller" id="leftScroller">
+                <div class="diff-lines" id="leftLines"></div>
+            </div>
+        </div>
+        <div class="view-panel-half">
+            <div class="panel-header-sticky added-header" id="newDocHeader">Revised Document</div>
+            <div class="diff-scroller" id="rightScroller">
+                <div class="diff-lines" id="rightLines"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── IMAGES VIEW ─────────────────────── -->
+    <div class="wc-images-view" id="imagesView" style="display:none">
+        <div class="images-panel">
+            <div class="panel-header-sticky removed-header" id="imgOldHeader">Base Document — Images</div>
+            <div class="images-scroller" id="imagesOld">
+                <div class="images-empty">No images found</div>
+            </div>
+        </div>
+        <div class="images-panel">
+            <div class="panel-header-sticky added-header" id="imgNewHeader">Revised Document — Images</div>
+            <div class="images-scroller" id="imagesNew">
+                <div class="images-empty">No images found</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CHANGE LOG VIEW ─────────────────── -->
+    <div class="wc-log-view" id="logView" style="display:none">
+        <div class="wc-table-scroller">
+            <table class="wc-log-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Type</th>
+                        <th>Old Content</th>
+                        <th>New Content</th>
+                    </tr>
+                </thead>
+                <tbody id="logBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── HELP MODAL ──────────────────────────── -->
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">📝 Word Compare Help</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane" id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('word_compare.static', filename='word_compare.js') }}"></script>
+{% endblock %}

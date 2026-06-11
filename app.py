@@ -15,6 +15,7 @@ Individual modules can also be run standalone:
     python operations_center/app.py → port 5001
     python report/app.py            → port 5002
     python search/app.py            → port 5003
+    python word_compare/app.py      → port 5010
 """
 
 import os
@@ -33,6 +34,7 @@ from excel_merge.excel_merge_routes import excel_merge_bp
 from operations_center.operations_center_routes import operations_center_bp
 from report.report_routes import report_bp
 from search.search_routes import search_bp
+from word_compare.word_compare_routes import word_compare_bp
 
 # ── Help blueprints ───────────────────────────────────────────────
 from help.dcn_analytics_help import dcn_help_bp
@@ -62,6 +64,7 @@ app.register_blueprint(excel_merge_bp)
 app.register_blueprint(operations_center_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(search_bp)
+app.register_blueprint(word_compare_bp)
 
 # ── Help blueprints ───────────────────────────────────────────────
 app.register_blueprint(dcn_help_bp)
