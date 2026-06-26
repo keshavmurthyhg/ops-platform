@@ -1,0 +1,9 @@
+Windchill WVS Job Monitor — Job Queue Snapshot
+Captured : 20260616_204224
+URL      : https://vcewindchill.got.volvo.net/Windchill/ptc1/wvs/queueMonitorMain?containerOid=OR:wt.inf.container.OrgContainer:4678&u8=1
+Rows     : 2
+
+POSITION  |  QUEUE  |  JOB             |  JOB_STATUS  |  NUMBER  |  NAME                 |  VERSION                             |  CONTEXT  |  USER                           |  POST_JOB       
+--------  |  -----  |  --------------  |  ----------  |  ------  |  -------------------  |  ----------------------------------  |  -------  |  -----------------------------  |  ---------------
+          |  1      |  MOFFICEQUEUE    |              |  READY   |  56173434             |  RA40 Stage V 1.1 ROKA1308P00181011  |  01.3     |  MWL_Tech_Department_Documents  |  Robbie Anderson
+          |  29     |  LCATIATWXQUEUE  |              |  READY   |  16883081.CATDRAWING  |  NOZZLE                              |  01.1     |  ART-Hauler                     |  Thingworx Admin

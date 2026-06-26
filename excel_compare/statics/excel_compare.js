@@ -59,25 +59,33 @@ const $ = id => document.getElementById(id);
         form.append('newFile', $('newFile').files[0]);
 
         const statusLabel = $('statusMessage');
-        if (statusLabel) statusLabel.innerText = "Comparing sheets...";
+        updateProcessingStatus("Processing", "Comparing sheets...", "processing"); document.getElementById("lastAction").innerText = "Comparing...";
         
         try {
             const res = await fetch('/excel_compare/compare', { method: 'POST', body: form });
             const data = await res.json();
 
             if (!res.ok || data.error) {
-                if (statusLabel) statusLabel.innerText = "Execution failed: " + data.error;
+                updateProcessingStatus("Error", data.error, "failed"); document.getElementById("lastAction").innerText = "Compare failed";
                 return;
             }
 
             cacheData = data;
             $('sidebarDownloadBtn').disabled = false;
-            if (statusLabel) statusLabel.innerText = "Comparison completed successfully.";
+            updateProcessingStatus("Ready", "Comparison completed", "completed"); document.getElementById("lastAction").innerText = "Comparison completed";
             
-            document.querySelector('.kpi-box.mod strong').innerText = data.totals.modified;
-            document.querySelector('.kpi-box.add strong').innerText = data.totals.added;
-            document.querySelector('.kpi-box.rem strong').innerText = data.totals.removed;
-            document.querySelector('.kpi-box.tot strong').innerText = data.totals.total;
+            // Update sidebar KPI boxes
+            $('kpiMod').innerText = data.totals.modified;
+            $('kpiAdd').innerText = data.totals.added;
+            $('kpiRem').innerText = data.totals.removed;
+            $('kpiTot').innerText = data.totals.total;
+            $('kpiSidebar').style.display = 'flex';
+
+            // Update panel headers with actual filenames
+            const oldH = document.getElementById('oldDocHeader');
+            const newH = document.getElementById('newDocHeader');
+            if (oldH) oldH.innerText = data.file1_name || 'Base Workbook (Old File)';
+            if (newH) newH.innerText = data.file2_name || 'Revised Workbook (New File)';
 
             renderTabs();
             if (data.sheets.length > 0) switchSheet(data.sheets[0]);
@@ -236,10 +244,11 @@ const $ = id => document.getElementById(id);
         $('compareBtn').disabled = true; $('sidebarDownloadBtn').disabled = true;
         cacheData = null; selectedSheet = null;
         
-        document.querySelector('.kpi-box.mod strong').innerText = '—';
-        document.querySelector('.kpi-box.add strong').innerText = '—';
-        document.querySelector('.kpi-box.rem strong').innerText = '—';
-        document.querySelector('.kpi-box.tot strong').innerText = '—';
+        $('kpiMod').innerText = '—';
+        $('kpiAdd').innerText = '—';
+        $('kpiRem').innerText = '—';
+        $('kpiTot').innerText = '—';
+        $('kpiSidebar').style.display = 'none';
         
         $('sheetTabs').innerHTML = ''; $('leftTableHead').innerHTML = '';
         $('leftTableBody').innerHTML = ''; $('rightTableHead').innerHTML = '';
@@ -247,20 +256,93 @@ const $ = id => document.getElementById(id);
         
         $('sbsView').style.display = 'none'; $('logView').style.display = 'none';
         $('emptyState').style.display = 'flex';
+
+        // Reset panel headers back to defaults
+        const oldH = document.getElementById('oldDocHeader');
+        const newH = document.getElementById('newDocHeader');
+        if (oldH) oldH.innerText = 'Base Workbook (Old File)';
+        if (newH) newH.innerText = 'Revised Workbook (New File)';
         
         const statusLabel = $('statusMessage');
-        if (statusLabel) statusLabel.innerText = "Ready";
+        updateProcessingStatus("Ready", "", "completed"); document.getElementById("lastAction").innerText = "Workspace cleared";
         
-        const progressWrapper = $('progressWrapper');
-        if (progressWrapper) progressWrapper.classList.add("hidden");
+        
+        
     };
 
     window.clearWorkspace = window.clearWorkspace;
 
     window.triggerDownloadPackage = function() {
         const statusLabel = $('statusMessage');
-        if (statusLabel) statusLabel.innerText = "Downloading highlighted spreadsheets and report summary ZIP...";
+        updateProcessingStatus("Processing", "Generating ZIP...", "processing"); document.getElementById("lastAction").innerText = "Generating download...";
         window.location.href = '/excel_compare/download';
     };
 
 })();
+
+/* =========================================
+   OPS-STYLE PROGRESS BAR CONTROLLER
+   Works with main.html IDs:
+   statusMessage, progressWrapper,
+   progressFill, progressText
+========================================= */
+
+function updateProcessingStatus(message, detail, state) {
+    const status  = document.getElementById('statusMessage');
+    const text    = document.getElementById('progressText');
+    const fill    = document.getElementById('progressFill');
+    const wrapper = document.getElementById('progressWrapper');
+
+    if (status) status.innerText = message;
+    if (text)   text.innerText   = detail || '';
+
+    if (!fill || !wrapper) return;
+
+    fill.classList.remove('ops-bar-processing', 'ops-bar-completed', 'ops-bar-failed');
+
+    if (state === 'processing') {
+        wrapper.classList.remove('hidden');
+        fill.style.width = '70%';
+        fill.classList.add('ops-bar-processing');
+
+    } else if (state === 'completed') {
+        wrapper.classList.remove('hidden');
+        fill.style.width = '100%';
+        fill.classList.add('ops-bar-completed');
+        setTimeout(() => {
+            wrapper.classList.add('hidden');
+            fill.style.width = '0%';
+            fill.classList.remove('ops-bar-completed');
+        }, 2000);
+
+    } else {
+        wrapper.classList.remove('hidden');
+        fill.style.width = '100%';
+        fill.classList.add('ops-bar-failed');
+        setTimeout(() => {
+            wrapper.classList.add('hidden');
+            fill.style.width = '0%';
+            fill.classList.remove('ops-bar-failed');
+        }, 3000);
+    }
+}
+
+/* Track filenames in status rows when files are selected */
+document.addEventListener('DOMContentLoaded', function() {
+    const oldInput = document.getElementById('oldFile');
+    const newInput = document.getElementById('newFile');
+    if (oldInput) {
+        oldInput.addEventListener('change', function(e) {
+            const name = e.target.files[0]?.name || '—';
+            const el = document.getElementById('statusOldFile');
+            if (el) el.innerText = name.length > 22 ? name.substring(0, 20) + '…' : name;
+        });
+    }
+    if (newInput) {
+        newInput.addEventListener('change', function(e) {
+            const name = e.target.files[0]?.name || '—';
+            const el = document.getElementById('statusNewFile');
+            if (el) el.innerText = name.length > 22 ? name.substring(0, 20) + '…' : name;
+        });
+    }
+});

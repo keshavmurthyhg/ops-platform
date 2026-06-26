@@ -33,16 +33,21 @@ from common.utils.parsers import (
 #  CONSTANTS
 # ─────────────────────────────────────────────
 
+# Load ALL states — JS filter handles status filtering in the UI
+# This allows users to filter by Closed/Resolved in the table
 ACTIVE_STATES = [
     "on hold",
     "in progress",
     "open",
     "new",
+    "resolved",
+    "closed",
+    "cancelled",
 ]
 
 # SNOW numeric state values (API uses numbers)
 # 1=New, 2=In Progress, 3=On Hold, 6=Resolved, 7=Closed
-SNOW_ACTIVE_STATES = "1,2,3"
+SNOW_ACTIVE_STATES = "1,2,3,6,7,8"  # 1=New,2=In Progress,3=On Hold,6=Resolved,7=Closed,8=Cancelled
 
 
 # ─────────────────────────────────────────────

@@ -45,21 +45,51 @@
     <div class="legend-row"><span class="chip removed">Removed</span> <span>Rows only in Base</span></div>
     <div class="legend-row"><span class="chip modified">Modified</span> <span>Cell values changed</span></div>
 </div>
+
+<div class="ec-kpi-sidebar" id="kpiSidebar" style="display:none">
+    <div class="legend-title" style="margin-top:16px">Change Summary</div>
+    <div class="ec-kpi-sidebar-box mod"><strong id="kpiMod">—</strong><small>Modified Rows</small></div>
+    <div class="ec-kpi-sidebar-box add"><strong id="kpiAdd">—</strong><small>Added Rows</small></div>
+    <div class="ec-kpi-sidebar-box rem"><strong id="kpiRem">—</strong><small>Removed Rows</small></div>
+    <div class="ec-kpi-sidebar-box tot"><strong id="kpiTot">—</strong><small>Total Changes</small></div>
+</div>
 {% endblock %}
+
+
+<!-- =========================================
+     PROCESSING STATUS
+     Adds status rows + wires into main.html's
+     progressWrapper / progressFill / progressText
+========================================= -->
+{% block module_status %}
+
+<div class="report-status-meta">
+    <div class="status-row">
+        <span class="status-label">Old File:</span>
+        <span id="statusOldFile">—</span>
+    </div>
+    <div class="status-row">
+        <span class="status-label">New File:</span>
+        <span id="statusNewFile">—</span>
+    </div>
+    <div class="status-row">
+        <span class="status-label">Last Action:</span>
+        <span id="lastAction">Waiting for input</span>
+    </div>
+</div>
+
+{% endblock %}
+
 
 {% block content %}
 <div class="ec-fixed-layout-wrapper">
-    
+
     <div class="ec-kpi-strip">
-        <div class="kpi-box mod"><strong>—</strong><small>Modified Rows</small></div>
-        <div class="kpi-box add"><strong>—</strong><small>Added Rows</small></div>
-        <div class="kpi-box rem"><strong>—</strong><small>Removed Rows</small></div>
-        <div class="kpi-box tot"><strong>—</strong><small>Total Changes</small></div>
         <div class="sheet-tabs-container" id="sheetTabs"></div>
     </div>
 
     <div class="ec-workspace-pane" id="ecMain">
-        
+
         <div class="ec-empty-state" id="emptyState">
             <div class="empty-icon">📂</div>
             <h3>No Active Data Workspace Loaded</h3>
@@ -68,7 +98,7 @@
 
         <div class="ec-split-container" id="sbsView" style="display:none">
             <div class="view-panel-half">
-                <div class="panel-header-sticky removed-header">Base Workbook (Old File)</div>
+                <div class="panel-header-sticky removed-header" id="oldDocHeader">Base Workbook (Old File)</div>
                 <div class="scroller-viewport" id="leftScroller">
                     <table class="matrix-table">
                         <thead id="leftTableHead"></thead>
@@ -76,9 +106,8 @@
                     </table>
                 </div>
             </div>
-
             <div class="view-panel-half">
-                <div class="panel-header-sticky added-header">Revised Workbook (New File)</div>
+                <div class="panel-header-sticky added-header" id="newDocHeader">Revised Workbook (New File)</div>
                 <div class="scroller-viewport" id="rightScroller">
                     <table class="matrix-table">
                         <thead id="rightTableHead"></thead>
@@ -93,11 +122,8 @@
                 <table class="ec-log-table">
                     <thead>
                         <tr>
-                            <th>Sheet</th>
-                            <th>Cell Ref</th>
-                            <th>Old Content</th>
-                            <th>New Content</th>
-                            <th>Type Mapping</th>
+                            <th>Sheet</th><th>Cell Ref</th>
+                            <th>Old Content</th><th>New Content</th><th>Type Mapping</th>
                         </tr>
                     </thead>
                     <tbody id="logBody"></tbody>
@@ -115,10 +141,8 @@
             <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
         </div>
         <div class="help-modal-body">
-            <div class="help-modal-left-pane" id="helpModalIndexPane">
-                </div>
-            <div class="help-modal-right-pane" id="helpModalContentPane">
-                </div>
+            <div class="help-modal-left-pane"  id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane"></div>
         </div>
     </div>
 </div>

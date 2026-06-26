@@ -1,0 +1,91 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Segoe UI,Arial,sans-serif; background:#f4f6f9;
+       padding:20px; color:#374151; font-size:13px; }
+.wrap { max-width:960px; margin:auto; }
+.header { background:linear-gradient(135deg,#1e3a5f,#1a2e4a); color:#fff;
+          padding:18px 24px; border-radius:10px 10px 0 0; }
+.header h1 { font-size:17px; font-weight:700; }
+.header .meta { font-size:11px; color:#93c5fd; margin-top:5px;
+                display:flex; gap:16px; flex-wrap:wrap; }
+.body { background:#fff; padding:20px 24px;
+        border:1px solid #e5e7eb; border-top:none; }
+.kpi-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.kpi-box { flex:1; min-width:80px; background:#f9fafb;
+           border:1px solid #e5e7eb; border-radius:8px;
+           padding:10px 14px; text-align:center; }
+.kpi-box-val { font-size:22px; font-weight:800; }
+.kpi-box-lbl { font-size:9px; font-weight:700; text-transform:uppercase;
+               letter-spacing:.05em; color:#6b7280; margin-top:2px; }
+.kpi-box.alert { border-color:#fca5a5; background:#fef2f2; }
+.section { margin-bottom:22px; }
+.section-title { font-size:13px; font-weight:700; color:#374151;
+                 border-left:4px solid #f28c38; padding-left:10px;
+                 margin-bottom:10px; }
+.alert-banner { background:#fef2f2; border:1px solid #fca5a5;
+                border-radius:8px; padding:10px 14px; margin-bottom:14px;
+                font-size:12px; color:#dc2626; line-height:1.6; }
+.alert-banner ul { margin:6px 0 0 18px; }
+.date-window { background:#eff6ff; border:1px solid #bfdbfe;
+               border-radius:6px; padding:6px 14px; margin-bottom:14px;
+               font-size:11px; color:#1e40af; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { background:#f9fafb; padding:7px 10px; text-align:left;
+     font-weight:700; color:#374151; border-bottom:2px solid #e5e7eb;
+     white-space:nowrap; }
+td { padding:6px 10px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+tr:hover td { background:#f9fafb; }
+.badge { display:inline-block; padding:2px 7px; border-radius:999px;
+         font-size:10px; font-weight:700; }
+.red   { background:#fef2f2; color:#dc2626; }
+.amber { background:#fffbeb; color:#d97706; }
+.green { background:#f0fdf4; color:#16a34a; }
+.blue  { background:#eff6ff; color:#2563eb; }
+.gray  { background:#f3f4f6; color:#6b7280; }
+.no-records { color:#9ca3af; text-align:center; padding:18px;
+              font-style:italic; }
+.breakdown-table td:last-child { font-weight:700; }
+.footer { background:#f9fafb; padding:10px 24px;
+          border-radius:0 0 10px 10px; border:1px solid #e5e7eb;
+          border-top:none; font-size:11px; color:#9ca3af; }
+.footer-row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+</style></head><body><div class="wrap"><div class="header">
+  <h1>📋 Weekly Summary</h1>
+  <div class="meta">
+    <span>🕐 24 Jun 2026 15:42</span>
+    
+    <span>📤 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📥 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📋 Weekly Summary</span>
+  </div>
+</div><div class="body">
+<div class="date-window">📅 Week: 22 Jun – 28 Jun 2026 (Mon–Sun)</div>
+<div class="section">
+  <div class="section-title">Weekly KPI Overview</div>
+  <div class="kpi-row"><div class="kpi-box"><div class="kpi-box-val" style="color:#ef4444;">0</div><div class="kpi-box-lbl">Failures (week)</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#f59e0b;">0</div><div class="kpi-box-lbl">PROD Fail</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#3b82f6;">0</div><div class="kpi-box-lbl">Support (week)</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#ef4444;">0</div><div class="kpi-box-lbl">Action Req</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#f28c38;">11</div><div class="kpi-box-lbl">Incidents</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#ef4444;">11</div><div class="kpi-box-lbl">On Hold</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#0ea5e9;">232</div><div class="kpi-box-lbl">Azure Bugs</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#8b5cf6;">66</div><div class="kpi-box-lbl">New Bugs</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#8b5cf6;">4</div><div class="kpi-box-lbl">PTC Cases</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#f59e0b;">4</div><div class="kpi-box-lbl">PTC Open</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#f28c38;">1</div><div class="kpi-box-lbl">WM Tx (week)</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#ef4444;">1</div><div class="kpi-box-lbl">WM Tx Failed</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#0ea5e9;">0</div><div class="kpi-box-lbl">WVS Jobs</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#ef4444;">0</div><div class="kpi-box-lbl">WVS Failed</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#374151;">28</div><div class="kpi-box-lbl">Workers</div></div></div>
+</div>
+<div class="section">
+  <div class="section-title" style="border-color:#ef4444;">Integration Failures this week</div>
+  <thead><tr><th>Failure Time</th><th>Integration</th><th>Object</th><th>Error</th><th>Env</th><th>Server</th></tr></thead><tbody><tr><td colspan='6' class='no-records'>No records in selected date range.</td></tr></tbody>
+</div><div class="section">
+  <div class="section-title" style="border-color:#3b82f6;">Support Emails — Action Required this week</div>
+  <thead><tr><th>Date</th><th>From</th><th>Subject</th><th>Category</th></tr></thead><tbody><tr><td colspan='4' class='no-records'>No records in selected date range.</td></tr></tbody>
+</div><div class="section">
+  <div class="section-title" style="border-color:#f28c38;">Incidents (current)</div>
+  <table><thead><tr><th>Number</th><th>Description</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>INC110461348</td><td>Associated End Items is not correct shown for WEXC</td><td>Priority 3</td><td><span class="badge red">On Hold</span></td></tr><tr><td>INC110432272</td><td>Empty load file in DCN 128486WC</td><td>Priority 4</td><td><span class="badge red">On Hold</span></td></tr><tr><td>INC110416093</td><td>Windchill Slowness and MS crash</td><td>Priority 4</td><td><span class="badge red">On Hold</span></td></tr><tr><td>INC110415275</td><td>FM Exel Report is incorrect</td><td>Priority 4</td><td><span class="badge red">On Hold</span></td></tr><tr><td>INC110362956</td><td>Unable to publish huge size Catia parts</td><td>Priority 4</td><td><span class="badge red">On Hold</span></td></tr><tr><td>INC110351807</td><td>can't move part 53633518</td><td>Priority 4</td><td><span class="badge red">On Hold</span></td></tr><tr><td>INC110256788</td><td>Errors and missing information in both Change Report and_NEW upload files</td><td>Priority 3</td><td><span class="badge red">On Hold</span></td></tr><tr><td>INC110252145</td><td>[KR] User (ec90287) unable to Log in to Windchill Production</td><td>Priority 4</td><td><span class="badge red">On Hold</span></td></tr></tbody></table>
+</div><div class="section">
+  <div class="section-title" style="border-color:#0ea5e9;">Azure Bugs (current)</div>
+  <table><thead><tr><th>Number</th><th>Description</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>773339</td><td>Part is loosing visualization after DCN</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>771381</td><td>R26_3QA mBOM Change report error</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>771033</td><td>R26_3 QA: No indication allocation error</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>769262</td><td>PDFs not generated</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>768835</td><td>Process Plan gets iterated when triggering "Set Related Sap Model" with existing value</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>768122</td><td>Auto part allocation for legacy is failing when the same child part is used in different BOM (with same reference ID)</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>766700</td><td>Unable to see View Object Dependency in Production Environment</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>765671</td><td>Multiple Where Used Report not generating</td><td>2</td><td><span class="badge green">Resolved</span></td></tr></tbody></table>
+</div><div class="section">
+  <div class="section-title" style="border-color:#8b5cf6;">PTC Cases (current)</div>
+  <table><thead><tr><th>Number</th><th>Description</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>18088970</td><td>We have observed slowness in the performance of Windchill and intermittent MS crashes.</td><td>Severity 1</td><td><span class="badge gray">Information Received</span></td></tr><tr><td>18083297</td><td>The user is unable to check out the part and is receiving the following error message: The child folder could not be found. parent folder 'personal cabinet'-A556933child folder name 'check out'.</td><td>Severity 1</td><td><span class="badge gray">Information Received</span></td></tr><tr><td>17921345</td><td>We have observed that multiple HDIC parts are checked out by the cadadmin account and are not being checked back in. This is causing a blockage for other users who need to work on the same parts</td><td>Severity 1</td><td><span class="badge gray">Information Received</span></td></tr><tr><td>18083016</td><td>We have a few Catia Parts which are huge in size like 581MB. We are unable to generate representations. Could you please assist us here.</td><td>Severity 2</td><td><span class="badge red">On Hold</span></td></tr></tbody></table>
+</div><div class="section">
+  <div class="section-title" style="border-color:#f28c38;">WM Transactions — Failed this week</div>
+  <table><thead><tr><th>Time</th><th>Target</th><th>Action</th><th>Status</th><th>Object</th><th>Notes</th></tr></thead><tbody><tr><td>2026-06-23 03:59 CEST</td><td>POTS</td><td>Generate Export</td><td><span class="badge red">Failed</span></td><td>Export to Pots</td><td><span title="">—</span></td></tr></tbody></table>
+</div><div class="section">
+  <div class="section-title" style="border-color:#0ea5e9;">WVS Queue (current)</div>
+  <thead><tr><th>Queue</th><th>Job</th><th>Status</th><th>Name</th><th>User</th></tr></thead><tbody><tr><td colspan='5' class='no-records'>No records in selected date range.</td></tr></tbody>
+</div><div class="section">
+  <div class="section-title" style="border-color:#374151;">Worker Stats</div>
+  <table><thead><tr><th>Worker</th><th>Total</th><th>Failed</th><th>Success</th><th>Fail %</th></tr></thead><tbody><tr><td>SEGOTN15670.vcn.ds.volvo.net-OFFICE:1</td><td>343</td><td>95</td><td>248</td><td>27.70%</td></tr><tr><td>segotn13404-1.got.volvo.net-PROE:1</td><td>90</td><td>4</td><td>86</td><td>4.44%</td></tr><tr><td>segotn18415-3-PROE:1</td><td>50</td><td>2</td><td>48</td><td>4.00%</td></tr><tr><td>segotn19368-3-PROE:1</td><td>35</td><td>1</td><td>34</td><td>2.86%</td></tr><tr><td>segotn18415-1-PROE:1</td><td>47</td><td>1</td><td>46</td><td>2.13%</td></tr><tr><td>segotwvm1605.vcn.ds.volvo.net-CATIAV5:1</td><td>52</td><td>1</td><td>51</td><td>1.92%</td></tr><tr><td>segotn13403-1.got.volvo.net-PROE:1</td><td>108</td><td>2</td><td>106</td><td>1.85%</td></tr><tr><td>segotn19368-2-PROE:1</td><td>76</td><td>1</td><td>75</td><td>1.32%</td></tr></tbody></table>
+</div></div><div class="footer"><div class="footer-row"><span>Ops Platform · Weekly Summary Digest</span><span>Generated: 24 Jun 2026 15:42</span></div></div></div></body></html>

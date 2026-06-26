@@ -1,102 +1,61 @@
 import os
 import shutil
 import traceback
+import time
 
-from converter.module.ppt_slide_renderer import (
-    render_ppt_slides_to_images
-)
+from converter.module.ppt_slide_renderer import render_ppt_slides_to_images
 
-
-PREVIEW_FOLDER = os.path.join(
-    "outputs",
-    "preview_images"
-)
+PREVIEW_FOLDER = os.path.join("outputs", "preview_images")
 
 
-def generate_slide_preview(ppt_path):
+def generate_slide_preview(ppt_path, skip_title_slides=True):
+    """
+    Render PPT slides to PNG images with a unique session timestamp prefix.
+    The timestamp prefix busts the browser cache between conversions — each
+    new conversion produces filenames like 1750000000_slide_1.png that the
+    browser has never seen before.
+    """
     try:
-        print(
-            f"Generating preview for: {ppt_path}"
-        )
+        print(f"Generating preview for: {ppt_path}  skip_titles={skip_title_slides}")
 
-        # Generate temp images
         slide_images = render_ppt_slides_to_images(
-            ppt_path
+            ppt_path,
+            skip_title_slides=skip_title_slides
         )
 
-        print(
-            f"Generated temp images: {slide_images}"
-        )
+        print(f"Generated temp images: {slide_images}")
 
         if not slide_images:
-            return {
-                "success": False,
-                "images": [],
-                "error": "No images generated"
-            }
+            return {"success": False, "images": [], "error": "No images generated"}
 
-        # Create permanent preview folder
-        os.makedirs(
-            PREVIEW_FOLDER,
-            exist_ok=True
-        )
+        os.makedirs(PREVIEW_FOLDER, exist_ok=True)
 
-        # Clear old preview images
-        for file in os.listdir(PREVIEW_FOLDER):
-            file_path = os.path.join(
-                PREVIEW_FOLDER,
-                file
-            )
-
+        # Clear ALL old preview images from previous sessions
+        for f in os.listdir(PREVIEW_FOLDER):
             try:
-                os.remove(file_path)
-            except:
+                os.remove(os.path.join(PREVIEW_FOLDER, f))
+            except Exception:
                 pass
 
+        # Unique timestamp prefix — guarantees new URLs the browser never cached
+        ts_prefix = str(int(time.time()))
+
         image_data = []
-
         for img_path in slide_images:
-
             if os.path.exists(img_path):
-
-                filename = os.path.basename(
-                    img_path
-                )
-
-                permanent_path = os.path.join(
-                    PREVIEW_FOLDER,
-                    filename
-                )
-
-                # Copy temp image → permanent folder
-                shutil.copy(
-                    img_path,
-                    permanent_path
-                )
-
+                orig_name      = os.path.basename(img_path)   # e.g. slide_1.png
+                stamped_name   = f"{ts_prefix}_{orig_name}"   # e.g. 1750000000_slide_1.png
+                permanent_path = os.path.join(PREVIEW_FOLDER, stamped_name)
+                shutil.copy(img_path, permanent_path)
                 image_data.append({
-                    "filename": filename,
+                    "filename": stamped_name,
                     "filepath": permanent_path
                 })
 
-        print(
-            f"Final preview images: {image_data}"
-        )
-
-        return {
-            "success": True,
-            "images": image_data
-        }
+        print(f"Final preview images: {image_data}")
+        return {"success": True, "images": image_data, "ts_prefix": ts_prefix}
 
     except Exception as e:
-        print(
-            "SLIDE PREVIEW ERROR:"
-        )
-
+        print("SLIDE PREVIEW ERROR:")
         traceback.print_exc()
-
-        return {
-            "success": False,
-            "images": [],
-            "error": str(e)
-        }
+        return {"success": False, "images": [], "error": str(e)}

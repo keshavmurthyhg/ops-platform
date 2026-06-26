@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Segoe UI,Arial,sans-serif; background:#f4f6f9;
+       padding:20px; color:#374151; font-size:13px; }
+.wrap { max-width:960px; margin:auto; }
+.header { background:linear-gradient(135deg,#1e3a5f,#1a2e4a); color:#fff;
+          padding:18px 24px; border-radius:10px 10px 0 0; }
+.header h1 { font-size:17px; font-weight:700; }
+.header .meta { font-size:11px; color:#93c5fd; margin-top:5px;
+                display:flex; gap:16px; flex-wrap:wrap; }
+.body { background:#fff; padding:20px 24px;
+        border:1px solid #e5e7eb; border-top:none; }
+.kpi-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.kpi-box { flex:1; min-width:80px; background:#f9fafb;
+           border:1px solid #e5e7eb; border-radius:8px;
+           padding:10px 14px; text-align:center; }
+.kpi-box-val { font-size:22px; font-weight:800; }
+.kpi-box-lbl { font-size:9px; font-weight:700; text-transform:uppercase;
+               letter-spacing:.05em; color:#6b7280; margin-top:2px; }
+.kpi-box.alert { border-color:#fca5a5; background:#fef2f2; }
+.section { margin-bottom:22px; }
+.section-title { font-size:13px; font-weight:700; color:#374151;
+                 border-left:4px solid #f28c38; padding-left:10px;
+                 margin-bottom:10px; }
+.alert-banner { background:#fef2f2; border:1px solid #fca5a5;
+                border-radius:8px; padding:10px 14px; margin-bottom:14px;
+                font-size:12px; color:#dc2626; line-height:1.6; }
+.alert-banner ul { margin:6px 0 0 18px; }
+.date-window { background:#eff6ff; border:1px solid #bfdbfe;
+               border-radius:6px; padding:6px 14px; margin-bottom:14px;
+               font-size:11px; color:#1e40af; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { background:#f9fafb; padding:7px 10px; text-align:left;
+     font-weight:700; color:#374151; border-bottom:2px solid #e5e7eb;
+     white-space:nowrap; }
+td { padding:6px 10px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+tr:hover td { background:#f9fafb; }
+.badge { display:inline-block; padding:2px 7px; border-radius:999px;
+         font-size:10px; font-weight:700; }
+.red   { background:#fef2f2; color:#dc2626; }
+.amber { background:#fffbeb; color:#d97706; }
+.green { background:#f0fdf4; color:#16a34a; }
+.blue  { background:#eff6ff; color:#2563eb; }
+.gray  { background:#f3f4f6; color:#6b7280; }
+.no-records { color:#9ca3af; text-align:center; padding:18px;
+              font-style:italic; }
+.breakdown-table td:last-child { font-weight:700; }
+.footer { background:#f9fafb; padding:10px 24px;
+          border-radius:0 0 10px 10px; border:1px solid #e5e7eb;
+          border-top:none; font-size:11px; color:#9ca3af; }
+.footer-row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+</style></head><body><div class="wrap"><div class="header">
+  <h1>📋 Integration Failures</h1>
+  <div class="meta">
+    <span>🕐 25 Jun 2026 14:28</span>
+    <span>📅 24 Jun – 25 Jun 2026</span>
+    <span>📤 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📥 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📋 Daily Report</span>
+  </div>
+</div><div class="body">
+
+<div class="date-window">📅 Showing: 24 Jun – 25 Jun 2026 (today + yesterday only)</div>
+<div class="section">
+  <div class="section-title">Summary KPIs</div>
+  <div class="kpi-row"><div class="kpi-box"><div class="kpi-box-val" style="color:#ef4444;">0</div><div class="kpi-box-lbl">Total</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#f59e0b;">0</div><div class="kpi-box-lbl">PROD</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#3b82f6;">0</div><div class="kpi-box-lbl">DEVC</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#8b5cf6;">0</div><div class="kpi-box-lbl">DEVB</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#6b7280;">0</div><div class="kpi-box-lbl">Unknown</div></div></div>
+</div>
+<div class="section">
+  <div class="section-title">By Integration Type</div>
+  <p class='no-records'>No data.</p>
+</div>
+<div class="section">
+  <div class="section-title">All Failures — Latest First</div>
+  <thead><tr><th>Failure Time</th><th>Integration</th><th>Object Number</th><th>Error Message</th><th>Environment</th><th>WC Server</th></tr></thead><tbody><tr><td colspan='6' class='no-records'>No records in selected date range.</td></tr></tbody>
+</div></div><div class="footer"><div class="footer-row"><span>Ops Platform · Integration Failures Digest</span><span>Generated: 25 Jun 2026 14:28</span></div></div></div></body></html>

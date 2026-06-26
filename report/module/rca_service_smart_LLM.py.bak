@@ -1,0 +1,352 @@
+"""
+rca_service.py
+==============
+Builds RCA sections (Problem Statement, Root Cause, Resolution)
+using TF-IDF sentence ranking + domain keyword scoring.
+
+100% offline. No external applications. Pure pip packages:
+    pip install nltk scikit-learn
+
+One-time NLTK data download (runs automatically on first use,
+downloads ~3MB to local user folder, never calls home again):
+    python -c "import nltk; nltk.download('punkt_tab'); nltk.download('stopwords')"
+
+Public interface (unchanged):
+    from report.module.services.rca_service import build_rca
+    rca = build_rca(data)
+    # returns {"problem_statement", "root_cause", "resolution"}
+"""
+
+import re
+import logging
+
+logger = logging.getLogger("rca_service")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NLTK BOOTSTRAP — download tiny data files once, silently
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _ensure_nltk():
+    import nltk
+    for resource, path in [
+        ("punkt_tab",  "tokenizers/punkt_tab"),
+        ("stopwords",  "corpora/stopwords"),
+    ]:
+        try:
+            nltk.data.find(path)
+        except LookupError:
+            nltk.download(resource, quiet=True)
+
+_ensure_nltk()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DOMAIN KEYWORD LISTS — tuned for IT incident RCA
+# ─────────────────────────────────────────────────────────────────────────────
+
+_PROBLEM_KW = [
+    "missing", "unable", "error", "fail", "issue", "problem", "cannot",
+    "not working", "impact", "affected", "broken", "unavailable", "stopped",
+    "lost", "no longer", "button", "access", "visible", "functionality",
+    "users", "reported", "observed", "occurred", "incident",
+]
+
+_ROOT_CAUSE_KW = [
+    "cause", "because", "due to", "reason", "root", "resulted", "upgrade",
+    "change", "permission", "policy", "configuration", "access control",
+    "removed", "after", "since", "version", "setting", "flag", "disabled",
+    "incorrect", "wrong", "expired", "mismatch", "not granted", "not configured",
+    "investigation", "found", "identified", "confirmed", "determined",
+]
+
+_RESOLUTION_KW = [
+    "resolved", "fixed", "applied", "updated", "configured", "granted",
+    "enabled", "restarted", "validated", "confirmed", "working", "restored",
+    "provided", "permission", "modified", "implemented", "successful",
+    "now visible", "now working", "closed", "completed", "corrected",
+]
+
+_NOISE_PHRASES = [
+    "please close", "hi team", "hello", "thanks", "thank you", "regards",
+    "waiting for", "call scheduled", "assigned to", "priority changed",
+    "br,", "attachment", "attached", "please find", "kindly",
+    "could you please", "let me know", "hope this helps",
+]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+
+def safe_text(val):
+    if val is None:
+        return ""
+    val = str(val).strip()
+    return "" if val.lower() in ("nan", "nat", "none") else val
+
+
+def get_value(data, *keys):
+    for k in keys:
+        v = safe_text(data.get(k, ""))
+        if v:
+            return v
+    return ""
+
+
+def _clean_raw(text):
+    """Strip timestamps, URLs, phone numbers, excessive whitespace."""
+    if not text:
+        return ""
+    # Remove timestamps like "2026-01-29 14:30:00" or "2026-01-29"
+    text = re.sub(r"\d{4}-\d{2}-\d{2}[\s\d:]*", " ", text)
+    # Replace URLs with a placeholder so sentence structure is kept
+    text = re.sub(r"https?://\S+", "DEVLINK", text)
+    # Remove phone numbers
+    text = re.sub(r"\+?\d[\d\s\-]{7,}", " ", text)
+    # Collapse whitespace
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def _get_sentences(text):
+    """
+    Tokenise text into sentences, filter out noise and very short lines.
+    Returns a list of clean sentence strings.
+    """
+    from nltk.tokenize import sent_tokenize
+
+    text = _clean_raw(text)
+    if not text:
+        return []
+
+    sentences = sent_tokenize(text)
+    result = []
+    for s in sentences:
+        s = s.strip()
+        if len(s) < 25:                                        # too short
+            continue
+        lower = s.lower()
+        if any(n in lower for n in _NOISE_PHRASES):            # noise
+            continue
+        if re.match(r"^[\W\d]+$", s):                         # no real words
+            continue
+        result.append(s)
+    return result
+
+
+def _score_sentences(sentences, section_keywords, corpus):
+    """
+    Rank sentences by TF-IDF importance in the full corpus,
+    boosted by domain keyword relevance for the target section.
+
+    Returns sentences sorted best-first.
+    """
+    if not sentences:
+        return []
+
+    try:
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        import numpy as np
+
+        vec = TfidfVectorizer(
+            stop_words="english",
+            ngram_range=(1, 2),
+            min_df=1,
+        )
+        tfidf_matrix = vec.fit_transform(corpus)
+
+        # Build index from sentence text to its position in corpus
+        corpus_index = {s: i for i, s in enumerate(corpus)}
+
+        scored = []
+        for sent in sentences:
+            idx = corpus_index.get(sent)
+            if idx is None:
+                tfidf_score = 0.0
+            else:
+                tfidf_score = float(
+                    np.mean(tfidf_matrix[idx].toarray())
+                )
+
+            lower = sent.lower()
+            keyword_hits = sum(1 for kw in section_keywords if kw in lower)
+            final_score = tfidf_score + (keyword_hits * 0.25)
+
+            scored.append((final_score, sent))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [s for _, s in scored]
+
+    except Exception as e:
+        logger.warning("TF-IDF scoring failed: %s — returning unsorted", e)
+        return sentences
+
+
+def _deduplicate(sentences, max_sents):
+    """Return up to max_sents sentences with near-duplicates removed."""
+    seen = set()
+    result = []
+    for s in sentences:
+        # Use first 60 chars lowercased as dedup key
+        key = re.sub(r"\s+", " ", s.lower())[:60]
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(s)
+        if len(result) >= max_sents:
+            break
+    return result
+
+
+def _join(sentences):
+    return " ".join(sentences)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FALLBACK — original regex logic (used if nltk/sklearn not available)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _fallback_problem(data):
+    short_desc = get_value(data, "short description", "short_description")
+    desc       = get_value(data, "description")
+    lines = []
+    if short_desc:
+        lines.append(short_desc)
+    if desc:
+        sd, dc = short_desc.lower(), desc.lower()
+        if dc != sd and sd not in dc and dc not in sd:
+            lines.append(desc)
+    return "\n".join(list(dict.fromkeys(lines))[:2])
+
+
+def _fallback_root_cause(data):
+    combined = "\n".join([
+        get_value(data, "resolution notes",    "resolution_notes"),
+        get_value(data, "work notes",          "work_notes"),
+        get_value(data, "additional comments", "additional_comments"),
+    ])
+    noise = [
+        "validated", "working fine", "working now", "closed", "resolved",
+    ]
+    lines = [
+        l.strip() for l in combined.split("\n")
+        if l.strip() and not any(n in l.lower() for n in noise)
+    ]
+    return "\n".join(lines[:4])
+
+
+def _fallback_resolution(data):
+    notes = get_value(data, "resolution notes", "resolution_notes")
+    kws   = ["resolved","fixed","applied","validated","working","closed"]
+    lines = [l.strip() for l in notes.split("\n") if l.strip()]
+    res   = [l for l in lines if any(k in l.lower() for k in kws)]
+    return "\n".join((res or lines)[:3])
+
+
+def _build_rca_fallback(data):
+    logger.info("RCA: using fallback (regex) logic")
+    return {
+        "problem_statement": _fallback_problem(data),
+        "root_cause":        _fallback_root_cause(data),
+        "resolution":        _fallback_resolution(data),
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SMART RCA BUILDER — TF-IDF + domain scoring
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_rca_smart(data):
+    """
+    1. Pull text from all source fields.
+    2. Tokenise into sentences; clean noise.
+    3. Build a TF-IDF corpus from all sentences combined.
+    4. For each RCA section, rank sentences by TF-IDF score
+       boosted by section-specific IT domain keywords.
+    5. Deduplicate and join the top sentences.
+    """
+
+    # ── source fields ─────────────────────────────────────────────────────────
+    short_desc  = get_value(data, "short description", "short_description")
+    description = get_value(data, "description")
+    res_notes   = get_value(data, "resolution notes",  "resolution_notes")
+    work_notes  = get_value(data, "work notes",        "work_notes")
+    comments    = get_value(data, "additional comments","additional_comments")
+
+    # ── sentence pools per section ────────────────────────────────────────────
+    # Problem  → what the user reported
+    problem_pool = _get_sentences(
+        ". ".join(filter(None, [short_desc, description]))
+    )
+
+    # Root cause → investigation findings
+    root_pool = _get_sentences(
+        " ".join(filter(None, [work_notes, res_notes]))
+    )
+
+    # Resolution → what was done to fix it
+    res_pool = _get_sentences(
+        " ".join(filter(None, [res_notes, comments]))
+    )
+
+    # ── shared TF-IDF corpus ──────────────────────────────────────────────────
+    # Using all sentences together so each section's scores are relative
+    # to the entire incident vocabulary — not just its own pool.
+    corpus = list(dict.fromkeys(problem_pool + root_pool + res_pool))
+
+    if not corpus:
+        logger.warning("RCA: no usable sentences extracted — using fallback")
+        return _build_rca_fallback(data)
+
+    # ── rank each pool ────────────────────────────────────────────────────────
+    problem_ranked = _score_sentences(problem_pool, _PROBLEM_KW,    corpus)
+    root_ranked    = _score_sentences(root_pool,    _ROOT_CAUSE_KW, corpus)
+    res_ranked     = _score_sentences(res_pool,     _RESOLUTION_KW, corpus)
+
+    # ── deduplicate & limit sentences per section ─────────────────────────────
+    problem_final = _deduplicate(problem_ranked, max_sents=3)
+    root_final    = _deduplicate(root_ranked,    max_sents=3)
+    res_final     = _deduplicate(res_ranked,     max_sents=3)
+
+    # ── fallback if a section is still empty ──────────────────────────────────
+    if not problem_final:
+        problem_final = [short_desc] if short_desc else ["Insufficient information available."]
+    if not root_final:
+        root_final = ["Insufficient information available."]
+    if not res_final:
+        res_final = ["Insufficient information available."]
+
+    return {
+        "problem_statement": _join(problem_final),
+        "root_cause":        _join(root_final),
+        "resolution":        _join(res_final),
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PUBLIC INTERFACE
+# ─────────────────────────────────────────────────────────────────────────────
+
+def build_rca(data: dict) -> dict:
+    """
+    Main entry point. Builds smart RCA using TF-IDF + domain keyword scoring.
+    Falls back to regex logic if nltk/sklearn are unavailable.
+
+    Args:
+        data: incident dict containing any of:
+              short description, description,
+              resolution notes, work notes, additional comments
+
+    Returns:
+        {
+            "problem_statement": str,
+            "root_cause":        str,
+            "resolution":        str,
+        }
+    """
+    try:
+        return _build_rca_smart(data)
+    except Exception as exc:
+        logger.warning("RCA smart build failed (%s) — using fallback", exc)
+        return _build_rca_fallback(data)

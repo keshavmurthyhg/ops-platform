@@ -1,0 +1,340 @@
+"""
+rca_service.py  —  VERSION: Claude API (Anthropic)
+====================================================
+Builds RCA sections by sending incident notes to the Claude API.
+Falls back to the local NLTK classification logic if the API is
+unavailable or the key is not set.
+
+Setup:
+    1. Set environment variable:  ANTHROPIC_API_KEY=sk-ant-...
+       Add to your .env file (loaded automatically via python-dotenv):
+           ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
+    2. pip install nltk scikit-learn   (used by the fallback)
+    3. Extract nltk_data_offline.zip into project root   (fallback only)
+
+Used by both:
+    report/module/services/rca_service.py   ← place this file here
+    bulk/module/bulk_generator.py           ← imports from above path
+"""
+
+import os
+import re
+import json
+import logging
+import urllib.request
+
+logger = logging.getLogger("rca_service")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NLTK BOOTSTRAP — for fallback path only
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _find_project_root():
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(8):
+        if os.path.isdir(os.path.join(current, "nltk_data")):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return None
+
+_project_root = _find_project_root()
+_PROJECT_NLTK = os.path.join(_project_root, "nltk_data") if _project_root else None
+
+if _PROJECT_NLTK and os.path.isdir(_PROJECT_NLTK):
+    import nltk as _nltk_cfg
+    if _PROJECT_NLTK not in _nltk_cfg.data.path:
+        _nltk_cfg.data.path.insert(0, _PROJECT_NLTK)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+
+def safe_text(val):
+    if val is None:
+        return ""
+    val = str(val).strip()
+    return "" if val.lower() in ("nan", "nat", "none") else val
+
+
+def get_value(data, *keys):
+    for k in keys:
+        v = safe_text(data.get(k, ""))
+        if v:
+            return v
+    return ""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLAUDE API PATH
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _call_claude_api(prompt: str) -> str:
+    api_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if not api_key:
+        raise ValueError("ANTHROPIC_API_KEY not set")
+
+    payload = json.dumps({
+        "model": "claude-sonnet-4-6",
+        "max_tokens": 1024,
+        "messages": [{"role": "user", "content": prompt}],
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        "https://api.anthropic.com/v1/messages",
+        data=payload,
+        headers={
+            "x-api-key":         api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type":      "application/json",
+        },
+        method="POST",
+    )
+
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        body = json.loads(resp.read().decode("utf-8"))
+
+    for block in body.get("content", []):
+        if block.get("type") == "text":
+            return block["text"].strip()
+
+    raise ValueError("No text block in Claude API response")
+
+
+def _build_rca_claude(data: dict) -> dict:
+    short_desc  = get_value(data, "short description", "short_description")
+    description = get_value(data, "description")
+    res_notes   = get_value(data, "resolution notes",  "resolution_notes")
+    work_notes  = get_value(data, "work notes",        "work_notes")
+    comments    = get_value(data, "additional comments","additional_comments")
+
+    prompt = f"""You are an IT incident analyst writing a formal Root Cause Analysis (RCA) report.
+
+Read the following raw ServiceNow incident data:
+
+SHORT DESCRIPTION:
+{short_desc or "(not provided)"}
+
+DESCRIPTION:
+{description or "(not provided)"}
+
+RESOLUTION NOTES:
+{res_notes or "(not provided)"}
+
+WORK NOTES:
+{work_notes or "(not provided)"}
+
+ADDITIONAL COMMENTS:
+{comments or "(not provided)"}
+
+Write exactly three RCA sections. Return ONLY valid JSON — no markdown, no code fences.
+
+{{
+  "problem_statement": "...",
+  "root_cause": "...",
+  "resolution": "..."
+}}
+
+Rules per section:
+- problem_statement: 2-3 sentences. What went wrong and business impact. Use short description + description. Remove hedging phrases like "I believe", "maybe". Do not repeat the same information twice.
+- root_cause: 2-3 sentences. The technical reason WHY it happened. Include investigation findings, what is blocking the functionality, what changed. Draw from work notes and resolution notes.
+- resolution: 2-4 sentences. Exact steps taken or required to fix the issue. Include validation outcome. If not yet resolved, mention any workaround and the escalation/bug tracking reference. Draw from resolution notes and comments.
+
+Style rules:
+- Past tense, third person, formal English.
+- No engineer names, timestamps, or ticket numbers in the text.
+- Synthesise and rewrite — do not copy raw sentences verbatim.
+- If a section has no data: write "Insufficient information available."
+- Return JSON only. Nothing else.
+"""
+
+    logger.info("RCA: calling Claude API")
+    raw = _call_claude_api(prompt)
+
+    # Strip accidental markdown fences
+    raw = re.sub(r"^```[a-z]*\n?", "", raw, flags=re.MULTILINE)
+    raw = re.sub(r"```$", "", raw, flags=re.MULTILINE).strip()
+
+    json_match = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not json_match:
+        raise ValueError(f"No JSON in Claude response: {raw[:200]}")
+
+    result = json.loads(json_match.group())
+    return {
+        "problem_statement": result.get("problem_statement", "").strip(),
+        "root_cause":        result.get("root_cause",        "").strip(),
+        "resolution":        result.get("resolution",        "").strip(),
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NLTK FALLBACK  (same classification logic as rca_service_nltk.py)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_NOISE_SIGNALS = [
+    "i believe", "i think", "maybe", "perhaps",
+    "see for example", "also see", "see for", "for example",
+    "i am closing", "closing the incident", "please close",
+    "keep you posted", "as discussed", "hi team", "hello",
+    "thanks", "thank you", "regards", "waiting for",
+    "attachment", "attached", "kindly", "over teams",
+    "as confirmed by jordan",
+]
+_ROOT_CAUSE_SIGNALS = [
+    "blocked by", "ootb", "delegate", "due to", "caused by",
+    "root cause", "because", "identified", "investigation",
+    "found that", "not configured", "not granted", "access control",
+    "policy", "acl", "after upgrade", "was removed", "controlled by",
+]
+_RESOLUTION_SIGNALS = [
+    "acl needs", "needs to be created", "new acl", "grant permission",
+    "permission needs to be", "modify permission granted",
+    "validation was performed", "observation:", "observations:",
+    "when permission is granted", "option is visible",
+    "user is able to see", "workaround", "escalated to",
+    "resolved", "fixed", "applied the fix",
+]
+_CAUSAL_SPLIT = re.compile(
+    r"\s*\b(Therefore|Hence|As a result|Thus|Consequently|"
+    r"To resolve this|To fix this)\b[,\s]+", re.IGNORECASE,
+)
+_CAUSAL_WORDS = re.compile(
+    r"^(Therefore|Hence|As a result|Thus|Consequently|"
+    r"To resolve this|To fix this)$", re.IGNORECASE,
+)
+_NAME_LINE   = re.compile(r"^\s*-\s*[A-Z][a-z]+ [A-Z][a-z]+\s*\(")
+_TICKET_REF  = re.compile(r"\bSee\s+\d{5,}\b", re.IGNORECASE)
+_HEDGE_PAR   = re.compile(r"\s*\(maybe[^)]*\)", re.IGNORECASE)
+_HEDGE_WORD  = re.compile(r"\s*\bmaybe\b\s*", re.IGNORECASE)
+
+
+def _clean_raw(text):
+    if not text: return ""
+    text = re.sub(r"\d{4}-\d{2}-\d{2}[\s\d:]*", " ", text)
+    text = re.sub(r"https?://\S+", "DEVLINK", text)
+    text = re.sub(r"\+?\d[\d\s\-]{7,}", " ", text)
+    text = _TICKET_REF.sub("", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _expand_sentences(text):
+    text = _clean_raw(text)
+    if not text: return []
+    try:
+        from nltk.tokenize import sent_tokenize
+        raw = sent_tokenize(text)
+    except Exception:
+        raw = re.split(r"(?<=[.!?])\s+(?=[A-Z])", text)
+    expanded = []
+    for s in raw:
+        parts = _CAUSAL_SPLIT.split(s)
+        clean = [p.strip() for p in parts
+                 if p.strip() and not _CAUSAL_WORDS.match(p.strip()) and len(p.strip()) > 20]
+        expanded.extend(clean if clean else [s.strip()])
+    return expanded
+
+
+def _classify(s):
+    if len(s) < 20 or _NAME_LINE.match(s): return "NOISE"
+    lower = s.lower()
+    if any(n in lower for n in _NOISE_SIGNALS):    return "NOISE"
+    if any(r in lower for r in _ROOT_CAUSE_SIGNALS): return "ROOT_CAUSE"
+    if any(r in lower for r in _RESOLUTION_SIGNALS): return "RESOLUTION"
+    return "GENERAL"
+
+
+def _dedup(sents, n):
+    seen, out = set(), []
+    for s in sents:
+        k = re.sub(r"\s+", " ", s.lower())[:70]
+        if k in seen: continue
+        seen.add(k); out.append(s)
+        if len(out) >= n: break
+    return out
+
+
+def _build_rca_nltk(data: dict) -> dict:
+    short_desc  = get_value(data, "short description", "short_description")
+    description = get_value(data, "description")
+    res_notes   = get_value(data, "resolution notes",  "resolution_notes")
+    work_notes  = get_value(data, "work notes",        "work_notes")
+    comments    = get_value(data, "additional comments","additional_comments")
+
+    # Problem
+    sd = _HEDGE_PAR.sub("", short_desc).strip()
+    sd = re.sub(r"\s+", " ", _HEDGE_WORD.sub(" ", sd)).strip()
+    desc_sents = _expand_sentences(description)
+    seen = set(sd.lower().split())
+    chosen = []
+    for s in desc_sents:
+        lower = s.lower()
+        if _classify(s) == "NOISE": continue
+        if "i believe" in lower or "see for" in lower or "also see" in lower: continue
+        words = set(s.lower().split())
+        if len(words & seen) / max(len(words), 1) > 0.55: continue
+        chosen.append(s); seen |= words
+        if len(chosen) >= 2: break
+    problem = " ".join([sd] + chosen)
+
+    # Classify investigative sentences
+    raw_notes = " ".join(filter(None, [res_notes, work_notes, comments]))
+    by_tag = {"ROOT_CAUSE": [], "RESOLUTION": [], "GENERAL": []}
+    for s in _expand_sentences(raw_notes):
+        tag = _classify(s)
+        if tag in by_tag:
+            by_tag[tag].append(s)
+
+    root = " ".join(_dedup(by_tag["ROOT_CAUSE"], 3)) \
+           or "The root cause could not be determined. Further investigation is required."
+
+    res_sents = by_tag["RESOLUTION"][:]
+    for s in by_tag["GENERAL"]:
+        if any(kw in s.lower() for kw in ["permission","acl","modify","enable","provide","create"]):
+            res_sents.append(s)
+    res_final = _dedup(res_sents, 4)
+
+    notes_lower = raw_notes.lower()
+    is_resolved   = any(w in notes_lower for w in ["resolved","working now","validation was performed","user confirmed"])
+    has_azure_bug = "devlink" in notes_lower or ("azure" in notes_lower and any(w in notes_lower for w in ["feature","bug","work item"]))
+    has_workaround = any(w in notes_lower for w in ["workaround","alternative","interim"])
+
+    if is_resolved and has_azure_bug:
+        res_final.append("The fix has been validated. An Azure DevOps feature has been created to track the permanent configuration change.")
+    elif has_azure_bug and not is_resolved:
+        res_final.append("The issue has been escalated to the development team. An Azure DevOps feature has been raised to implement the required fix.")
+    elif has_workaround:
+        res_final.append("A workaround has been identified. A permanent fix is pending in the development backlog.")
+
+    resolution = " ".join(_dedup(res_final, 5)) \
+                 or "Resolution steps are pending. The issue has been escalated for further investigation."
+
+    return {"problem_statement": problem, "root_cause": root, "resolution": resolution}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PUBLIC INTERFACE
+# ─────────────────────────────────────────────────────────────────────────────
+
+def build_rca(data: dict) -> dict:
+    """
+    Tries Claude API first; falls back to local NLTK classification.
+    Used by both report and bulk modules.
+    """
+    try:
+        return _build_rca_claude(data)
+    except Exception as exc:
+        logger.warning("RCA: Claude API failed (%s) — using NLTK fallback", exc)
+        try:
+            return _build_rca_nltk(data)
+        except Exception as exc2:
+            logger.warning("RCA: NLTK fallback failed (%s)", exc2)
+            sd = get_value(data, "short description", "short_description")
+            return {
+                "problem_statement": sd or "Insufficient information available.",
+                "root_cause":        "Insufficient information available.",
+                "resolution":        "Insufficient information available.",
+            }

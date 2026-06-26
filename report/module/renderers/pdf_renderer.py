@@ -102,6 +102,70 @@ def generate_pdf_doc(data, root, l2, res, images):
         elements.append(Paragraph("Body content could not be rendered", styles["Normal"]))
         print("Body error:", e)
 
+    # ================= REFERENCES TABLE (new page) ================= #
+    refs = data.get("references") or []
+    if refs:
+        from reportlab.platypus import Table, TableStyle, PageBreak
+        from reportlab.lib import colors
+
+        elements.append(PageBreak())
+        elements.append(Paragraph("<b>REFERENCES</b>", styles["Heading1"]))
+        elements.append(Spacer(1, 6))
+
+        # ALL CAPS headers to match other tables (SHORT DESCRIPTION, DESCRIPTION, INCIDENT etc.)
+        # Alignment: col 0+1 center H; col 2 left H; all center V
+        # colWidths: 532pt total (letter 612 - 40 left - 40 right margins)
+        # Ref=120, Env=72, Link&Context=340 → total=532
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT
+        from reportlab.lib.styles import ParagraphStyle
+
+        hdr_center = ParagraphStyle("hdr_center", parent=styles["Normal"],
+                                    alignment=TA_CENTER, fontName="Helvetica-Bold")
+        hdr_left   = ParagraphStyle("hdr_left",   parent=styles["Normal"],
+                                    alignment=TA_LEFT,   fontName="Helvetica-Bold")
+        dat_center = ParagraphStyle("dat_center", parent=styles["Normal"],
+                                    alignment=TA_CENTER, fontName="Helvetica")
+        dat_left   = ParagraphStyle("dat_left",   parent=styles["Normal"],
+                                    alignment=TA_LEFT,   fontName="Helvetica")
+
+        table_data = [[
+            Paragraph("REFERENCE",    hdr_center),
+            Paragraph("ENVIRONMENT",  hdr_center),
+            Paragraph("LINK &amp; CONTEXT", hdr_left),
+        ]]
+
+        for r in refs:
+            env   = r.get("environment") or "-"
+            url   = r.get("url", "")
+            ctx   = r.get("context", "")
+            label = r.get("label", "")
+            link_color  = "#000000"  # black, no underline
+            link_markup = f'<link href="{url}" color="{link_color}">{url}</link>'
+            ctx_markup  = f"<br/><font size='8' color='#64748b'>{ctx}</font>" if ctx else ""
+            table_data.append([
+                Paragraph(f"<b>{label}</b>", dat_center),
+                Paragraph(env,               dat_center),
+                Paragraph(link_markup + ctx_markup, dat_left),
+            ])
+
+        ref_table = Table(table_data, colWidths=[100, 92, 340])
+        ref_table.setStyle(TableStyle([
+            # Grid — black, matching header/description tables
+            ("GRID",        (0, 0), (-1, -1), 1,    colors.black),
+            # Header fill — lightgrey, matching other tables
+            ("BACKGROUND",  (0, 0), (-1,  0), colors.lightgrey),
+            # Font names — bold header row, regular data
+            ("FONTNAME",    (0, 0), (-1,  0), "Helvetica-Bold"),
+            ("FONTNAME",    (0, 1), (-1, -1), "Helvetica"),
+            # Vertical alignment — center for all cells
+            ("VALIGN",      (0, 0), (-1, -1), "MIDDLE"),
+            ("LEFTPADDING",  (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+            ("TOPPADDING",   (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING",(0, 0), (-1, -1), 4),
+        ]))
+        elements.append(ref_table)
+
     # ================= FOOTER ================= #
     footer = pdf_footer(data)
     

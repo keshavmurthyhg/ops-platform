@@ -1,0 +1,9 @@
+Windchill WVS Job Monitor — Job Queue Snapshot
+Captured : 20260616_203757
+URL      : https://vcewindchill.got.volvo.net/Windchill/ptc1/wvs/queueMonitorMain?containerOid=OR:wt.inf.container.OrgContainer:4678&u8=1
+Rows     : 2
+
+POSITION  |  QUEUE  |  JOB             |  JOB_STATUS  |  NUMBER  |  NAME                 |  VERSION              |  CONTEXT  |  USER          |  POST_JOB                      
+--------  |  -----  |  --------------  |  ----------  |  ------  |  -------------------  |  -------------------  |  -------  |  ------------  |  ------------------------------
+          |  2      |  MOFFICEQUEUE    |              |  READY   |  PVR_13_TEL15409055   |  Part Version Report  |  01.2     |  Rigid Hauler  |  Windchill Administrator (Site)
+          |  41     |  LCATIATWXQUEUE  |              |  READY   |  16883081.CATDRAWING  |  NOZZLE               |  01.1     |  ART-Hauler    |  Thingworx Admin               

@@ -1,562 +1,182 @@
 {% extends "main.html" %}
 
-{% block page_title %}
-Operations Center
-{% endblock %}
+{% block page_title %}Operations Center{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet"
       href="{{ url_for('operations_center.static', filename='operations_center.css') }}">
 {% endblock %}
 
-<div class="dockbar">
-    <button id="trackerDockBtn" class="dock-btn active">
-        <img src="/static/images/tracker.png">
-    </button>
-
-    <button id="downloadDockBtn" class="dock-btn">
-        <img src="/static/images/download.png">
-    </button>
-</div>
-
 {% block top_center %}
-<div class="module-title-pill">
-    Operations Center
-</div>
+<div class="module-title-pill">Operations Center</div>
 {% endblock %}
 
 {% block dock_icons %}
-
-<!-- Filters -->
 <div class="dock-item active-dock"
-     onclick="showSidebarSection('filters-section')">
-
-    <img src="{{ url_for('common_static.static', filename='images/filter.png') }}"
-         alt="Filter">
-
+     onclick="showSidebarSection('filters-section', this)">
+    <img src="{{ url_for('common_static.static', filename='images/filter.png') }}" alt="Filter">
 </div>
-
-<!-- Downloads -->
-<div class="dock-item"
-     onclick="showSidebarSection('download-section', this)">
-    ⬇
-</div>
-
-<!-- Trackers -->
-<!--<div class="dock-item"
-     onclick="showSidebarSection('tracker-section')">
-    📊
-</div>-->
-
+<div class="dock-item" onclick="showSidebarSection('download-section', this)">⬇</div>
+<div class="dock-item" onclick="showSidebarSection('collector-section', this)" title="Data Collectors">📡</div>
+<div class="dock-item" onclick="showSidebarSection('reports-section', this)" title="Reports">📊</div>
+<div class="dock-item" onclick="showSidebarSection('settings-section', this)" title="Settings">⚙</div>
 {% endblock %}
 
 {% block toolbar_left %}
-
-<button class="primary-btn"
-        onclick="refreshOperationsData()">
-    Refresh Data
+<button class="primary-btn" onclick="refreshOperationsData()">🔄 Refresh Data</button>
+<button class="primary-btn tracker-btn active" id="dashboardToolbarBtn" onclick="showSection('dashboard')">📊 Dashboard</button>
+<button class="primary-btn tracker-btn" id="supportToolbarBtn"  onclick="showSection('support')">📧 Support</button>
+<button class="primary-btn tracker-btn" id="failureToolbarBtn"  onclick="showSection('failure')">⚠️ Failures</button>
+<button class="primary-btn tracker-btn" id="incidentToolbarBtn" onclick="showSection('incident')">🎫 Incidents</button>
+<button class="primary-btn tracker-btn" id="azureToolbarBtn"    onclick="showSection('azure')">☁ Azure</button>
+<button class="primary-btn tracker-btn" id="ptcToolbarBtn"      onclick="showSection('ptc')">🛠 PTC</button>
+<button class="primary-btn ops-digest-btn" id="opsDigestBtn"
+        onclick="prepareAllDigests()"
+        title="Prepare daily alert digests — today & yesterday critical issues">
+  📨 Prepare Digest
 </button>
-
-<button class="primary-btn tracker-btn"
-        id="dashboardToolbarBtn"
-        onclick="showSection('dashboard')">
-    📊 Dashboard
-</button>
-
-<button class="primary-btn tracker-btn active"
-        id="supportToolbarBtn"
-        onclick="showSection('support')">
-    📧 Support
-</button>
-
-<button class="primary-btn tracker-btn"
-        id="failureToolbarBtn"
-        onclick="showSection('failure')">
-    ⚠️ Failures
-</button>
-
-<button class="primary-btn tracker-btn"
-        id="incidentToolbarBtn"
-        onclick="showSection('incident')">
-    🎫 Incidents
-</button>
-
-<button class="primary-btn tracker-btn"
-        id="azureToolbarBtn"
-        onclick="showSection('azure')">
-    ☁ Azure
-</button>
-
-<button class="primary-btn tracker-btn"
-        id="ptcToolbarBtn"
-        onclick="showSection('ptc')">
-    🛠 PTC
-</button>
-
+<a href="/windchill-monitoring" class="app-switcher-btn windchill-switcher-btn"
+   title="Windchill View" style="margin-left:auto;flex-shrink:0;">
+    <svg class="windchill-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+        <path d="M16 2v4M16 26v4M2 16h4M26 16h4 M6.3 6.3l2.8 2.8M22.9 22.9l2.8 2.8 M25.7 6.3l-2.8 2.8M9.1 22.9l-2.8 2.8"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span class="windchill-switcher-label">Windchill</span>
+</a>
 {% endblock %}
 
 {% block sidebar %}
-
-<!-- <button class="sidebar-btn"
-        disabled>
-
-    Outlook Auto Collection Active
-
-</button> -->
-
 <div class="sidebar-content">
 
-    <!-- FILTERS -->
-
-    <div id="filters-section"
-        class="dock-section active-dock-section">
-
+    <div id="filters-section" class="dock-section active-dock-section">
         <div class="sidebar-section">
-
-            <div class="sidebar-group-title">
-                Filters
-            </div>
-
+            <div class="sidebar-group-title">Filters</div>
             <div id="dynamicFilters"></div>
-
         </div>
-
     </div>
 
-    <!-- DOWNLOADS -->
-
-    <div id="download-section"
-         class="dock-section">
-
+    <div id="download-section" class="dock-section">
         <div class="sidebar-section">
-
-            <div class="sidebar-group-title">
-                Downloads
-            </div>
-
-            <button
-                class="sidebar-btn export-btn"
-                onclick="exportCurrentViewCSV()">
-
-                Export CSV
-
-            </button>
-
-            <button
-                class="sidebar-btn export-btn"
-                onclick="exportCurrentViewXLSX()">
-
-                Export Excel
-
-            </button>
-
+            <div class="sidebar-group-title">Downloads</div>
+            <button class="sidebar-btn export-btn" onclick="exportCurrentViewCSV()">Export CSV</button>
+            <button class="sidebar-btn export-btn" onclick="exportCurrentViewXLSX()">Export Excel</button>
         </div>
+    </div>
 
+    <div id="collector-section" class="dock-section">
         <div class="sidebar-section">
-
-            <div class="sidebar-group-title">
-                PTC Data
-            </div>
-
-            <button
-                id="launchEdgeBtn"
-                class="sidebar-btn ptc-launch-btn"
-                onclick="launchEdgeDebug()"
-                title="Opens Edge in remote debug mode — run this first">
-
-                🌐 Launch Edge (Debug)
-
-            </button>
-
-            <button
-                id="refreshPtcBtn"
-                class="sidebar-btn ptc-refresh-btn"
-                onclick="refreshPtcCsv()"
-                title="Downloads latest PTC cases — requires Edge in debug mode">
-
-                🔄 Refresh PTC Cases
-
-            </button>
-
-            <div id="ptcRefreshStatus"
-                 class="collection-refresh"
-                 style="display:none; font-size:11px; margin-top:6px; color:var(--text-muted);">
-            </div>
-
-            <div style="font-size:10px; color:var(--text-muted); margin-top:6px; line-height:1.4;">
-                <a href="#" onclick="showEdgeDebugHelp(); return false;"
-                   style="color:var(--accent);">How to set up →</a>
-            </div>
-
+            <div class="sidebar-group-title">Data Collectors</div>
+            <div class="collector-group-label">🎫 Incidents</div>
+            <button class="sidebar-btn collector-btn collector-snow-btn" id="collectSnowBtn" onclick="collectSnowData()">🔄 Refresh Incidents</button>
+            <div id="snowCollectStatus" class="collector-status"></div>
+            <div class="collector-group-label">☁ Azure</div>
+            <button class="sidebar-btn collector-btn collector-azure-btn" id="collectAzureBtn" onclick="collectAzureData()">🔄 Refresh Azure</button>
+            <div id="azureCollectStatus" class="collector-status"></div>
+            <div class="collector-group-label">🛠 PTC</div>
+            <button id="launchEdgeBtn" class="sidebar-btn ptc-launch-btn" onclick="launchEdgeDebug()">🌐 Launch Edge (Debug)</button>
+            <button id="refreshPtcBtn" class="sidebar-btn ptc-refresh-btn" onclick="refreshPtcCsv()">🔄 Refresh PTC Cases</button>
+            <div id="ptcRefreshStatus" style="display:none;font-size:11px;margin-top:6px;color:var(--text-muted);"></div>
+            <div class="collector-group-label">📂 Manual Upload</div>
+            <button class="sidebar-btn collector-btn collector-upload-btn" onclick="openUploadModal()">📂 Upload Data Files</button>
         </div>
+    </div>
 
+    <div id="reports-section" class="dock-section">
+        <div class="sidebar-section">
+            <div class="sidebar-group-title">Daily Report</div>
+            <div class="rpt-desc">Today &amp; yesterday · all trackers</div>
+            <button class="rpt-btn rpt-daily" onclick="openDailyReport()">📋 Daily Report</button>
+            <div class="sidebar-group-title">Weekly Report</div>
+            <div class="rpt-desc">Mon–Sun · this week's performance</div>
+            <button class="rpt-btn rpt-weekly" onclick="openWeeklyReport()">📅 Weekly Report</button>
+            <div class="sidebar-group-title">Summary Report</div>
+            <div class="rpt-desc">Full history · all 8 trackers</div>
+            <button class="rpt-btn rpt-summary" onclick="openSummaryReport()">📊 Summary Report</button>
+            <div class="sidebar-group-title">Date Range</div>
+            <div class="rpt-desc">Custom range · pick trackers &amp; format</div>
+            <button class="rpt-btn rpt-range" onclick="openRangeReport()">📆 Date Range Report</button>
+        </div>
+    </div>
+
+    <div id="settings-section" class="dock-section">
+        <div class="sidebar-section">
+            <div class="sidebar-group-title">Preferences</div>
+            <button class="rpt-btn" onclick="openSettings()"
+                    style="background:rgba(59,130,246,.15);color:#93c5fd;border-color:rgba(59,130,246,.3);">⚙ Settings</button>
+            <div class="rpt-desc" style="margin-top:4px;">Alert thresholds, report identity, email &amp; display.</div>
+            <div class="rpt-desc" style="margin-top:6px;font-size:10px;color:#93c5fd;">CSV/Excel exports are in the ⬇ Downloads dock.</div>
+        </div>
     </div>
 
 </div>
 
 <div class="collection-status">
-
-    <div class="collection-title">
-        Outlook Auto Collection
-    </div>
-
-    <div class="collection-value">
-        Active
-    </div>
-
-    <div id="lastRefreshTime"
-         class="collection-refresh">
-        Last Refresh: Loading...
-    </div>
-
+    <div class="collection-title">Outlook Auto Collection</div>
+    <div class="collection-value">Active</div>
+    <div id="lastRefreshTime" class="collection-refresh">Last Refresh: Loading...</div>
 </div>
-
 {% endblock %}
 
 {% block content %}
 
-<div class="operations-summary-grid" id="summaryGrid">
-</div>
+{# ── DASHBOARD ──────────────────────────────────────────────────────────────── #}
+<div id="dashboardSection" class="operations-section" style="display:flex;flex-direction:column;">
 
-<!-- ===================================================== -->
-<!-- SUPPORT KPI TEMPLATE                                  -->
-<!-- ===================================================== -->
-
-<div id="supportKpis" style="display:none;">
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Pending Actions
-        </div>
-
-        <div class="summary-value"
-             id="pendingActionCard">
-
-            <span id="pendingActionCard">0</span>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ===================================================== -->
-<!-- FAILURE KPI TEMPLATE                                  -->
-<!-- ===================================================== -->
-
-<div id="failureKpis" style="display:none;">
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Integration Failures
-        </div>
-
-        <div class="summary-value">
-            {{ failure_data|length }}
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Critical Servers
-        </div>
-
-        <div class="summary-value">
-            {{ summary.critical_servers }}
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ===================================================== -->
-<!-- INCIDENT KPI TEMPLATE                                 -->
-<!-- ===================================================== -->
-
-<div id="incidentKpis" style="display:none;">
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Total Incidents
-        </div>
-
-        <div class="summary-value">
-            {{ incident_data|length }}
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            On Hold
-        </div>
-
-        <div class="summary-value">
-
-            {{
-                incident_data
-                | selectattr("Status","equalto","On Hold")
-                | list
-                | length
-            }}
-
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            In Progress
-        </div>
-
-        <div class="summary-value">
-
-            {{
-                incident_data
-                | selectattr("Status","equalto","In Progress")
-                | list
-                | length
-            }}
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ===================================================== -->
-<!-- AZURE KPI TEMPLATE                                    -->
-<!-- ===================================================== -->
-
-<div id="azureKpis" style="display:none;">
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Azure Cases
-        </div>
-
-        <div class="summary-value">
-            {{ azure_data|length }}
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            New
-        </div>
-
-        <div class="summary-value">
-
-            {{
-                azure_data
-                | selectattr("Status","equalto","New")
-                | list
-                | length
-            }}
-
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Active
-        </div>
-
-        <div class="summary-value">
-
-            {{
-                azure_data
-                | selectattr("Status","equalto","Active")
-                | list
-                | length
-            }}
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- ===================================================== -->
-<!-- PTC KPI TEMPLATE                                      -->
-<!-- ===================================================== -->
-
-<div id="ptcKpis" style="display:none;">
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            PTC Cases
-        </div>
-
-        <div class="summary-value">
-            {{ ptc_data|length }}
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Information Received
-        </div>
-
-        <div class="summary-value">
-
-            {{
-                ptc_data
-                | selectattr("Status","equalto","Information Received")
-                | list
-                | length
-            }}
-
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            SPR Filed
-        </div>
-
-        <div class="summary-value">
-
-            {{
-                ptc_data
-                | selectattr("Status","equalto","SPR Filed")
-                | list
-                | length
-            }}
-
-        </div>
-
-    </div>
-
-    <div class="summary-card">
-
-        <div class="summary-title">
-            Closed
-        </div>
-
-        <div class="summary-value">
-
-            {{
-                ptc_data
-                | selectattr("Status","equalto","Closed")
-                | list
-                | length
-            }}
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- ===================================================== -->
-<!-- DASHBOARD OVERVIEW SECTION                            -->
-<!-- ===================================================== -->
-
-<div id="dashboardSection"
-     class="operations-section">
-
-    <!-- ── TOP ROW: 4 KPI TILES ── -->
     <div class="dashboard-kpi-row">
-
-        <div class="dashboard-kpi-tile tile-support"
-             onclick="showSection('support')">
+        <div class="dashboard-kpi-tile tile-support" onclick="showSection('support')">
             <div class="tile-icon">📧</div>
             <div class="tile-value" id="dash-support-count">{{ support_data|length }}</div>
             <div class="tile-label">Support Emails</div>
-            <div class="tile-sub" id="dash-pending-actions">
-                {{ summary.pending_actions }} pending action{{ 's' if summary.pending_actions != 1 else '' }}
-            </div>
+            <div class="tile-sub" id="dash-pending-actions">{{ summary.pending_actions }} pending actions</div>
         </div>
-
-        <div class="dashboard-kpi-tile tile-failure"
-             onclick="showSection('failure')">
+        <div class="dashboard-kpi-tile tile-failure" onclick="showSection('failure')">
             <div class="tile-icon">⚠️</div>
             <div class="tile-value" id="dash-failure-count">{{ failure_data|length }}</div>
             <div class="tile-label">PROD Failures</div>
-            <div class="tile-sub" id="dash-critical-servers">
-                {{ summary.critical_servers }} critical server{{ 's' if summary.critical_servers != 1 else '' }}
-            </div>
+            <div class="tile-sub">{{ summary.critical_servers }} critical server{{ 's' if summary.critical_servers != 1 else '' }}</div>
         </div>
-
-        <div class="dashboard-kpi-tile tile-snow"
-             onclick="showSection('incident')">
+        <div class="dashboard-kpi-tile tile-snow" onclick="showSection('incident')">
             <div class="tile-icon">🎫</div>
-            <div class="tile-value" id="dash-incident-count">{{ incident_data|length }}</div>
+            <div class="tile-value" id="dash-incident-count">{{ incident_data | selectattr("Status", "in", ["On Hold", "New", "In Progress", "Open"]) | list | length }}</div>
             <div class="tile-label">SNOW Incidents</div>
-            <div class="tile-sub">
-                Open / In Progress / On Hold
-            </div>
+            <div class="tile-sub">Open / In Progress / On Hold</div>
         </div>
-
-        <div class="dashboard-kpi-tile tile-azure"
-             onclick="showSection('azure')">
+        <div class="dashboard-kpi-tile tile-azure" onclick="showSection('azure')">
             <div class="tile-icon">☁</div>
             <div class="tile-value" id="dash-azure-count">{{ azure_data|length }}</div>
-            <div class="tile-label">Azure Bugs</div>
+            <div class="tile-label">Azure Bugs &amp; Stories</div>
             <div class="tile-sub">Active bugs</div>
         </div>
-
-        <div class="dashboard-kpi-tile tile-ptc"
-             onclick="showSection('ptc')">
+        <div class="dashboard-kpi-tile tile-ptc" onclick="showSection('ptc')">
             <div class="tile-icon">🛠</div>
             <div class="tile-value" id="dash-ptc-count">{{ ptc_data|length }}</div>
             <div class="tile-label">PTC Cases</div>
             <div class="tile-sub">Open cases</div>
         </div>
-
     </div>
 
-    <!-- ── BOTTOM ROW: 3 MINI TABLES ── -->
     <div class="dashboard-tables-row">
-
-        <!-- SNOW Incidents — notification cards -->
         <div class="dashboard-mini-card">
             <div class="mini-card-header">
                 <span class="mini-card-title">🎫 Recent SNOW Incidents</span>
                 <a class="mini-card-link" onclick="showSection('incident')">View all →</a>
             </div>
             <div class="notif-list">
-                {% for row in incident_data[:10] %}
+                {% set active_inc = incident_data | selectattr("Status", "in", ["On Hold", "New", "In Progress", "Open"]) | list %}
+                {% for row in active_inc[:10] %}
                 <div class="notif-item notif-snow">
                     <div class="notif-row1">
-                        <span class="notif-number">
-                            {% if row.number_url %}
-                                <a href="{{ row.number_url }}" target="_blank" class="notif-link">{{ row.Number }}</a>
-                            {% else %}
-                                {{ row.Number }}
-                            {% endif %}
-                        </span>
+                        <span class="notif-number">{% if row.number_url %}<a href="{{ row.number_url }}" target="_blank" class="notif-link">{{ row.Number }}</a>{% else %}{{ row.Number }}{% endif %}</span>
                         <span class="notif-person">{{ row['Assigned To'] }}</span>
                         <span class="status-pill status-{{ row.Status|lower|replace(' ','-') }}">{{ row.Status }}</span>
                     </div>
                     <div class="notif-row2">{{ row.Description }}</div>
                 </div>
-                {% else %}
-                <div class="notif-empty">No active incidents</div>
-                {% endfor %}
+                {% else %}<div class="notif-empty">No active incidents</div>{% endfor %}
             </div>
+            <div class="ops-mini-footer"><span>🎫 Last updated:</span><strong>{{ data_ages.get('incident', '—') }}</strong></div>
         </div>
-
-        <!-- Azure Bugs — notification cards -->
         <div class="dashboard-mini-card">
             <div class="mini-card-header">
                 <span class="mini-card-title">☁ Recent Azure Bugs</span>
@@ -566,25 +186,21 @@ Operations Center
                 {% for row in azure_data[:10] %}
                 <div class="notif-item notif-azure">
                     <div class="notif-row1">
-                        <span class="notif-number">
-                            {% if row.number_url %}
-                                <a href="{{ row.number_url }}" target="_blank" class="notif-link">{{ row.Number }}</a>
-                            {% else %}
-                                {{ row.Number }}
-                            {% endif %}
-                        </span>
+                        <span class="notif-number">{% if row.number_url %}<a href="{{ row.number_url }}" target="_blank" class="notif-link">{{ row.Number }}</a>{% else %}{{ row.Number }}{% endif %}</span>
                         <span class="notif-person">{{ row['Created By'] }}</span>
+                        {% if 'story' in (row.item_type or 'bug')|lower %}
+                        <span class="ops-type-pill pill-story" style="font-size:10px;">User Story</span>
+                        {% else %}
+                        <span class="ops-type-pill pill-bug" style="font-size:10px;">Bug</span>
+                        {% endif %}
                         <span class="status-pill status-{{ row.Status|lower|replace(' ','-') }}">{{ row.Status }}</span>
                     </div>
                     <div class="notif-row2">{{ row.Description }}</div>
                 </div>
-                {% else %}
-                <div class="notif-empty">No active bugs</div>
-                {% endfor %}
+                {% else %}<div class="notif-empty">No active bugs or stories</div>{% endfor %}
             </div>
+            <div class="ops-mini-footer"><span>☁ Last updated:</span><strong>{{ data_ages.get('azure', '—') }}</strong></div>
         </div>
-
-        <!-- PTC Cases — notification cards -->
         <div class="dashboard-mini-card">
             <div class="mini-card-header">
                 <span class="mini-card-title">🛠 Recent PTC Cases</span>
@@ -594,565 +210,343 @@ Operations Center
                 {% for row in ptc_data[:10] %}
                 <div class="notif-item notif-ptc">
                     <div class="notif-row1">
-                        <span class="notif-number">
-                            {% if row.number_url %}
-                                <a href="{{ row.number_url }}" target="_blank" class="notif-link">{{ row.Number }}</a>
-                            {% else %}
-                                {{ row.Number }}
-                            {% endif %}
-                        </span>
+                        <span class="notif-number">{% if row.number_url %}<a href="{{ row.number_url }}" target="_blank" class="notif-link">{{ row.Number }}</a>{% else %}{{ row.Number }}{% endif %}</span>
                         <span class="notif-person">{{ row['Created By'] }}</span>
                         <span class="status-pill status-{{ row.Status|lower|replace(' ','-') }}">{{ row.Status }}</span>
                     </div>
                     <div class="notif-row2">{{ row.Description }}</div>
                 </div>
-                {% else %}
-                <div class="notif-empty">No active cases</div>
-                {% endfor %}
+                {% else %}<div class="notif-empty">No active cases</div>{% endfor %}
             </div>
+            <div class="ops-mini-footer"><span>🛠 Last updated:</span><strong>{{ data_ages.get('ptc', '—') }}</strong></div>
         </div>
-
     </div>
-
 </div>
 
-
-<!-- SUPPORT EMAILS -->
-
-<div id="supportSection"
-     class="operations-section active-section">
-
+{# ── SUPPORT ────────────────────────────────────────────────────────────────── #}
+<div id="supportSection" class="operations-section" style="display:none;flex-direction:column;">
     <div class="card">
-
-        <div class="section-title">
-            Support Emails
+        <div class="ops-section-title-row">
+            <span class="section-title">Support Emails</span>
+            <div class="ops-section-kpi-bar" id="supportKpiBar"></div>
+            <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
         </div>
-
         <div class="table-wrapper">
-
             <table class="ops-table">
-
-                <thead>
-                    <tr>
-                        <th>Date Received</th>
-                        <th>Name</th>
-                        <th>Subject</th>
-                        <!--<th>Address</th> -->
-                        <!--<th>Status</th> -->
-                        <th>Importance</th>
-                        <th>Category</th>
-                        
-                    </tr>
-                </thead>
-
-                <tbody id="supportTableBody">
-                </tbody>
-
+                <thead><tr>
+                    <th>Date Received</th><th>Name</th><th>Subject</th>
+                    <th>Importance</th><th>Category</th>
+                </tr></thead>
+                <tbody id="supportTableBody"></tbody>
             </table>
-
         </div>
-
     </div>
-
 </div>
 
-
-<!-- INTEGRATION FAILURES -->
-
-<div id="failureSection"
-     class="operations-section">
-
+{# ── FAILURES ───────────────────────────────────────────────────────────────── #}
+<div id="failureSection" class="operations-section" style="display:none;flex-direction:column;">
     <div class="card">
-
-        <div class="section-title">
-            Integration Failures
+        <div class="ops-section-title-row">
+            <span class="section-title">Integration Failures</span>
+            <div class="ops-section-kpi-bar" id="failureKpiBar"></div>
+            <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
         </div>
-
         <div class="table-wrapper">
-
             <table class="ops-table">
-
-                <thead>
-
-                    <tr>
-                        <th>Failure Time</th>
-                        <th>Integration</th>
-                        <th>Object Number</th>
-                        <th>Error Message</th>                        
-                        <th>Environment</th>
-                        <th>WC Server</th>
-                    </tr>
-
-                </thead>
-
-                <tbody id="failureTableBody">
-                </tbody>
-
+                <thead><tr>
+                    <th>Failure Time</th><th>Integration</th><th>Object Number</th>
+                    <th>Error Message</th><th>Environment</th><th>WC Server</th>
+                </tr></thead>
+                <tbody id="failureTableBody"></tbody>
             </table>
-
         </div>
-
     </div>
-
 </div>
 
-<!-- INCIDENT TRACKER -->
-
-<div id="incidentSection"
-     class="operations-section">
-
+{# ── INCIDENTS ──────────────────────────────────────────────────────────────── #}
+<div id="incidentSection" class="operations-section" style="display:none;flex-direction:column;">
     <div class="card">
-
-        <div class="section-title">
-            Incident Tracker
+        <div class="ops-section-title-row">
+            <span class="section-title">Incident Tracker</span>
+            <div class="ops-section-kpi-bar" id="incidentKpiBar"></div>
+            <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
         </div>
-
         <div class="table-wrapper">
-
             <table class="ops-table">
-
-                <thead>
-
-                    <tr>
-                        <th>Number</th>
-                        <th>Vendor Ticket</th>
-                        <th>Description</th>
-                        <th>Assigned To</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>Created Date</th>
-                    </tr>
-
-                </thead>
-
+                <thead><tr>
+                    <th>Number</th><th>Vendor Ticket</th><th>Description</th>
+                    <th>Assigned To</th><th>Status</th><th>Priority</th><th>Created Date</th>
+                </tr></thead>
                 <tbody>
-
-                    {% for row in incident_data %}
-
-                    <tr>
-
-                        <td>
-
-                            {% if row.number_url %}
-
-                                <a href="{{ row.number_url }}"
-                                target="_blank"
-                                class="number-link">
-
-                                    {{ row.Number }}
-
-                                </a>
-
-                            {% else %}
-
-                                {{ row.Number }}
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-
-                            {% if row.vendor_ticket_url %}
-
-                                <a href="{{ row.vendor_ticket_url }}"
-                                target="_blank"
-                                class="number-link">
-
-                                    {{ row['Vendor Ticket'] }}
-
-                                </a>
-
-                            {% else %}
-
-                                {{ row['Vendor Ticket'] }}
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-                            <div class="desc-cell"
-                                title="{{ row.Description }}">
-                                {{ row.Description }}
-                            </div>
-                        </td>
-
-                        <td>{{ row['Assigned To'] }}</td>
-
-                        <td>{{ row.Status }}</td>
-
-                        <td>{{ row.Priority }}</td>
-
-                        <td>{{ row['Created Date'] }}</td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- AZURE TRACKER -->
-
-<div id="azureSection"
-     class="operations-section">
-
-    <div class="card">
-
-        <div class="section-title">
-            Azure Tracker
-        </div>
-
-        <div class="table-wrapper">
-
-            <table class="ops-table">
-
-                <thead>
+                {% for row in incident_data %}
                 <tr>
-                    <th>Number</th>
-                    <th>Description</th>
-                    <th>Assigned To</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Created By</th>
-                    <th>Created Date</th>
+                    <td>{% if row.number_url %}<a href="{{ row.number_url }}" target="_blank" class="number-link">{{ row.Number }}</a>{% else %}{{ row.Number }}{% endif %}</td>
+                    <td>{% if row['Vendor Ticket'] %}{% for t in row['Vendor Ticket'].split(',') %}{% set tc = t.strip() %}{% if tc %}<a href="https://support.ptc.com/appserver/cs/view/support.jsp?n={{ tc }}" target="_blank" class="number-link" title="PTC Case {{ tc }}">{{ tc }}</a>{% if not loop.last %} · {% endif %}{% endif %}{% endfor %}{% endif %}</td>
+                    <td><div class="desc-cell" title="{{ row.Description }}">{{ row.Description }}</div></td>
+                    <td>{{ row['Assigned To'] }}</td>
+                    <td>{{ row.Status }}</td>
+                    <td>{{ row.Priority }}</td>
+                    <td>{{ row['Created Date'] }}</td>
                 </tr>
-                </thead>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-                <tbody>
-
+{# ── AZURE ──────────────────────────────────────────────────────────────────── #}
+<div id="azureSection" class="operations-section" style="display:none;flex-direction:column;">
+    <div class="card">
+        <div class="ops-section-title-row">
+            <span class="section-title">Azure Bugs &amp; User Stories</span>
+            <div class="ops-section-kpi-bar" id="azureKpiBar"></div>
+            <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="ops-table">
+                <thead><tr>
+                    <th>Number</th><th>Type</th><th>Description</th><th>Assigned To</th>
+                    <th>Status</th><th>Priority</th><th>Created By</th><th>Created Date</th>
+                </tr></thead>
+                <tbody id="opsAzureTableBody">
                 {% for row in azure_data %}
-
                 <tr>
-
-                    <td>
-
-                        {% if row.number_url %}
-
-                            <a href="{{ row.number_url }}"
-                            target="_blank"
-                            class="number-link">
-
-                                {{ row.Number }}
-
-                            </a>
-
-                        {% else %}
-
-                            {{ row.Number }}
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-                        <div class="desc-cell"
-                            title="{{ row.Description }}">
-                            {{ row.Description }}
-                        </div>
-                    </td>
-
+                    <td>{% if row.number_url %}<a href="{{ row.number_url }}" target="_blank" class="number-link">{{ row.Number }}</a>{% else %}{{ row.Number }}{% endif %}</td>
+                    <td><span class="ops-type-pill {% if 'story' in (row.item_type or '')|lower %}pill-story{% else %}pill-bug{% endif %}">{{ row.item_type or 'Bug' }}</span></td>
+                    <td><div class="desc-cell" title="{{ row.Description }}">{{ row.Description }}</div></td>
                     <td>{{ row['Assigned To'] }}</td>
-
                     <td>{{ row.Status }}</td>
-
                     <td>{{ row.Priority }}</td>
-
                     <td>{{ row['Created By'] }}</td>
-
                     <td>{{ row['Created Date'] }}</td>
-
                 </tr>
-
                 {% endfor %}
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
-
 </div>
 
-<!-- PTC CASES TRACKER-->
-
-<div id="ptcSection"
-     class="operations-section">
-
+{# ── PTC ────────────────────────────────────────────────────────────────────── #}
+<div id="ptcSection" class="operations-section" style="display:none;flex-direction:column;">
     <div class="card">
-
-        <div class="section-title">
-            PTC Cases
+        <div class="ops-section-title-row">
+            <span class="section-title">PTC Cases</span>
+            <div class="ops-section-kpi-bar" id="ptcKpiBar"></div>
+            <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
         </div>
-
         <div class="table-wrapper">
-
             <table class="ops-table">
-
-                <thead>
-                <tr>
-                    <th>Number</th>
-                    <th>Description</th>
-                    <th>Assigned To</th>
-                    <th>Status</th>
-                    <th>Priority</th>
-                    <th>Created By</th>
-                    <th>Created Date</th>
-                </tr>
-                </thead>
-
+                <thead><tr>
+                    <th>Number</th><th>Description</th><th>Assigned To</th>
+                    <th>Status</th><th>Priority</th><th>Created By</th><th>Created Date</th>
+                </tr></thead>
                 <tbody>
-
                 {% for row in ptc_data %}
-
                 <tr>
-
-                    <td>
-                        {% if row.number_url %}
-                            <a href="{{ row.number_url }}"
-                               target="_blank"
-                               class="number-link">
-                                {{ row.Number }}
-                            </a>
-                        {% else %}
-                            {{ row.Number }}
-                        {% endif %}
-                    </td>
-
-                    <td>
-                        <div class="desc-cell"
-                            title="{{ row.Description }}">
-                            {{ row.Description }}
-                        </div>
-                    </td>
-
+                    <td>{% if row.number_url %}<a href="{{ row.number_url }}" target="_blank" class="number-link">{{ row.Number }}</a>{% else %}{{ row.Number }}{% endif %}</td>
+                    <td><div class="desc-cell" title="{{ row.Description }}">{{ row.Description }}</div></td>
                     <td>{{ row['Assigned To'] }}</td>
-
                     <td>{{ row.Status }}</td>
-
                     <td>{{ row.Priority }}</td>
-
                     <td>{{ row['Created By'] }}</td>
-
                     <td>{{ row['Created Date'] }}</td>
-
                 </tr>
-
                 {% endfor %}
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
-
 </div>
 
-{% block module_status %}
-
-<div id="progressText"
-     class="search-status-text">
-</div>
-
-<div class="search-progress-bar">
-
-    <div id="progressFill"
-         class="search-progress-fill">
-    </div>
-
-</div>
-
-{% endblock %}
-
-{% endblock %}
-
+{% block module_status %}{% endblock %}
+{% endblock %}{# content #}
 
 {% block page_js %}
-
 <script>
-
-const supportData = {{ support_data|tojson }};
-const failureData = {{ failure_data|tojson }};
+const supportData  = {{ support_data|tojson }};
+const failureData  = {{ failure_data|tojson }};
 const incidentData = {{ incident_data|tojson }};
-const azureData = {{ azure_data|tojson }};
-const ptcData = {{ ptc_data|tojson }};
-
+const azureData    = {{ azure_data|tojson }};
+const ptcData      = {{ ptc_data|tojson }};
+window.supportData  = supportData;
+window.failureData  = failureData;
+window.incidentData = incidentData;
+window.azureData    = azureData;
+window.ptcData      = ptcData;
 </script>
 
 <script>
-// ── Launch Edge Debug Mode ───────────────────────────────────
 function launchEdgeDebug() {
-    const btn = document.getElementById("launchEdgeBtn");
-    const status = document.getElementById("ptcRefreshStatus");
-    btn.disabled = true;
-    btn.textContent = "⏳ Launching...";
-    status.style.display = "block";
-    status.style.color = "var(--text-muted)";
-    status.textContent = "Starting Edge in debug mode...";
-
-    fetch("/api/operations-center/launch-edge-debug", { method: "POST" })
-        .then(r => r.json())
-        .then(data => {
-            btn.disabled = false;
-            btn.textContent = "🌐 Launch Edge (Debug)";
-            if (data.success) {
-                status.style.color = "#4caf50";
-                status.textContent = "✅ Edge launched — log in to PTC, then click Refresh PTC Cases";
-            } else {
-                status.style.color = "#f44336";
-                status.textContent = "❌ " + (data.message || "Failed to launch");
-            }
-        })
-        .catch(err => {
-            btn.disabled = false;
-            btn.textContent = "🌐 Launch Edge (Debug)";
-            status.style.color = "#f44336";
-            status.textContent = "❌ " + err;
-        });
+    const btn=document.getElementById("launchEdgeBtn"), status=document.getElementById("ptcRefreshStatus");
+    btn.disabled=true; btn.textContent="⏳ Launching...";
+    status.style.display="block"; status.style.color="var(--text-muted)"; status.textContent="Starting Edge in debug mode...";
+    fetch("/api/operations-center/launch-edge-debug",{method:"POST"}).then(r=>r.json()).then(data=>{
+        btn.disabled=false; btn.textContent="🌐 Launch Edge (Debug)";
+        status.style.color=data.success?"#4caf50":"#f44336";
+        status.textContent=data.success?"✅ Edge launched — log in to PTC, then Refresh PTC Cases":"❌ "+(data.message||"Failed");
+    }).catch(err=>{btn.disabled=false;btn.textContent="🌐 Launch Edge (Debug)";status.style.color="#f44336";status.textContent="❌ "+err;});
 }
-
-// ── PTC DATA ENGINE COLLECTION CONTROLLER WITH ADVANCED STATUS ROUTING ─────
 function refreshPtcCsv() {
-    const btn = document.getElementById("refreshPtcBtn");
-    const sidebarStatus = document.getElementById("ptcRefreshStatus");
-    
-    // Completely hide the brittle sidebar text container to keep layout clean
-    if (sidebarStatus) {
-        sidebarStatus.textContent = "";
-        sidebarStatus.style.display = "none";
-    }
-
-    // Toggle interactive button state
-    btn.disabled = true;
-    btn.textContent = "⏳ Running Extract...";
-
-    // Route updates straight to the unified Processing Status panel
-    updateProcessingStatus(
-        "PTC Data Pipeline", 
-        "Establishing handshakes with active Edge debugging instance...", 
-        "processing"
-    );
-
-    // Dynamic ticking display to reassure user during the 120s compilation window
-    let secondsElapsed = 0;
-    const progressTimer = setInterval(() => {
-        secondsElapsed += 2;
-        if (secondsElapsed < 15) {
-            updateProcessingStatus("PTC Data Pipeline", "Applying corporate matrix filters (Severity, Me, My Company)...", "processing");
-        } else if (secondsElapsed >= 15 && secondsElapsed < 35) {
-            updateProcessingStatus("PTC Data Pipeline", "Opening Open & Closed queues. Querying history logs...", "processing");
-        } else if (secondsElapsed >= 35 && secondsElapsed < 125) {
-            let rem = 120 - (secondsElapsed - 35);
-            updateProcessingStatus("PTC Data Pipeline", `Compiling rows on PTC Server. Holding active stream (approx. ${Math.max(0, rem)}s remaining)...`, "processing");
-        } else {
-            updateProcessingStatus("PTC Data Pipeline", "Triggering browser download transmission footprint...", "processing");
-        }
-    }, 2000);
-
-    fetch("/api/operations-center/refresh-ptc", { method: "POST" })
-        .then(response => response.json())
-        .then(data => {
-            clearInterval(progressTimer);
-            btn.disabled = false;
-            btn.textContent = "🔄 Refresh PTC Cases";
-
-            if (data.success) {
-                // SUCCESS STATE: Color system status panel GREEN
-                updateProcessingStatus(
-                    "Completed", 
-                    data.message + " " + (data.detail || ""), 
-                    "completed"
-                );
-
-                // Reload layout after brief viewing pause to display new entries
-                setTimeout(() => {
-                    location.reload();
-                }, 2500);
-
-            } else {
-                // FAILURE STATE: Color system status panel RED
-                updateProcessingStatus(
-                    "Extraction Failed", 
-                    (data.message || "Automation halted.") + " Error: " + (data.detail || "Timeout"), 
-                    "failed"
-                );
-            }
-        })
-        .catch(err => {
-            clearInterval(progressTimer);
-            btn.disabled = false;
-            btn.textContent = "🔄 Refresh PTC Cases";
-            
-            // SYSTEM ERROR STATE: Color system status panel RED
-            updateProcessingStatus(
-                "Network Error", 
-                "Communication pipeline broken: " + err, 
-                "failed"
-            );
-        });
+    const btn=document.getElementById("refreshPtcBtn"), status=document.getElementById("ptcRefreshStatus");
+    btn.disabled=true; btn.textContent="⏳ Downloading...";
+    status.style.display="block"; status.style.color="var(--text-muted)"; status.textContent="Connecting...";
+    fetch("/api/operations-center/refresh-ptc",{method:"POST"}).then(r=>r.json()).then(data=>{
+        btn.textContent="🔄 Refresh PTC Cases"; btn.disabled=false;
+        if(data.success){status.style.color="#4caf50";status.textContent="✅ Updated! Refreshing...";setTimeout(()=>refreshOperationsData(),2000);}
+        else{const lines=(data.message||"").trim().split("\n").map(l=>l.trim()).filter(Boolean);
+            status.style.color="#f44336";status.innerHTML="❌ "+(lines.filter(l=>/ERROR|Error|Exception/.test(l)).pop()||lines[lines.length-1]||"Unknown error").replace(/^\[\d{2}:\d{2}:\d{2}\]\s*/,"");}
+    }).catch(err=>{btn.textContent="🔄 Refresh PTC Cases";btn.disabled=false;status.style.color="#f44336";status.textContent="❌ "+err;});
+}
+function showEdgeDebugHelp(){toggleHelpSystemModal();}
+function setCollectorStatus(sId,bId,cls,msg,dis){
+    const s=document.getElementById(sId),b=document.getElementById(bId);
+    if(s){s.className="collector-status "+cls;s.textContent=msg;}
+    if(b)b.disabled=dis;
+}
+async function collectSnowData(){
+    setCollectorStatus("snowCollectStatus","collectSnowBtn","status-run","⏳ Collecting…",true);
+    try{let r=await fetch("/api/operations-center/collect-snow",{method:"POST"});
+        if(r.status===404)r=await fetch("/api/operations-center/refresh");
+        const d=await r.json();
+        d.success?setCollectorStatus("snowCollectStatus","collectSnowBtn","status-ok","✓ Updated",false)
+                 :setCollectorStatus("snowCollectStatus","collectSnowBtn","status-err","✗ "+(d.message||"Failed"),false);
+    }catch(e){setCollectorStatus("snowCollectStatus","collectSnowBtn","status-err","✗ Network error",false);}
+}
+async function collectAzureData(){
+    setCollectorStatus("azureCollectStatus","collectAzureBtn","status-run","⏳ Collecting…",true);
+    try{let r=await fetch("/api/operations-center/collect-azure",{method:"POST"});
+        if(r.status===404)r=await fetch("/api/operations-center/refresh");
+        const d=await r.json();
+        d.success?setCollectorStatus("azureCollectStatus","collectAzureBtn","status-ok","✓ Updated",false)
+                 :setCollectorStatus("azureCollectStatus","collectAzureBtn","status-err","✗ "+(d.message||"Failed"),false);
+    }catch(e){setCollectorStatus("azureCollectStatus","collectAzureBtn","status-err","✗ Network error",false);}
 }
 
-// ── Edge Debug Help Modal ─────────────────────────────────────
-function showEdgeDebugHelp() {
-    const existing = document.getElementById("edgeHelpModal");
-    if (existing) { existing.remove(); return; }
+{# Upload modal #}
+const UPLOAD_TARGETS={
+    snow:{id:"fileSnow",nameId:"fileSnowName",statusId:"statusSnow",zoneId:"zone-snow",dest:"Snow.xlsx"},
+    azure:{id:"fileAzure",nameId:"fileAzureName",statusId:"statusAzure",zoneId:"zone-azure",dest:"Azure.csv"},
+    ptc:{id:"filePtc",nameId:"filePtcName",statusId:"statusPtc",zoneId:"zone-ptc",dest:"Ptc.csv"},
+    us:{id:"fileUs",nameId:"fileUsName",statusId:"statusUs",zoneId:"zone-us",dest:"AOM_user_stories.csv"}
+};
+function openUploadModal(){
+    Object.values(UPLOAD_TARGETS).forEach(t=>{
+        document.getElementById(t.nameId).textContent="No file chosen";
+        document.getElementById(t.statusId).textContent="";
+        document.getElementById(t.zoneId).className="upload-zone";
+        document.getElementById(t.id).value="";
+    });
+    document.getElementById("uploadOverallStatus").textContent="";
+    document.getElementById("uploadAllBtn").disabled=false;
+    document.getElementById("uploadDataModal").style.display="flex";
+}
+function closeUploadModal(){document.getElementById("uploadDataModal").style.display="none";}
+function closeUploadModalOnOverlay(e){if(e.target===document.getElementById("uploadDataModal"))closeUploadModal();}
+function onFileChosen(key,input){
+    const t=UPLOAD_TARGETS[key];
+    document.getElementById(t.nameId).textContent=(input.files&&input.files[0])?input.files[0].name:"No file chosen";
+    document.getElementById(t.statusId).textContent="";
+    document.getElementById(t.zoneId).className="upload-zone";
+}
+async function uploadAllFiles(){
+    const btn=document.getElementById("uploadAllBtn"),overall=document.getElementById("uploadOverallStatus");
+    overall.textContent="";overall.style.color="";
+    const any=Object.values(UPLOAD_TARGETS).some(t=>{const el=document.getElementById(t.id);return el.files&&el.files[0];});
+    if(!any){overall.textContent="⚠ Please select at least one file.";overall.style.color="#d97706";return;}
+    btn.disabled=true;btn.textContent="⏳ Uploading...";
+    let ok=0,err=0;
+    for(const[k,t]of Object.entries(UPLOAD_TARGETS)){
+        const fi=document.getElementById(t.id),se=document.getElementById(t.statusId),ze=document.getElementById(t.zoneId);
+        if(!fi.files||!fi.files[0])continue;
+        se.textContent="⏳ Uploading…";se.className="upload-zone-status status-info";
+        const fd=new FormData();fd.append("file",fi.files[0]);fd.append("dest",t.dest);
+        try{const r=await fetch("/api/operations-center/upload-data",{method:"POST",body:fd});
+            const d=await r.json();
+            if(d.success){se.textContent=`✓ Saved as ${t.dest}`;se.className="upload-zone-status status-ok";ze.className="upload-zone zone-success";ok++;}
+            else{se.textContent=`✗ ${d.message||"Failed"}`;se.className="upload-zone-status status-err";ze.className="upload-zone zone-error";err++;}
+        }catch(e){se.textContent="✗ Network error";se.className="upload-zone-status status-err";ze.className="upload-zone zone-error";err++;}
+    }
+    btn.textContent="⬆ Upload Selected Files";btn.disabled=false;
+    if(!err&&ok){overall.textContent=`✅ ${ok} file(s) uploaded.`;overall.style.color="#16a34a";}
+    else if(ok||err){overall.textContent=`⚠ ${ok} ok, ${err} failed.`;overall.style.color="#d97706";}
+}
 
-    const modal = document.createElement("div");
-    modal.id = "edgeHelpModal";
-    modal.style.cssText = `
-        position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-        background:var(--bg-card, #1e1e2e); color:var(--text-primary, #e0e0e0);
-        border:1px solid var(--border, #333); border-radius:10px;
-        padding:24px 28px; z-index:9999; max-width:520px; width:90%;
-        box-shadow:0 8px 32px rgba(0,0,0,0.5); font-size:13px; line-height:1.7;
-    `;
-    modal.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-            <strong style="font-size:15px;">🛠 How to Enable Edge Debug Mode</strong>
-            <span onclick="this.closest('#edgeHelpModal').remove()"
-                  style="cursor:pointer; font-size:18px; opacity:0.6;">✕</span>
-        </div>
-
-        <p style="margin:0 0 10px;"><strong>Step 1 — Close all Edge windows</strong></p>
-
-        <p style="margin:0 0 10px;"><strong>Step 2 — Open Edge in debug mode</strong><br>
-        Run this command (or save as a <code>.bat</code> file on your desktop):</p>
-
-        <pre style="background:var(--bg-alt,#111); padding:10px 14px; border-radius:6px;
-                    font-size:11px; overflow-x:auto; white-space:pre-wrap; word-break:break-all;
-                    border:1px solid var(--border,#333); margin:0 0 12px;">"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --remote-debugging-port=9222 --user-data-dir="C:\EdgeDebug"</pre>
-
-        <p style="margin:0 0 10px;"><strong>Step 3 — Log in to PTC (once)</strong><br>
-        Visit <a href="https://www.ptc.com/en/support" target="_blank"
-                 style="color:var(--accent,#90caf9);">ptc.com/en/support</a>
-        and sign in. The session is saved in <code>C:\EdgeDebug</code> — you
-        won't need to log in again next time.</p>
-
-        <p style="margin:0 0 16px;"><strong>Step 4 — Click Refresh PTC Cases</strong><br>
-        The download runs in the background and saves to <code>data/Ptc.csv</code>
-        then refreshes the dashboard automatically.</p>
-
-        <button onclick="this.closest('#edgeHelpModal').remove()"
-                style="background:var(--accent,#1976d2); color:#fff; border:none;
-                       padding:8px 20px; border-radius:6px; cursor:pointer; font-size:13px;">
-            Got it
-        </button>
-    `;
-    document.body.appendChild(modal);
+{# Help #}
+let _opsHelpTopics=[];
+async function loadModuleHelpData(){
+    const idx=document.getElementById("helpModalIndexPane"),con=document.getElementById("helpModalContentPane"),titl=document.getElementById("helpModuleTitle");
+    if(!idx||!con)return;
+    idx.innerHTML="<div style='font-size:12px;color:#64748b;padding:10px;'>Loading…</div>";
+    try{const res=await fetch("/api/help/operations-center");const data=await res.json();
+        if(titl)titl.innerText=data.module_title||"Operations Center Help";
+        _opsHelpTopics=data.topics||[];idx.innerHTML="";
+        _opsHelpTopics.forEach(topic=>{const btn=document.createElement("button");btn.className="help-index-item";btn.innerText=topic.title;btn.setAttribute("data-topic-id",topic.id);btn.addEventListener("click",()=>_opsHelpShow(topic.id));idx.appendChild(btn);});
+        if(_opsHelpTopics.length>0)_opsHelpShow(_opsHelpTopics[0].id);
+    }catch(e){idx.innerHTML="<div style='font-size:12px;color:#ef4444;padding:10px;'>Error loading help.</div>";}
+}
+function _opsHelpShow(id){
+    const t=_opsHelpTopics.find(x=>x.id===id);if(!t)return;
+    document.getElementById("helpModalContentPane").innerHTML=t.content;
+    document.querySelectorAll("#helpModalIndexPane .help-index-item").forEach(b=>b.classList.toggle("active-help-topic",b.getAttribute("data-topic-id")===id));
 }
 </script>
+
+{# Upload modal HTML #}
+<div id="uploadDataModal" class="upload-modal-overlay" style="display:none;" onclick="closeUploadModalOnOverlay(event)">
+    <div class="upload-modal-box">
+        <div class="upload-modal-header">
+            <span class="upload-modal-title">📂 Upload Latest Data Files</span>
+            <button class="upload-modal-close" onclick="closeUploadModal()">✕</button>
+        </div>
+        <p class="upload-modal-desc">Files are saved to <code>data/</code> with the correct names automatically.</p>
+        <div class="upload-zone" id="zone-snow">
+            <div class="upload-zone-label"><span class="upload-zone-icon">🎫</span><span class="upload-zone-name">Incidents</span><span class="upload-zone-dest">→ data/Snow.xlsx</span></div>
+            <div class="upload-zone-row"><label class="upload-file-label" for="fileSnow">Choose File</label><input type="file" id="fileSnow" accept=".xlsx" onchange="onFileChosen('snow',this)"><span class="upload-file-chosen" id="fileSnowName">No file chosen</span></div>
+            <div class="upload-zone-status" id="statusSnow"></div>
+        </div>
+        <div class="upload-zone" id="zone-azure">
+            <div class="upload-zone-label"><span class="upload-zone-icon">☁</span><span class="upload-zone-name">Azure</span><span class="upload-zone-dest">→ data/Azure.csv</span></div>
+            <div class="upload-zone-row"><label class="upload-file-label" for="fileAzure">Choose File</label><input type="file" id="fileAzure" accept=".csv" onchange="onFileChosen('azure',this)"><span class="upload-file-chosen" id="fileAzureName">No file chosen</span></div>
+            <div class="upload-zone-status" id="statusAzure"></div>
+        </div>
+        <div class="upload-zone" id="zone-ptc">
+            <div class="upload-zone-label"><span class="upload-zone-icon">🛠</span><span class="upload-zone-name">PTC</span><span class="upload-zone-dest">→ data/Ptc.csv</span></div>
+            <div class="upload-zone-row"><label class="upload-file-label" for="filePtc">Choose File</label><input type="file" id="filePtc" accept=".csv" onchange="onFileChosen('ptc',this)"><span class="upload-file-chosen" id="filePtcName">No file chosen</span></div>
+            <div class="upload-zone-status" id="statusPtc"></div>
+        </div>
+        <div class="upload-zone" id="zone-us">
+            <div class="upload-zone-label"><span class="upload-zone-icon">📖</span><span class="upload-zone-name">AOM User Stories</span><span class="upload-zone-dest">→ data/AOM_user_stories.csv</span></div>
+            <div class="upload-zone-row"><label class="upload-file-label" for="fileUs">Choose File</label><input type="file" id="fileUs" accept=".csv,.xlsx" onchange="onFileChosen('us',this)"><span class="upload-file-chosen" id="fileUsName">No file chosen</span></div>
+            <div class="upload-zone-status" id="statusUs"></div>
+        </div>
+        <div class="upload-modal-footer">
+            <button class="upload-btn-upload" id="uploadAllBtn" onclick="uploadAllFiles()">⬆ Upload Selected Files</button>
+            <button class="upload-btn-cancel" onclick="closeUploadModal()">Cancel</button>
+        </div>
+        <div class="upload-modal-overall" id="uploadOverallStatus"></div>
+    </div>
+</div>
+
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">Operations Center — Help Guide</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane" id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane">
+                <div class="help-empty-state">Select a topic from the left panel.</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="{{ url_for('operations_center.static', filename='operations_center.js') }}"></script>
+
+<!-- ══════════ DIGEST PANEL ══════════ -->
+<div id="digestPanel"   class="digest-panel"   style="display:none;"></div>
+<div id="digestOverlay" class="digest-overlay" style="display:none;" onclick="closeDigestPanel()"></div>
 {% endblock %}

@@ -1,252 +1,370 @@
 {% extends "main.html" %}
-
-{% block page_title %}
-Converter Module
-{% endblock %}
-
+{% block page_title %}Converter — PPT to DOC{% endblock %}
 {% block page_css %}
-<link rel="stylesheet"
-      href="{{ url_for('converter.static', filename='converter.css') }}">
+<link rel="stylesheet" href="{{ url_for('converter.static', filename='converter.css') }}">
 {% endblock %}
 
-
-<!-- =========================================
-     DOCK ICONS
-========================================= -->
+{# ── DOCK ICONS ─────────────────────────────────────── #}
 {% block dock_icons %}
-
-<div class="dock-item active-dock"
-     title="Converter"
-     onclick="showConverterSection('converter')">
-    📄
-</div>
-
-<div class="dock-item"
-     title="KPI"
-     onclick="showConverterSection('kpi')">
-    📊
-</div>
-
+<div class="dock-item active-dock" title="RCA Assignment" onclick="showConverterSection('rca')">🗂️</div>
+<div class="dock-item"            title="Download"         onclick="showConverterSection('download')">⬇️</div>
+<div class="dock-item"            title="Options"          onclick="showConverterSection('options')">⚙️</div>
 {% endblock %}
 
+{# ── SIDEBAR TOOLBAR — use main.html default (Clear Workspace + Apply Filters) #}
+{# Apply Filters here triggers applyOptions() which re-runs preview with new settings #}
+{% block sidebar_toolbar %}
+<div class="sidebar-toolbar">
+    <button onclick="clearWorkspace()">Clear Workspace</button>
+    <button onclick="applyOptions()">Apply Filters</button>
+</div>
+{% endblock %}
 
-<!-- =========================================
-     SIDEBAR CONTENT
-========================================= -->
+{# ── SIDEBAR PANELS ───────────────────────────────────── #}
 {% block sidebar %}
 
-<!-- CONVERTER SECTION -->
-<div id="converter-section"
-     class="dock-section active-section">
+{# RCA dock — default active (Actions panel removed, convert is automatic) #}
+<div id="rca-section" class="dock-section active-section">
+    <div class="sb-panel">
+        <div class="rca-sidebar-rows">
+            <div class="rca-sb-row" onclick="toggleRCAZone('problem')">
+                <span class="rca-sb-dot problem"></span>
+                <span class="rca-sb-label">Problem</span>
+                <span class="rca-sb-chip" id="sbChipProblem">0</span>
+                <span class="rca-sb-chevron" id="sbChevProblem">›</span>
+            </div>
+            <div class="rca-sb-row" onclick="toggleRCAZone('rootcause')">
+                <span class="rca-sb-dot rootcause"></span>
+                <span class="rca-sb-label">Root Cause</span>
+                <span class="rca-sb-chip" id="sbChipRootcause">0</span>
+                <span class="rca-sb-chevron" id="sbChevRootcause">›</span>
+            </div>
+            <div class="rca-sb-row" onclick="toggleRCAZone('resolution')">
+                <span class="rca-sb-dot resolution"></span>
+                <span class="rca-sb-label">Resolution</span>
+                <span class="rca-sb-chip" id="sbChipResolution">0</span>
+                <span class="rca-sb-chevron" id="sbChevResolution">›</span>
+            </div>
+        </div>
+        <div class="rca-prefill-status" id="rcaPrefillStatus" style="display:none;">
+            <span class="rca-prefill-badge">✓ Pre-filled</span>
+            <button class="rca-prefill-clear" onclick="clearRCAText()">✕</button>
+        </div>
+        <button class="rca-generate-btn" id="rcaGenerateBtn" onclick="generateWithRCA()" disabled>📝 RCA Report</button>
+        <button class="rca-clear-btn" onclick="clearRCAAssignments()">🗑 Clear All</button>
+    </div>
+</div>
 
-    <div class="download-panel">
+{# ③ DOWNLOAD #}
+<div id="download-section" class="dock-section">
+    <div class="sb-panel">
+        <div class="sb-dl-section-label">Report Format</div>
+        <div class="format-option-group">
+            <label class="format-option"><input type="radio" name="downloadFormat" value="word" checked><span>📄 Word</span></label>
+            <label class="format-option"><input type="radio" name="downloadFormat" value="pdf"><span>📕 PDF</span></label>
+            <label class="format-option"><input type="radio" name="downloadFormat" value="both"><span>📦 Both</span></label>
+        </div>
+        <div class="sb-dl-btns">
+            <button id="downloadWordBtn" class="sb-dl-btn word hidden" onclick="downloadFormat('word')">⬇️ Download Word</button>
+            <button id="downloadPdfBtn"  class="sb-dl-btn pdf  hidden" onclick="downloadFormat('pdf')">⬇️ Download PDF</button>
+            <button id="downloadBothBtn" class="sb-dl-btn both hidden" onclick="downloadFormat('both')">⬇️ Download Both</button>
+        </div>
+        <div class="sb-divider"></div>
+        <div class="sb-dl-section-label">Export as PPT</div>
+        <button id="exportPptBtn"    class="sb-dl-btn pptx"    onclick="createRCAPPT()">📊 Export as PPT</button>
+        <button id="downloadPptxBtn" class="sb-dl-btn pptx-dl hidden" onclick="downloadFormat('pptx')">⬇️ Download PPT</button>
+        <div class="sb-divider"></div>
+        <div class="sb-img-dl-label">Slide Images</div>
+        <button class="sb-img-dl-btn" onclick="downloadAllImages()">⬇️ All (ZIP)</button>
+        <button class="sb-img-dl-btn" onclick="downloadSelectedImages()">⬇️ Selected (ZIP)</button>
+    </div>
+</div>
 
-        <h3>Converter Actions</h3>
-
-        <div class="actions-buttons">
-
-            <button id="convertBtn"
-                    onclick="convertPPTSlides()">
-                Convert PPT
-            </button>
-
-            <button id="generateBtn"
-                    onclick="generateDocument()">
-                Generate Report
-            </button>
-
-            <button id="downloadBtn"
-                    onclick="downloadConvertedDoc()">
-                Download Report
-            </button>
-
+{# ④ OPTIONS #}
+<div id="options-section" class="dock-section">
+    <div class="sb-panel">
+        <div class="sb-section-title">Slide Processing</div>
+        <div class="option-group">
+            <label class="option-label">Skip Titles</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="optSkipTitleSlides" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="option-group">
+            <label class="option-label">Skip Dividers</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="optSkipDividers" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="option-group">
+            <label class="option-label">Slide DPI</label>
+            <select id="optDpi" class="option-select">
+                <option value="150">150 (Fast)</option>
+                <option value="200" selected>200 (Default)</option>
+                <option value="300">300 (High Quality)</option>
+            </select>
+        </div>
+        <div class="option-group">
+            <label class="option-label">Output Format</label>
+            <select id="optFormat" class="option-select" onchange="syncFormatFromOptions(this.value)">
+                <option value="word" selected>Word</option>
+                <option value="pdf">PDF</option>
+                <option value="both">Both</option>
+            </select>
         </div>
 
-    </div>
-
-</div>
-
-
-<!-- KPI SECTION -->
-<div class="dock-section"
-     id="kpi-section">
-
-    <div class="card-title">
-        KPI
-    </div>
-
-    <div class="kpi-grid">
-
-        <div class="kpi-box">
-            <span>Today</span>
-            <strong>12</strong>
+        <div class="sb-divider"></div>
+        <div class="sb-section-title">Images in Report</div>
+        <div class="option-radio-group">
+            <label class="option-radio-item">
+                <input type="radio" name="imagesInDoc" id="imgModeAll" value="all" checked
+                       onchange="onImagesInDocChange(this.value)">
+                <span class="option-radio-label">All converted slides</span>
+                <span class="option-radio-hint">Every slide at end of document</span>
+            </label>
+            <label class="option-radio-item">
+                <input type="radio" name="imagesInDoc" id="imgModeAssigned" value="assigned"
+                       onchange="onImagesInDocChange(this.value)">
+                <span class="option-radio-label">Unassigned slides only</span>
+                <span class="option-radio-hint">Slides not in any RCA section</span>
+            </label>
+            <label class="option-radio-item">
+                <input type="radio" name="imagesInDoc" id="imgModeNone" value="none"
+                       onchange="onImagesInDocChange(this.value)">
+                <span class="option-radio-label">RCA sections only</span>
+                <span class="option-radio-hint">No extra slides section</span>
+            </label>
         </div>
-
-        <div class="kpi-box">
-            <span>Pending</span>
-            <strong>2</strong>
-        </div>
-
     </div>
-
 </div>
-
 {% endblock %}
 
-
-<!-- =========================================
-     SIDEBAR TOOLBAR
-========================================= -->
-{% block sidebar_toolbar %}
-
-<div class="sidebar-toolbar">
-
-    <button onclick="clearWorkspace()">
-        Clear Workspace
-    </button>
-
-    <button onclick="alert('Filters coming soon')">
-        Apply Filters
-    </button>
-
+{% block module_status %}
+<div class="report-status-meta">
+    <div class="status-row"><span class="status-label">File:</span><span id="activeFile">-</span></div>
+    <div class="status-row"><span class="status-label">Status:</span><span id="lastAction">Ready</span></div>
 </div>
-
 {% endblock %}
 
+{% block top_center %}<div class="module-title-pill">Converter — PPT to DOC</div>{% endblock %}
 
-<!-- =========================================
-     TOP TITLE
-========================================= -->
-{% block top_center %}
-
-<div class="module-title-pill">
-    Converter - PPT to DOC
+{% block top_right %}
+<div class="top-search-wrapper" id="topSearchWrapper">
+    <button class="search-trigger-btn" onclick="toggleGlobalSearch()">🔍</button>
+    <input type="text" id="globalSearchInput" class="top-search-input"
+           placeholder="Search..." onkeyup="executePageSearch(this.value)">
 </div>
-
+<button class="help-btn" onclick="loadModuleHelpData(); toggleHelpSystemModal()">?</button>
 {% endblock %}
 
-
-<!-- =========================================
-     TOOLBAR LEFT
-========================================= -->
 {% block toolbar_left %}
-
 <div class="ppt-upload-wrapper">
-
-    <label for="pptUpload"
-           class="ppt-upload-btn">
-        Choose File
-    </label>
-
-    <input type="file"
-           id="pptUpload"
-           accept=".ppt,.pptx"
-           onchange="updatePPTFileName()">
-
-    <span id="pptFileName"
-          class="ppt-file-name">
-        No file selected
-    </span>
-
+    <label for="pptUpload" class="ppt-upload-btn">Choose File</label>
+    <input type="file" id="pptUpload" accept=".ppt,.pptx" onchange="updatePPTFileName()">
+    <span id="pptFileName" class="ppt-file-name">No file selected</span>
 </div>
-
-<button id="previewBtn"
-        class="primary-btn"
-        onclick="loadPPTPreview()">
-    Preview
-</button>
+<button id="previewBtn"  class="primary-btn" onclick="loadPPTPreview()">Preview</button>
+<button id="tbUpdateBtn" class="toolbar-action-btn update hidden"
+        onclick="updateConverterPreview()"
+        title="Refresh preview with current RCA text + assigned images">↻ Update Preview</button>
 
 {% endblock %}
 
-
-<!-- =========================================
-     TOOLBAR RIGHT
-========================================= -->
 {% block toolbar_right %}
-
-<input
-    type="text"
-    class="toolbar-search-input"
-    placeholder="Global Search (Later)"
-    disabled>
-
+<a href="/report" class="app-switcher-btn">📄 Report</a>
+<a href="/bulk"   class="app-switcher-btn">📦 Bulk</a>
 {% endblock %}
 
-
-<!-- =========================================
-     MAIN CONTENT
-========================================= -->
 {% block content %}
 
-<!-- Incident Preview -->
+{# Incident preview — shows RCA content inline like report module #}
 <div class="card preview-card">
-
     <h3>Incident Preview</h3>
-
-    <div id="previewContainer">
-
-        <p class="preview-placeholder">
-            Preview will appear here
-        </p>
-
-    </div>
-
+    <div id="previewContainer"><p class="preview-placeholder">Preview will appear here</p></div>
 </div>
 
-
-<!-- Slide Preview -->
+{# Slide grid #}
 <div class="card preview-card">
-
-    <h3>Converted PPT Slides Preview</h3>
-
-    <div id="slidePreviewContainer"
-         class="slide-preview-grid">
-
-        <p class="preview-placeholder">
-            Converted slide images will appear here after conversion
-        </p>
-
+    <div class="slide-grid-header">
+        <h3>Converted PPT Slides Preview</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button id="slidePreviewToggleBtn" class="sg-btn"
+                    onclick="toggleSlidePreviewCollapse()">▼ Collapse</button>
+            <div class="slide-grid-actions" id="slideGridActions" style="display:none;">
+                <button class="sg-btn" onclick="downloadAllImages()">⬇️ All</button>
+                <button class="sg-btn" onclick="downloadSelectedImages()">⬇️ Selected</button>
+                <button class="sg-btn" onclick="selectAllSlides()">☑ All</button>
+                <button class="sg-btn" onclick="clearSlideSelection()">☐ Clear</button>
+            </div>
+        </div>
     </div>
-
+    <div id="slidePreviewContainer" class="slide-preview-grid">
+        <p class="preview-placeholder">Converted slide images will appear here after conversion</p>
+    </div>
 </div>
 
+{# RCA Assignment Panel #}
+<div class="card rca-assignment-panel" id="rcaAssignmentPanel" style="display:none;">
+    <div class="rca-panel-header">
+        <div>
+            <h3>🗂 RCA Assignment</h3>
+            <p class="rca-subtitle">
+                Drag or click slides to assign them. Use ↻ Update Preview to refresh
+                the incident preview with your edits.
+            </p>
+        </div>
+        <button class="rca-expand-all-btn" onclick="expandAllZones()">⊞ Expand All</button>
+    </div>
+
+    <div class="rca-tray-label">Slide Tray — drag or click to select</div>
+    <div id="rcaSlideTray" class="rca-slide-tray"></div>
+
+    <div id="rcaQuickAssign" class="rca-quick-assign">
+        <span class="rca-qa-label">Add selected →</span>
+        <button class="rca-quick-btn problem"    onclick="quickAssign('problem')">🔴 Problem</button>
+        <button class="rca-quick-btn rootcause"  onclick="quickAssign('rootcause')">🟡 Root Cause</button>
+        <button class="rca-quick-btn resolution" onclick="quickAssign('resolution')">🟢 Resolution</button>
+        <button class="rca-quick-btn deselect"   onclick="clearSelection()">✕ Deselect</button>
+    </div>
+
+    <div class="rca-zones" id="rcaZonesContainer">
+    {% for zone_id, emoji, title, cls, toolbar_items, ta_ph in [
+        ('problem',    '🔴', 'Problem Statement', 'problem',
+         [('• Bullet','• '),('Impact','[IMPACT] '),('Date/Time','[DATE/TIME] '),('System','[SYSTEM] ')],
+         'Describe the problem: what failed, when, who was affected...'),
+        ('rootcause',  '🟡', 'Root Cause',         'rootcause',
+         [('• Bullet','• '),('Root Cause','[ROOT CAUSE] '),('Factor','[FACTOR] '),('Evidence','[EVIDENCE] ')],
+         'Explain the root cause: why it failed, contributing factors...'),
+        ('resolution', '🟢', 'Resolution',          'resolution',
+         [('• Bullet','• '),('Action','[ACTION] '),('Prevention','[PREVENTION] '),('Owner','[OWNER] ')],
+         'Describe the fix: actions taken, preventive measures, owners...'),
+    ] %}
+    <div class="rca-zone {{ cls }}" id="zone-{{ zone_id }}"
+         ondragover="onDragOver(event,'{{ zone_id }}')"
+         ondragleave="onDragLeave(event,'{{ zone_id }}')"
+         ondrop="onDrop(event,'{{ zone_id }}')">
+
+        <div class="rca-zone-header rca-collapsible-header"
+             onclick="toggleRCAZone('{{ zone_id }}')" id="zone-header-{{ zone_id }}">
+            <div class="rca-zone-icon {{ cls }}">{{ emoji }}</div>
+            <span class="rca-zone-title">{{ title }}</span>
+            <div class="rca-zone-meta">
+                <span class="rca-img-count"   id="zoneImgCount-{{ zone_id }}">0 images</span>
+                <span class="rca-text-status" id="zoneTextStatus-{{ zone_id }}"></span>
+                <span class="rca-zone-hint">drop slides here</span>
+                <span class="rca-chevron"     id="zoneChev-{{ zone_id }}">▼</span>
+            </div>
+        </div>
+
+        <div class="rca-zone-body" id="zone-body-{{ zone_id }}">
+            {# Rich text toolbar #}
+            <div class="rta-toolbar">
+                <select class="rta-font-size" title="Font size"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')"
+                        onchange="applyRTACmd('{{ zone_id }}','fontSize',this.value)">
+                    {% for s in [8,9,10,11,12,14,16,18,20,24,28,32,36] %}
+                    <option value="{{ s }}" {{ 'selected' if s==11 else '' }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+                <div class="rta-sep"></div>
+                <button class="rta-btn" title="Bold"      onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','bold')"><b>B</b></button>
+                <button class="rta-btn" title="Italic"    onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','italic')"><i>I</i></button>
+                <button class="rta-btn" title="Underline" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','underline')"><u>U</u></button>
+                <button class="rta-btn rta-allcaps" title="Cycle case: ALL CAPS → Title Case → Sentence case → lowercase" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','allCaps')">Aa</button>
+                <div class="rta-sep"></div>
+                <button class="rta-btn rta-color-btn" title="Text colour"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')"
+                        onclick="_toggleColorPopup(this,'{{ zone_id }}','foreColor')">
+                    <span style="border-bottom:3px solid #1e293b;padding-bottom:1px;">A</span>
+                </button>
+                <button class="rta-btn rta-color-btn" title="Highlight"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')"
+                        onclick="_toggleColorPopup(this,'{{ zone_id }}','hiliteColor')">
+                    <span style="background:#fef9c3;padding:0 3px;">▐</span>
+                </button>
+                <div class="rta-sep"></div>
+                <button class="rta-btn" title="Bullet list"   onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','insertUnorderedList')">☰</button>
+                <button class="rta-btn" title="Numbered list" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','insertOrderedList')">①</button>
+                <button class="rta-btn" title="Alphabet list (a. b. c.)" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','insertAlphaList')" style="font-style:italic;font-weight:700;">a.</button>
+                <button class="rta-btn" title="Indent sub-level" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','indent')">→</button>
+                <button class="rta-btn" title="Outdent"       onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','outdent')">←</button>
+                <div class="rta-sep"></div>
+                <button class="rta-btn rta-reset" title="Reset formatting"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')"
+                        onclick="applyRTACmd('{{ zone_id }}','reset')">✕</button>
+            </div>
+
+            <div class="rta-editor {{ cls }}"
+                 id="rca-text-{{ zone_id }}"
+                 contenteditable="true"
+                 placeholder="{{ ta_ph }}"
+                 oninput="onRCATextChange('{{ zone_id }}')"
+                 onkeydown="onRTAKeydown('{{ zone_id }}',event)"
+                 onfocus="_rtaSavedSel=null"></div>
+
+            <div class="rca-insert-row">
+                {% for label, val in toolbar_items %}
+                <button onclick="insertRCAPlaceholder('{{ zone_id }}','{{ val }}')">{{ label }}</button>
+                {% endfor %}
+                <button class="rca-clear-text-btn" onclick="clearZoneText('{{ zone_id }}')">✕ Clear</button>
+            </div>
+
+            <div class="rca-zone-images-label">
+                Assigned Images
+                <span class="rca-img-count-inline" id="zoneImgCountInline-{{ zone_id }}"></span>
+            </div>
+            <div class="rca-zone-images" id="zone-images-{{ zone_id }}"></div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+
+{# Lightbox #}
+<div id="lbOverlay" class="lb-overlay">
+    <div class="lb-window" onclick="event.stopPropagation()">
+        <div class="lb-topbar">
+            <span id="lbTitle" class="lb-title"></span>
+            <div class="lb-controls">
+                <button class="lb-btn" onclick="lbZoom(-0.2)">🔍−</button>
+                <button class="lb-btn" onclick="lbZoom(+0.2)">🔍+</button>
+                <button class="lb-btn" onclick="lbFit()">⊡ Fit</button>
+                <button class="lb-btn" onclick="lbDownload()">⬇️</button>
+                <button class="lb-btn" onclick="lbClose()">✕</button>
+            </div>
+        </div>
+        <div class="lb-img-wrap"><img id="lbImg" class="lb-img" src="" alt=""></div>
+        <div class="lb-zone-bar">
+            <span class="lb-zone-label">Add to RCA:</span>
+            <button id="lbZoneBtn-problem"    class="lb-zone-btn problem"    onclick="lbAddToZone('problem')">🔴 Problem</button>
+            <button id="lbZoneBtn-rootcause"  class="lb-zone-btn rootcause"  onclick="lbAddToZone('rootcause')">🟡 Root Cause</button>
+            <button id="lbZoneBtn-resolution" class="lb-zone-btn resolution" onclick="lbAddToZone('resolution')">🟢 Resolution</button>
+        </div>
+        <div class="lb-nav">
+            <button class="lb-nav-btn" onclick="lbNav(-1)">‹ Prev</button>
+            <span class="lb-nav-pos" id="lbPos"></span>
+            <button class="lb-nav-btn" onclick="lbNav(+1)">Next ›</button>
+        </div>
+    </div>
+</div>
+<div class="lb-backdrop" id="lbBackdrop" onclick="lbClose()"></div>
+
+{# Help modal #}
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">💡 Converter Help</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane"  id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-
-
-<!-- =========================================
-     MODULE STATUS
-========================================= -->
-{% block module_status %}
-
-<div class="report-status-meta">
-
-    <div class="status-row">
-        <span class="status-label">Status:</span>
-        <span id="statusMessage">Ready</span>
-    </div>
-
-    <div class="status-row">
-        <span class="status-label">Last Action:</span>
-        <span id="progressText">Waiting</span>
-    </div>
-
-</div>
-
-
-<div id="progressWrapper"
-     class="progress-wrapper hidden">
-
-    <div class="progress-bar">
-
-        <div id="progressFill"
-             class="progress-fill"></div>
-
-    </div>
-
-</div>
-
-{% endblock %}
-
 
 {% block page_js %}
 <script src="{{ url_for('converter.static', filename='converter.js') }}"></script>

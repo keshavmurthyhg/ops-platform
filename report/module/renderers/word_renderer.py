@@ -1,11 +1,11 @@
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Inches, Pt
+from docx.shared import Inches, Pt, RGBColor
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from common.utils.image_utils import add_images_word
 from report.module.layout.footer import apply_word_footer
-from common.utils.links import apply_word_link
+from common.utils.links import apply_word_link, parse_ptc_cases
 from common.utils.formatters import (
     format_date,
     set_cell_bg,
@@ -15,6 +15,9 @@ from common.utils.text_cleaner import (
     clean_text,
     format_description
 )
+
+# PTC support case URL — must match links.py get_url("ptc case", ...)
+_PTC_CASE_URL = "https://support.ptc.com/appserver/cs/view/case.jsp?n={}"
 
 
 # -----------------------------------
@@ -58,11 +61,8 @@ def clean_azure_bug(value):
     if value.lower() in ["nan", "none", "nat", ""]:
         return "-"
 
-    # Optional safeguard:
-    # if your valid Azure IDs always start with specific prefixes,
-    # add logic here later.
-
     return value
+
 
 def apply_table_padding(table):
     for row in table.rows:
@@ -173,6 +173,39 @@ def generate_word_doc(
     )
 
     fill(2, 0, "PTC Case", data.get("ptc_case"))
+    # ── Override PTC Case cell: multiple comma-separated cases, each individually
+    #    hyperlinked. Alpha prefixes (C1234567) stripped for URL, kept for display.
+    ptc_cell = table.rows[2].cells[1]
+    ptc_para = ptc_cell.paragraphs[0]
+    ptc_para.clear()
+    ptc_cases = parse_ptc_cases(data.get("ptc_case"))  # returns [(display, num_id), ...]
+    if not ptc_cases:
+        ptc_para.add_run("-")
+    else:
+        for i, (display, num_id) in enumerate(ptc_cases):
+            if i > 0:
+                sep = ptc_para.add_run(", ")
+                sep.font.size = Pt(10)
+            try:
+                url  = _PTC_CASE_URL.format(num_id)
+                r_id = ptc_cell.part.relate_to(
+                    url,
+                    "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+                    is_external=True,
+                )
+                hl   = OxmlElement("w:hyperlink"); hl.set(qn("r:id"), r_id)
+                wr   = OxmlElement("w:r")
+                rPr  = OxmlElement("w:rPr")
+                col  = OxmlElement("w:color"); col.set(qn("w:val"), "000000")
+                u_el = OxmlElement("w:u");    u_el.set(qn("w:val"), "none")
+                sz   = OxmlElement("w:sz");   sz.set(qn("w:val"),  "20")
+                szCs = OxmlElement("w:szCs"); szCs.set(qn("w:val"), "20")
+                rPr.extend([col, u_el, sz, szCs])
+                wr.append(rPr)
+                t_el = OxmlElement("w:t"); t_el.text = display
+                wr.append(t_el); hl.append(wr); ptc_para._p.append(hl)
+            except Exception:
+                run = ptc_para.add_run(display); run.font.size = Pt(10)
     fill(2, 2, "Assigned To", data.get("assigned_to"))
 
     fill(3, 0, "Priority", data.get("priority"))
@@ -292,6 +325,109 @@ def generate_word_doc(
                 section_images
             )
         
+    # -----------------------------------
+    # REFERENCES TABLE — always starts on a new page
+    # Headers: ALL CAPS  |  Col 0+1: center H+V  |  Col 2: left H, center V
+    # Widths: Ref=1.8", Env=auto-fit(~0.9"), Link&Context=fills rest to 6.5"
+    # -----------------------------------
+    refs = data.get("references") or []
+    if refs:
+        doc.add_page_break()
+
+        ref_heading = doc.add_heading("REFERENCES", level=1)
+        ref_heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        doc.add_paragraph("")
+
+        # Col widths: Ref=1.8", Env=0.9" (fits "ENVIRONMENT" + data), Link=3.8" → 6.5" total
+        COL_WIDTHS = [Inches(1.5), Inches(1.2), Inches(3.8)]
+
+        ref_table = doc.add_table(rows=1, cols=3)
+        ref_table.style = "Table Grid"
+        ref_table.autofit = False
+        ref_table.allow_autofit = False
+
+        def _set_cell_valign(cell, align="center"):
+            """Set vertical alignment of a table cell."""
+            tc   = cell._tc
+            tcPr = tc.get_or_add_tcPr()
+            vAlign = OxmlElement("w:vAlign")
+            vAlign.set(qn("w:val"), align)
+            tcPr.append(vAlign)
+
+        # ── Header row ──────────────────────────────────────────────────────
+        hdr_labels = ["REFERENCE", "ENVIRONMENT", "LINK & CONTEXT"]
+        hdr_cells  = ref_table.rows[0].cells
+        for i, hdr_text in enumerate(hdr_labels):
+            cell = hdr_cells[i]
+            cell.width = COL_WIDTHS[i]
+            set_cell_bg(cell)
+            _set_cell_valign(cell, "center")
+            p = cell.paragraphs[0]
+            p.clear()
+            # Col 0 + 1: center; Col 2: center (header only)
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            run = p.add_run(hdr_text)
+            run.bold = True
+            run.font.size = Pt(10)
+
+        # ── Data rows ────────────────────────────────────────────────────────
+        for ref in refs:
+            row_cells = ref_table.add_row().cells
+            for i, cell in enumerate(row_cells):
+                cell.width = COL_WIDTHS[i]
+
+            # Col 0: Reference label — bold, center H+V
+            p0 = row_cells[0].paragraphs[0]; p0.clear()
+            p0.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            _set_cell_valign(row_cells[0], "center")
+            run0 = p0.add_run(ref.get("label", ""))
+            run0.bold = True
+            run0.font.size = Pt(10)
+
+            # Col 1: Environment — plain, center H+V
+            p1 = row_cells[1].paragraphs[0]; p1.clear()
+            p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            _set_cell_valign(row_cells[1], "center")
+            run1 = p1.add_run(ref.get("environment") or "-")
+            run1.font.size = Pt(10)
+
+            # Col 2: URL + context — left H, center V
+            _set_cell_valign(row_cells[2], "center")
+            p2  = row_cells[2].paragraphs[0]; p2.clear()
+            p2.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            url = ref.get("url", "")
+            ctx = ref.get("context", "")
+            if url:
+                try:
+                    r_id = row_cells[2].part.relate_to(
+                        url,
+                        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+                        is_external=True,
+                    )
+                    hl  = OxmlElement("w:hyperlink"); hl.set(qn("r:id"), r_id)
+                    wr  = OxmlElement("w:r")
+                    rPr = OxmlElement("w:rPr")
+                    col_el = OxmlElement("w:color")
+                    col_el.set(qn("w:val"), "000000")  # black
+                    u_el2 = OxmlElement("w:u"); u_el2.set(qn("w:val"), "none")  # no underline
+                    rPr.append(col_el); rPr.append(u_el2)
+                    sz_el = OxmlElement("w:sz");  sz_el.set(qn("w:val"),  "20")  # 10pt
+                    sz_cs = OxmlElement("w:szCs"); sz_cs.set(qn("w:val"), "20")
+                    rPr.append(sz_el); rPr.append(sz_cs)
+                    wr.append(rPr)
+                    t_el = OxmlElement("w:t"); t_el.text = url
+                    wr.append(t_el); hl.append(wr); p2._p.append(hl)
+                except Exception:
+                    run = p2.add_run(url); run.font.size = Pt(10)
+            if ctx:
+                p_ctx = row_cells[2].add_paragraph()
+                p_ctx.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                run_ctx = p_ctx.add_run(ctx)
+                run_ctx.font.size      = Pt(9)
+                run_ctx.font.color.rgb = RGBColor(0x64, 0x74, 0x8B)
+
+        apply_table_padding(ref_table)
+
     # -----------------------------------
     # FOOTER
     # -----------------------------------

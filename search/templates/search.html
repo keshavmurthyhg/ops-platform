@@ -18,36 +18,36 @@ Search Module
 <!-- SOURCE -->
 <div class="dock-item active-dock"
      title="Source"
-     onclick="showSearchSection('source')">
+     onclick="showSearchSection('source', this)">
     📂
 </div>
 
 <!-- USER GROUP -->
 <div class="dock-item"
      title="User Group"
-     onclick="showSearchSection('group')">
+     onclick="showSearchSection('group', this)">
     👥
 </div>
 
 <!-- FILTER -->
 <div class="dock-item"
      title="Status Filter"
-     onclick="showSearchSection('filter')">
+     onclick="showSearchSection('filter', this)">
     🎯
 </div>
 
 <!-- DATE -->
 <div class="dock-item"
      title="Date Filter"
-     onclick="showSearchSection('date')">
+     onclick="showSearchSection('date', this)">
     📅
 </div>
 
-<!-- KPI -->
+<!-- SETTINGS -->
 <div class="dock-item"
-     title="KPI"
-     onclick="showSearchSection('kpi')">
-    📊
+     title="Settings"
+     onclick="showSearchSection('settings', this)">
+    ⚙️
 </div>
 
 {% endblock %}
@@ -133,6 +133,54 @@ Search Module
                 PTC
             </label>
 
+            <label>
+                <input type="checkbox"
+                       class="source-item"
+                       value="AOM"
+                       checked>
+                AOM
+            </label>
+
+        </div>
+
+    </div>
+
+    <!-- =========================================
+         SEARCH IN SECTION
+    ========================================= -->
+    <div class="sidebar-card">
+
+        <div class="card-title">
+            Search In
+        </div>
+
+        <div class="search-in-list">
+
+            <label class="search-in-label">
+                <input type="checkbox"
+                       id="searchInShortDesc"
+                       class="search-in-item"
+                       value="short_description"
+                       checked>
+                <span>Short Description</span>
+            </label>
+
+            <label class="search-in-label">
+                <input type="checkbox"
+                       id="searchInDescription"
+                       class="search-in-item"
+                       value="description">
+                <span>Description</span>
+            </label>
+
+            <label class="search-in-label">
+                <input type="checkbox"
+                       id="searchInResolution"
+                       class="search-in-item"
+                       value="resolution_notes">
+                <span>Resolution Notes</span>
+            </label>
+
         </div>
 
     </div>
@@ -146,76 +194,27 @@ Search Module
 <div id="group-section"
      class="dock-section">
 
-    <!-- =========================================
-        USER GROUP MAPPING
-    ========================================= -->
-
     <div class="sidebar-card">
 
         <div class="card-title">
             User Group Mapping
         </div>
 
-        <!-- =====================================
-            MANAGE GROUP BUTTON
-        ====================================== -->
-
         <button
             class="group-collapse-btn"
-            onclick="toggleManageGroupSection()">
-
+            onclick="openUserGroupModal()">
             Manage Mapping
         </button>
-
-        <!-- =====================================
-            MANAGE GROUP CONTENT
-        ====================================== -->
-
-        <div
-            id="manageGroupSection"
-            class="group-section-content">
-
-            <input
-                type="text"
-                id="groupNameInput"
-                placeholder="Enter group name">
-
-            <div
-                id="groupUsersContainer"
-                class="group-users-list">
-            </div>
-
-            <button
-                class="primary-btn"
-                onclick="saveGroupMapping()">
-
-                Save Group
-            </button>
-
-        </div>
-
-        <!-- =====================================
-            EXISTING GROUPS BUTTON
-        ====================================== -->
 
         <button
             class="group-collapse-btn"
             onclick="toggleExistingGroupsSection()">
-
             Existing Groups
         </button>
 
-        <!-- =====================================
-            EXISTING GROUPS CONTENT
-        ====================================== -->
-
-        <div
-            id="existingGroupsSection"
-            class="group-section-content">
-
-            <div id="existingGroupsContainer">
-            </div>
-
+        <!-- EXISTING GROUPS — individual collapsible buttons -->
+        <div id="existingGroupsSection" class="group-section-content">
+            <div id="existingGroupsContainer"></div>
         </div>
 
     </div>
@@ -327,6 +326,9 @@ Search Module
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
 
             </select>
 
@@ -369,52 +371,84 @@ Search Module
 
 
 <!-- =========================================
-     KPI SECTION
+     SETTINGS SECTION
 ========================================= -->
-<div id="kpi-section"
+<div id="settings-section"
      class="dock-section">
 
     <div class="sidebar-card">
 
         <div class="card-title">
-            KPI
+            Preferences
         </div>
 
-        <div class="kpi-grid">
+        <!-- COLUMNS VISIBILITY -->
+        <div class="settings-group">
+            <div class="settings-group-label">Visible Columns</div>
 
-            <div class="kpi-box">
-                <span>Total</span>
-                <strong id="kpiTotal">
-                    {{ kpi.total }}
-                </strong>
-            </div>
+            <label class="settings-toggle">
+                <input type="checkbox" id="col-toggle-vendorticket" checked
+                       onchange="toggleColumn('vendorticket', this.checked)">
+                Vendor Ticket
+            </label>
+            <label class="settings-toggle">
+                <input type="checkbox" id="col-toggle-azurebug" checked
+                       onchange="toggleColumn('azurebug', this.checked)">
+                Azure Bug
+            </label>
+            <label class="settings-toggle">
+                <input type="checkbox" id="col-toggle-azureuserstory" checked
+                       onchange="toggleColumn('azureuserstory', this.checked)">
+                Azure User Story
+            </label>
+            <label class="settings-toggle">
+                <input type="checkbox" id="col-toggle-ptcarticles" checked
+                       onchange="toggleColumn('ptcarticles', this.checked)">
+                PTC Articles
+            </label>
+            <label class="settings-toggle">
+                <input type="checkbox" id="col-toggle-createdby" checked
+                       onchange="toggleColumn('createdby', this.checked)">
+                Created By
+            </label>
+            <label class="settings-toggle">
+                <input type="checkbox" id="col-toggle-resolveddate" checked
+                       onchange="toggleColumn('resolveddate', this.checked)">
+                Resolved Date
+            </label>
+        </div>
 
-            <div class="kpi-box">
-                <span>Open</span>
-                <strong id="kpiOpen">
-                    {{ kpi.open }}
-                </strong>
-            </div>
+        <!-- ROW HIGHLIGHT -->
+        <div class="settings-group">
+            <div class="settings-group-label">Row Highlight</div>
+            <label class="settings-toggle">
+                <input type="checkbox" id="pref-row-colors" checked
+                       onchange="toggleRowColors(this.checked)">
+                Colour rows by source
+            </label>
+        </div>
 
-            <div class="kpi-box">
-                <span>Closed</span>
-                <strong id="kpiClosed">
-                    {{ kpi.closed }}
-                </strong>
-            </div>
-
-            <div class="kpi-box">
-                <span>Cancelled</span>
-                <strong id="kpiCancelled">
-                    {{ kpi.cancelled }}
-                </strong>
-            </div>
-
+        <!-- SORT -->
+        <div class="settings-group">
+            <div class="settings-group-label">Default Sort</div>
+            <select id="pref-sort-by" class="settings-select"
+                    onchange="applyPreferenceSort()">
+                <option value="number">Number</option>
+                <option value="created_date">Created Date</option>
+                <option value="priority">Priority</option>
+                <option value="status">Status</option>
+            </select>
+            <select id="pref-sort-dir" class="settings-select"
+                    onchange="applyPreferenceSort()">
+                <option value="desc">Newest → Oldest</option>
+                <option value="asc">Oldest → Newest</option>
+            </select>
         </div>
 
     </div>
 
 </div>
+
 
 {% endblock %}
 
@@ -434,50 +468,6 @@ Search Module
     Search
 </button>
 
-<!-- ROWS -->
-<select id="rowsPerPage"
-        class="toolbar-select">
-
-    <option value="10">10</option>
-    <option value="25">25</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
-
-</select>
-
-
-<!-- PAGINATION -->
-<div class="pagination-controls">
-
-    <button id="firstPageBtn"
-            class="page-btn">
-        &#171;
-    </button>
-
-    <button id="prevPageBtn"
-            class="page-btn">
-        &#8249;
-    </button>
-
-    <div id="pageInfo"
-         class="page-info">
-
-        0 to 0 of 0
-
-    </div>
-
-    <button id="nextPageBtn"
-            class="page-btn">
-        &#8250;
-    </button>
-
-    <button id="lastPageBtn"
-            class="page-btn">
-        &#187;
-    </button>
-
-</div>
-
 <button id="downloadBtn"
         class="primary-btn">
     Download
@@ -487,47 +477,69 @@ Search Module
 
 
 <!-- =========================================
-     TOOLBAR RIGHT
-========================================= -->
-{% block toolbar_right %}
-
-<input
-    type="text"
-    class="toolbar-search-input"
-    placeholder="Global Search (Later)"
-    disabled>
-
-{% endblock %}
-
-
-<!-- =========================================
      CONTENT
 ========================================= -->
 {% block content %}
 
-<!-- RESULT SUMMARY -->
+<!-- =========================================
+     KPI BAR (top of main area)
+========================================= -->
+<div class="search-kpi-bar">
+
+    <div class="search-kpi-tile">
+        <span class="kpi-tile-label">Total</span>
+        <strong class="kpi-tile-value" id="kpiTotal">{{ kpi.total }}</strong>
+    </div>
+
+    <div class="search-kpi-tile kpi-open">
+        <span class="kpi-tile-label">Open</span>
+        <strong class="kpi-tile-value" id="kpiOpen">{{ kpi.open }}</strong>
+    </div>
+
+    <div class="search-kpi-tile kpi-closed">
+        <span class="kpi-tile-label">Closed</span>
+        <strong class="kpi-tile-value" id="kpiClosed">{{ kpi.closed }}</strong>
+    </div>
+
+    <div class="search-kpi-tile kpi-cancelled">
+        <span class="kpi-tile-label">Cancelled</span>
+        <strong class="kpi-tile-value" id="kpiCancelled">{{ kpi.cancelled }}</strong>
+    </div>
+
+</div>
+
+
+<!-- RESULT SUMMARY + PAGINATION BAR -->
 <div class="results-summary-bar">
 
     <div>
-
         <div class="results-count">
-            <span id="resultCount">0</span>
-            Results
+            <span id="resultCount">0</span> Results
         </div>
-
         <div class="results-breakdown">
-            AZURE:
-            <span id="azureCount">0</span>
+            AZURE: <span id="azureCount">0</span>
+            | SNOW: <span id="snowCount">0</span>
+            | PTC: <span id="ptcCount">0</span>
+            | AOM: <span id="aomCount">0</span>
+        </div>
+    </div>
 
-            |
+    <!-- COMPACT ROWS + PAGINATION -->
+    <div class="table-controls-bar">
 
-            SNOW:
-            <span id="snowCount">0</span>
+        <select id="rowsPerPage" class="rows-select">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
 
-            |
-
-            PTC:
-            <span id="ptcCount">0</span>
+        <div class="pagination-controls">
+            <button id="firstPageBtn" class="page-btn">&#171;</button>
+            <button id="prevPageBtn"  class="page-btn">&#8249;</button>
+            <span   id="pageInfo"     class="page-info">0 to 0 of 0</span>
+            <button id="nextPageBtn"  class="page-btn">&#8250;</button>
+            <button id="lastPageBtn"  class="page-btn">&#187;</button>
         </div>
 
     </div>
@@ -537,14 +549,16 @@ Search Module
 
 <!-- TABLE -->
 <div class="search-results-container">
-    
     <div class="table-scroll-wrapper">
         <table id="searchResultsTable">
-            
             <colgroup>
                 <col id="col-slno">
                 <col id="col-number">
                 <col id="col-description">
+                <col id="col-vendorticket">
+                <col id="col-azurebug">
+                <col id="col-azureuserstory">
+                <col id="col-ptcarticles">
                 <col id="col-priority">
                 <col id="col-status">
                 <col id="col-createdby">
@@ -552,89 +566,237 @@ Search Module
                 <col id="col-assignedto">
                 <col id="col-resolveddate">
             </colgroup>
-
             <thead>
                 <tr>
-                    <th data-column="slno">
-                        SL No
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="number">
-                        Number
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="description">
-                        Description
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="priority">
-                        Priority
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="status">
-                        Status
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="createdby">
-                        Created By
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="createddate">
-                        Created Date
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="assignedto">
-                        Assigned To
-                        <div class="resize-handle"></div>
-                    </th>
-
-                    <th data-column="resolveddate">
-                        Resolved Date
-                        <div class="resize-handle"></div>
-                    </th>
+                    <th data-column="slno">SL No<div class="resize-handle"></div></th>
+                    <th data-column="number" data-sort="number" onclick="sortResults('number')" class="sortable sort-desc">Number ↕<div class="resize-handle"></div></th>
+                    <th data-column="description" data-sort="description" onclick="sortResults('description')" class="sortable">Description ↕<div class="resize-handle"></div></th>
+                    <th data-column="vendorticket">Vendor Ticket<div class="resize-handle"></div></th>
+                    <th data-column="azurebug">Azure Bug<div class="resize-handle"></div></th>
+                    <th data-column="azureuserstory">Azure User Story<div class="resize-handle"></div></th>
+                    <th data-column="ptcarticles">PTC Articles<div class="resize-handle"></div></th>
+                    <th data-column="priority" data-sort="priority" onclick="sortResults('priority')" class="sortable">Priority ↕<div class="resize-handle"></div></th>
+                    <th data-column="status" data-sort="status" onclick="sortResults('status')" class="sortable">Status ↕<div class="resize-handle"></div></th>
+                    <th data-column="createdby">Created By<div class="resize-handle"></div></th>
+                    <th data-column="createddate" data-sort="created_date" onclick="sortResults('created_date')" class="sortable">Created Date ↕<div class="resize-handle"></div></th>
+                    <th data-column="assignedto">Assigned To<div class="resize-handle"></div></th>
+                    <th data-column="resolveddate" data-sort="resolved_date" onclick="sortResults('resolved_date')" class="sortable">Resolved Date ↕<div class="resize-handle"></div></th>
                 </tr>
             </thead>
-
-            <tbody id="searchResultsBody">
-            </tbody>
-
+            <tbody id="searchResultsBody"></tbody>
         </table>
     </div>
 </div>
-
 
 <div class="last-refresh">
     Last refreshed: {{ last_refresh }}
 </div>
 
-{% endblock %}
-
 
 <!-- =========================================
-     PROCESSING STATUS
+     USER GROUP MODAL (Tabbed)
 ========================================= -->
-{% block module_status %}
+<div id="userGroupModal" class="ugm-overlay" onclick="closeUserGroupModalOutside(event)">
 
-<div class="search-progress-wrapper">
+    <div class="ugm-dialog">
 
-    <!-- STATUS MESSAGE -->
-    <div id="searchStatusText"
-         class="search-status-text">
-        Waiting for search
+        <!-- HEADER -->
+        <div class="ugm-header">
+            <span class="ugm-title">User Group Mapping</span>
+            <button class="ugm-close-btn" onclick="closeUserGroupModal()">✕</button>
+        </div>
+
+        <!-- TABS -->
+        <div class="ugm-tabs">
+            <button class="ugm-tab active-ugm-tab" id="tab-manage" onclick="switchUgmTab('manage')">
+                Manage Group
+            </button>
+            <button class="ugm-tab" id="tab-refresh" onclick="switchUgmTab('refresh')">
+                Refresh Users
+            </button>
+            <button class="ugm-tab" id="tab-existing" onclick="switchUgmTab('existing')">
+                Existing Groups
+            </button>
+        </div>
+
+        <!-- ===================== TAB: MANAGE GROUP ===================== -->
+        <div class="ugm-tab-panel" id="panel-manage">
+
+            <div class="ugm-body">
+
+                <!-- LEFT PANEL -->
+                <div class="ugm-left">
+
+                    <!-- GROUP NAME -->
+                    <div class="ugm-field-row">
+                        <label class="ugm-label">Group Name:</label>
+                        <input type="text"
+                               id="ugmGroupNameInput"
+                               class="ugm-text-input"
+                               placeholder="Enter group name">
+                    </div>
+
+                    <!-- SEARCH USERS -->
+                    <div class="ugm-field-row">
+                        <label class="ugm-label">Search User:</label>
+                        <input type="text"
+                               id="ugmSearchUserInput"
+                               class="ugm-text-input"
+                               placeholder="Filter users..."
+                               oninput="filterUgmUsers()">
+                        <button class="ugm-search-btn" onclick="filterUgmUsers()">Search</button>
+                        <button class="ugm-clear-btn" onclick="clearUgmSearch()">Clear</button>
+                    </div>
+
+                    <div class="ugm-list-label">All Users:</div>
+
+                    <div class="ugm-user-list" id="ugmAllUsersList">
+                        <div class="ugm-loading">Loading users...</div>
+                    </div>
+
+                    <button class="ugm-add-btn" onclick="addSelectedToGroup()">
+                        Add &gt;&gt;
+                    </button>
+
+                </div>
+
+                <!-- RIGHT PANEL -->
+                <div class="ugm-right">
+
+                    <div class="ugm-list-label">Group Members:</div>
+
+                    <div class="ugm-member-list" id="ugmGroupMembersList"></div>
+
+                    <button class="ugm-remove-btn" onclick="removeSelectedFromGroup()">
+                        Remove
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================== TAB: REFRESH USERS ===================== -->
+        <div class="ugm-tab-panel ugm-tab-hidden" id="panel-refresh">
+
+            <div class="ugm-refresh-panel">
+
+                <div class="ugm-restart-notice">
+                    ⚠️ <strong>First time using this?</strong> Make sure to
+                    <strong>restart your server</strong> after replacing project files
+                    so Python loads the new <code>/search/collect-users</code> route.
+                </div>
+
+                <div class="ugm-refresh-info">
+                    <div class="ugm-refresh-icon">🔄</div>
+                    <div class="ugm-refresh-desc">
+                        Collect all unique user names from the 3 data files and
+                        update <code>data/user_group_mapping.csv</code>.
+                        Existing group assignments are preserved.
+                    </div>
+                </div>
+
+                <div class="ugm-source-cards">
+
+                    <div class="ugm-source-card">
+                        <div class="ugm-source-badge azure-badge">AZURE</div>
+                        <div class="ugm-source-detail">
+                            <strong>Azure.csv</strong><br>
+                            Columns: <em>Created By, Assigned To</em>
+                        </div>
+                    </div>
+
+                    <div class="ugm-source-card">
+                        <div class="ugm-source-badge snow-badge">SNOW</div>
+                        <div class="ugm-source-detail">
+                            <strong>Snow.xlsx</strong><br>
+                            Columns: <em>Assigned To, Opened By</em>
+                        </div>
+                    </div>
+
+                    <div class="ugm-source-card">
+                        <div class="ugm-source-badge ptc-badge">PTC</div>
+                        <div class="ugm-source-detail">
+                            <strong>Ptc.csv</strong><br>
+                            Columns: <em>Case Contact, Case Assignee</em>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="ugm-refresh-note">
+                    ⚙️ Email addresses are automatically stripped from names during collection.
+                </div>
+
+                <button class="ugm-refresh-btn" id="ugmRefreshBtn" onclick="runCollectUsers()">
+                    🔄 Refresh Users from Data Files
+                </button>
+
+                <div id="ugmRefreshStatus" class="ugm-refresh-status"></div>
+
+                <div id="ugmRefreshPreview" class="ugm-refresh-preview ugm-tab-hidden">
+                    <div class="ugm-list-label" style="margin-bottom:8px;">
+                        Collected Users <span id="ugmRefreshCount" class="ugm-count-badge"></span>
+                    </div>
+                    <div class="ugm-refresh-user-list" id="ugmRefreshUserList"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ===================== TAB: EXISTING GROUPS ===================== -->
+        <div class="ugm-tab-panel ugm-tab-hidden" id="panel-existing">
+
+            <div class="ugm-existing-panel">
+
+                <div class="ugm-existing-toolbar">
+                    <span class="ugm-existing-hint">Click a group to load it into Manage Group tab for editing.</span>
+                    <button class="ugm-search-btn" onclick="loadUgmExistingGroups()">↺ Reload</button>
+                </div>
+
+                <div id="ugmExistingGroupsContainer" class="ugm-existing-grid">
+                    <div class="ugm-loading">Loading groups...</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="ugm-footer">
+            <button class="ugm-ok-btn" onclick="saveAndCloseGroupModal()">OK</button>
+            <button class="ugm-apply-btn" onclick="saveGroupMappingFromModal()">Apply</button>
+            <button class="ugm-cancel-btn" onclick="closeUserGroupModal()">Cancel</button>
+        </div>
+
     </div>
 
-    <!-- PROGRESS BAR -->
-    <div class="search-progress-bar">
+</div>
 
-        <div id="searchProgressFill"
-             class="search-progress-fill">
+<!-- =========================================
+     SEARCH HELP MODAL (inside content block)
+========================================= -->
+<div id="helpSystemModal" class="help-modal-backdrop hidden" onclick="handleHelpBackdropClick(event)">
+
+    <div class="help-modal-window">
+
+        <div class="help-modal-header">
+            <h2>🔍 Search Module — Help Guide</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+
+        <div class="help-modal-body">
+
+            <div class="help-modal-left-pane" id="helpNav">
+                <div class="help-empty-state">Loading…</div>
+            </div>
+
+            <div class="help-modal-right-pane" id="helpContent">
+                <div class="help-empty-state">Select a topic from the left.</div>
+            </div>
+
         </div>
 
     </div>
@@ -644,7 +806,12 @@ Search Module
 {% endblock %}
 
 
+{% block module_status %}
+{# Progress bar IDs (statusMessage/progressWrapper/progressFill/progressText) are in main.html #}
+{% endblock %}
+
+
 {% block page_js %}
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<!-- xlsx library removed: download is now server-side via /search/download -->
 <script src="{{ url_for('search.static', filename='search.js') }}"></script>
 {% endblock %}

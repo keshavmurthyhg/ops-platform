@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Segoe UI,Arial,sans-serif; background:#f4f6f9;
+       padding:20px; color:#374151; font-size:13px; }
+.wrap { max-width:960px; margin:auto; }
+.header { background:linear-gradient(135deg,#1e3a5f,#1a2e4a); color:#fff;
+          padding:18px 24px; border-radius:10px 10px 0 0; }
+.header h1 { font-size:17px; font-weight:700; }
+.header .meta { font-size:11px; color:#93c5fd; margin-top:5px;
+                display:flex; gap:16px; flex-wrap:wrap; }
+.body { background:#fff; padding:20px 24px;
+        border:1px solid #e5e7eb; border-top:none; }
+.kpi-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.kpi-box { flex:1; min-width:80px; background:#f9fafb;
+           border:1px solid #e5e7eb; border-radius:8px;
+           padding:10px 14px; text-align:center; }
+.kpi-box-val { font-size:22px; font-weight:800; }
+.kpi-box-lbl { font-size:9px; font-weight:700; text-transform:uppercase;
+               letter-spacing:.05em; color:#6b7280; margin-top:2px; }
+.kpi-box.alert { border-color:#fca5a5; background:#fef2f2; }
+.section { margin-bottom:22px; }
+.section-title { font-size:13px; font-weight:700; color:#374151;
+                 border-left:4px solid #f28c38; padding-left:10px;
+                 margin-bottom:10px; }
+.alert-banner { background:#fef2f2; border:1px solid #fca5a5;
+                border-radius:8px; padding:10px 14px; margin-bottom:14px;
+                font-size:12px; color:#dc2626; line-height:1.6; }
+.alert-banner ul { margin:6px 0 0 18px; }
+.date-window { background:#eff6ff; border:1px solid #bfdbfe;
+               border-radius:6px; padding:6px 14px; margin-bottom:14px;
+               font-size:11px; color:#1e40af; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { background:#f9fafb; padding:7px 10px; text-align:left;
+     font-weight:700; color:#374151; border-bottom:2px solid #e5e7eb;
+     white-space:nowrap; }
+td { padding:6px 10px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+tr:hover td { background:#f9fafb; }
+.badge { display:inline-block; padding:2px 7px; border-radius:999px;
+         font-size:10px; font-weight:700; }
+.red   { background:#fef2f2; color:#dc2626; }
+.amber { background:#fffbeb; color:#d97706; }
+.green { background:#f0fdf4; color:#16a34a; }
+.blue  { background:#eff6ff; color:#2563eb; }
+.gray  { background:#f3f4f6; color:#6b7280; }
+.no-records { color:#9ca3af; text-align:center; padding:18px;
+              font-style:italic; }
+.breakdown-table td:last-child { font-weight:700; }
+.footer { background:#f9fafb; padding:10px 24px;
+          border-radius:0 0 10px 10px; border:1px solid #e5e7eb;
+          border-top:none; font-size:11px; color:#9ca3af; }
+.footer-row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+</style></head><body><div class="wrap"><div class="header">
+  <h1>⚠ Azure Bugs</h1>
+  <div class="meta">
+    <span>🕐 25 Jun 2026 14:28</span>
+    <span>📅 24 Jun – 25 Jun 2026</span>
+    <span>📤 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📥 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📋 ⚠ Action Required</span>
+  </div>
+</div><div class="body">
+<div class="alert-banner">⚠ <strong>Alert:</strong><ul><li>New Azure bugs (8) exceed threshold (3)</li></ul></div>
+<div class="date-window">📅 All active Azure bugs as of 25 Jun 2026 14:28</div>
+<div class="section">
+  <div class="section-title">Azure Bug Summary</div>
+  <div class="kpi-row"><div class="kpi-box"><div class="kpi-box-val" style="color:#0ea5e9;">23</div><div class="kpi-box-lbl">Total</div></div><div class="kpi-box alert"><div class="kpi-box-val" style="color:#8b5cf6;">8</div><div class="kpi-box-lbl">New</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#f59e0b;">1</div><div class="kpi-box-lbl">Active</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#16a34a;">14</div><div class="kpi-box-lbl">Closed</div></div></div>
+</div>
+<div class="section">
+  <div class="section-title">All Azure Bugs</div>
+  <table><thead><tr><th>Number</th><th>Description</th><th>Assigned To</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>765671</td><td>Multiple Where Used Report not generating</td><td>Pratap Reddy Kunduru</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>762170</td><td>Incorrect content of Windchill -> BEAT part file</td><td>Agenishrajkumar Kalidass Sasirega</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>762167</td><td>Rename history table is not accessible on CAD/VP</td><td>Shirvan Hasan</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>751831</td><td>Faulty Associated End Items in Design Change Notice</td><td>Pratap Reddy Kunduru</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>738908</td><td>Integration failure reported for FACTORYMASTER</td><td>Pratap Reddy Kunduru</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>725358</td><td>In the setup participants tab in task Audit Change Notice and request Manufacturing implementation task for change admin III, there are plants visible which shouldn't be displayed.</td><td>Agenishrajkumar Kalidass Sasirega</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>714759</td><td>WC13 Upgrade rehearsal -1- not able to create Part List for Technical writer</td><td>Afroz Alam</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>712625</td><td>WC13 Upgrade rehearsal -1- The “PL” & " RPL" prefix is not populated in the number field and the version is showing as A.4 and the state is showing as “In Work” for both RPL and PL Part Lists.</td><td>Afroz Alam</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>669427</td><td>ODC Transactions Failing in Production</td><td>Vignesh Mogaveera</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>668797</td><td>WC13 (13.1.2.0): Part List Information Element shows “Parts list” and “VCE SPB Parts list” instead of “Required Parts list” and “VCE Parts list”.</td><td>Afroz Alam</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>655972</td><td>The FN and LN are appearing in descending order</td><td>Elliott Erking</td><td>1</td><td><span class="badge green">Resolved</span></td></tr><tr><td>635484</td><td>CAD models do not adopt the name of the Windchill Part</td><td>Pratap Reddy Kunduru</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>635482</td><td>CAD models do not adopt the name of the Windchill Part</td><td>Agenishrajkumar Kalidass Sasirega</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>622756</td><td>SAVE AS function not working in TEST Environment</td><td>Uttam Ram</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>620051</td><td>R25_3 : TEST Server : Not able to Search Part List</td><td>Afroz Alam</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>613775</td><td>R25_3_DevB - Create "Required Partlist" . Check if the all attributes including PartlistItem attributes are populating -- not working as expected using Techincalwriter2</td><td>Afroz Alam</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>611542</td><td>Part will not pull latest version from Kola</td><td>Johan Mattsson</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>610921</td><td>Email notification not triggering for "Multiple Where Used Report"</td><td>Pratap Reddy Kunduru</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>599788</td><td>Users are not able to access/create parts in VCE Shared Parts container in WC13</td><td>Uttam Ram</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>579305</td><td>Change report of 114445WC is not correct</td><td>Shirvan Hasan</td><td>1</td><td><span class="badge amber">Active</span></td></tr><tr><td>519799</td><td>Distribution targets are triggered for all plant views</td><td>Harshitha D C</td><td>2</td><td><span class="badge green">Resolved</span></td></tr><tr><td>441057</td><td>Gathering Part is added as a Child number in change report</td><td>Agenishrajkumar Kalidass Sasirega</td><td>2</td><td><span class="badge amber">New</span></td></tr><tr><td>441053</td><td>Change Report Wrong Effectivity</td><td>Agenishrajkumar Kalidass Sasirega</td><td>2</td><td><span class="badge amber">New</span></td></tr></tbody></table>
+</div></div><div class="footer"><div class="footer-row"><span>Ops Platform · Azure Bugs Digest</span><span>Generated: 25 Jun 2026 14:28</span></div></div></div></body></html>

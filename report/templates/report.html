@@ -1,230 +1,290 @@
 {% extends "main.html" %}
-
-{% block page_title %}
-RCA Report Generator
-{% endblock %}
-
+{% block page_title %}RCA Report Generator{% endblock %}
 {% block page_css %}
-<link rel="stylesheet"
-      href="{{ url_for('report.static', filename='report.css') }}">
+<link rel="stylesheet" href="{{ url_for('report.static', filename='report.css') }}">
 {% endblock %}
 
-
-<!-- =========================================
-     DOCK ICONS
-========================================= -->
 {% block dock_icons %}
-
-<div class="dock-item active-dock"
-     title="Downloads"
-     onclick="showReportSection('downloads')">
-    ⬇
-</div>
-
-<div class="dock-item"
-     title="KPI"
-     onclick="showReportSection('kpi')">
-    📊
-</div>
-
+<div class="dock-item active-dock" title="RCA Editor"  onclick="showReportSection('rca')">🗂️</div>
+<div class="dock-item"            title="Downloads"     onclick="showReportSection('downloads')">⬇️</div>
+<div class="dock-item"            title="Options"       onclick="showReportSection('options')">⚙️</div>
+<div class="dock-item"            title="KPI"           onclick="showReportSection('kpi')">📊</div>
 {% endblock %}
-
-
-<!-- =========================================
-     SIDEBAR CONTENT
-========================================= -->
-{% block sidebar %}
-
-<!-- DOWNLOAD SECTION -->
-<div id="downloads-section" class="dock-section active-section">
-
-    <div class="download-panel">
-        <h3>Downloads</h3>
-
-        <p id="downloadMessage">
-            Generate preview to enable downloads
-        </p>
-
-        <div id="downloadButtons" class="download-row">
-            <button onclick="downloadReport('word')">
-                Word
-            </button>
-
-            <button onclick="downloadReport('pdf')">
-                PDF
-            </button>
-
-            <button onclick="downloadReport('zip')">
-                ZIP
-            </button>
-        </div>
-    </div>
-
-</div>
-
-
-<!-- KPI SECTION -->
-<div class="dock-section" id="kpi-section">
-
-    <div class="card-title">KPI</div>
-
-    <div class="kpi-grid">
-        <div class="kpi-box">
-            <span>Reports Today</span>
-            <strong id="reportsCount">12</strong>
-        </div>
-
-        <div class="kpi-box">
-            <span>Pending</span>
-            <strong id="pendingCount">4</strong>
-        </div>
-    </div>
-</div>
-
-{% endblock %}
-
-<!-- =========================================
-     Clear button
-========================================= -->
 
 {% block sidebar_toolbar %}
-
 <div class="sidebar-toolbar">
-
-    <button onclick="clearPreview()">
-        Clear Workspace
-    </button>
-
-    <button onclick="alert('Filters coming soon')">
-        Apply Filters
-    </button>
-
-</div>
-
-{% endblock %}
-
-<!-- =========================================
-     TOP TITLE
-========================================= -->
-{% block top_center %}
-<div class="module-title-pill">
-    RCA Report Generator
+    <button onclick="clearPreview()">Clear Workspace</button>
+    <button onclick="triggerUpdatePreview()">Apply Filters</button>
 </div>
 {% endblock %}
 
+{% block sidebar %}
 
-<!-- =========================================
-     TOOLBAR LEFT
-========================================= -->
-{% block toolbar_left %}
-
-<input
-    type="text"
-    id="incident_number"
-    class="toolbar-search-input"
-    placeholder="Enter Incident Number">
-
-<button class="primary-btn"
-        onclick="loadPreview()">
-    Preview
-</button>
-
-{% endblock %}
-
-
-<!-- =========================================
-     TOOLBAR RIGHT
-========================================= -->
-{% block toolbar_right %}
-
-<input
-    type="text"
-    class="toolbar-search-input"
-    placeholder="Global Search (Later)"
-    disabled>
-
-{% endblock %}
-
-
-<!-- =========================================
-     MAIN CONTENT
-========================================= -->
-{% block content %}
-
-<!-- Preview -->
-<div class="card preview-card">
-    <h3>Preview</h3>
-
-    <div id="previewContainer">
-        Preview will appear here
+{# ── RCA SIDEBAR ── #}
+<div id="rca-section" class="dock-section active-section">
+    <div class="sb-panel">
+        <div class="rca-sidebar-rows">
+            <div class="rca-sb-row" onclick="toggleRCAZone('problem')">
+                <span class="rca-sb-dot problem"></span>
+                <span class="rca-sb-label">Problem</span>
+                <span class="rca-sb-chip" id="sbChipProblem">0</span>
+                <span class="rca-sb-chevron" id="sbChevProblem">›</span>
+            </div>
+            <div class="rca-sb-row" onclick="toggleRCAZone('root')">
+                <span class="rca-sb-dot rootcause"></span>
+                <span class="rca-sb-label">Root Cause</span>
+                <span class="rca-sb-chip" id="sbChipRoot">0</span>
+                <span class="rca-sb-chevron" id="sbChevRoot">›</span>
+            </div>
+            <div class="rca-sb-row" onclick="toggleRCAZone('resolution')">
+                <span class="rca-sb-dot resolution"></span>
+                <span class="rca-sb-label">Resolution</span>
+                <span class="rca-sb-chip" id="sbChipResolution">0</span>
+                <span class="rca-sb-chevron" id="sbChevResolution">›</span>
+            </div>
+            <div class="rca-sb-row" onclick="toggleRCAZone('references')">
+                <span class="rca-sb-dot references"></span>
+                <span class="rca-sb-label">References</span>
+                <span class="rca-sb-chip" id="sbChipReferences">0</span>
+                <span class="rca-sb-chevron" id="sbChevReferences">›</span>
+            </div>
+        </div>
+        <div class="sb-divider"></div>
+        <button class="rca-generate-btn" onclick="triggerUpdatePreview()">↻ Update Preview</button>
     </div>
 </div>
 
+{# ── DOWNLOADS SIDEBAR ── #}
+<div id="downloads-section" class="dock-section">
+    <div class="sb-panel">
+        <div class="sb-dl-section-label">Report Format</div>
+        <div id="downloadButtons" class="sb-dl-btns">
+            <button class="sb-dl-btn word"    onclick="downloadReport('word')">⬇️ Word</button>
+            <button class="sb-dl-btn pdf"     onclick="downloadReport('pdf')">⬇️ PDF</button>
+            <button class="sb-dl-btn both"    onclick="downloadReport('zip')">📦 ZIP (Both)</button>
+        </div>
+        <div class="sb-divider"></div>
+        <div class="sb-dl-section-label">Export as PPT</div>
+        <button id="exportPptBtn" class="sb-dl-btn pptx" onclick="downloadReport('ppt')">📊 Export as PPT</button>
+        <p id="downloadMessage" class="sidebar-hint">Load an incident to enable downloads.</p>
+    </div>
+</div>
 
-<!-- Editable RCA -->
-<div class="card rca-editor-card">
-    <h3>Editable RCA</h3>
-
-    <div class="rca-section">
-        <label>Problem Statement</label>
-        <textarea id="problem_statement"></textarea>
-
-        <div class="upload-row">
-            <input type="file" id="problem_images" multiple>
-            <div id="problem_preview_files"></div>
+{# ── OPTIONS SIDEBAR ── #}
+<div id="options-section" class="dock-section">
+    <div class="sb-panel">
+        <div class="sb-section-title">Images in Report</div>
+        <div class="option-radio-group">
+            <label class="option-radio-item">
+                <input type="radio" name="imagesInDoc" id="imgModeAll" value="all" checked>
+                <div>
+                    <span class="option-radio-label">All uploaded images</span>
+                    <span class="option-radio-hint">Images appear in their RCA sections</span>
+                </div>
+            </label>
+            <label class="option-radio-item">
+                <input type="radio" name="imagesInDoc" id="imgModeNone" value="none">
+                <div>
+                    <span class="option-radio-label">Text only</span>
+                    <span class="option-radio-hint">No images in output document</span>
+                </div>
+            </label>
         </div>
     </div>
+</div>
 
-    <div class="rca-section">
-        <label>Root Cause</label>
-        <textarea id="root_cause"></textarea>
-
-        <div class="upload-row">
-            <input type="file" id="root_images" multiple>
-            <div id="root_preview_files"></div>
+{# ── KPI SIDEBAR ── #}
+<div id="kpi-section" class="dock-section">
+    <div class="sb-panel">
+        <div class="sb-section-title">KPI</div>
+        <div class="kpi-grid">
+            <div class="kpi-box"><span>Today</span><strong id="reportsCount">0</strong></div>
+            <div class="kpi-box"><span>Pending</span><strong id="pendingCount">0</strong></div>
         </div>
-    </div>
-
-    <div class="rca-section">
-        <label>Resolution</label>
-        <textarea id="resolution_text"></textarea>
-
-        <div class="upload-row">
-            <input type="file" id="resolution_images" multiple>
-            <div id="resolution_preview_files"></div>
-        </div>
-    </div>
-
-    <div class="update-btn-wrapper">
-        <button class="update-preview-btn" onclick="updatePreview()">
-            Update Preview
-        </button>
     </div>
 </div>
 
 {% endblock %}
 
 {% block module_status %}
-
 <div class="report-status-meta">
+    <div class="status-row"><span class="status-label">Incident:</span><span id="activeIncident">-</span></div>
+    <div class="status-row"><span class="status-label">Action:</span><span id="lastAction">Waiting</span></div>
+    <div class="status-row"><span class="status-label">Downloads:</span><span id="downloadStatus">Not generated</span></div>
+</div>
+{% endblock %}
 
-    <div class="status-row">
-        <span class="status-label">Incident:</span>
-        <span id="activeIncident">-</span>
+{% block top_center %}<div class="module-title-pill">RCA Report Generator</div>{% endblock %}
+
+{% block top_right %}
+<div class="top-search-wrapper" id="topSearchWrapper">
+    <button class="search-trigger-btn" onclick="toggleGlobalSearch()">🔍</button>
+    <input type="text" id="globalSearchInput" class="top-search-input"
+           placeholder="Search page content..." onkeyup="executePageSearch(this.value)">
+</div>
+<button class="help-btn" title="Help" onclick="loadModuleHelpData(); toggleHelpSystemModal()">?</button>
+{% endblock %}
+
+{% block toolbar_left %}
+<input type="text" id="incident_number" class="toolbar-search-input" placeholder="Enter Incident Number">
+<button class="primary-btn" onclick="loadPreview()">Preview</button>
+{% endblock %}
+
+{% block toolbar_right %}
+<a href="/converter" class="app-switcher-btn">📄 Converter</a>
+<a href="/bulk"      class="app-switcher-btn">📦 Bulk</a>
+{% endblock %}
+
+{% block content %}
+
+{# Incident preview #}
+<div class="card preview-card">
+    <h3>Preview</h3>
+    <div id="previewContainer">Preview will appear here</div>
+</div>
+
+{# RCA Editor — collapsible zones with rich text #}
+<div class="card rca-editor-card" id="rcaEditorCard">
+    <div class="rca-panel-header">
+        <div>
+            <h3>Editable RCA</h3>
+            <p class="rca-subtitle">Edit each section below. Use ↻ Update Preview to see changes inline.</p>
+        </div>
+        <button class="rca-expand-all-btn" onclick="expandAllZones()">⊞ Expand All</button>
     </div>
 
-    <div class="status-row">
-        <span class="status-label">Last Action:</span>
-        <span id="lastAction">Waiting for input</span>
-    </div>
+    {% for zone_id, emoji, title, cls, toolbar_items, ta_ph in [
+        ('problem',    '🔴', 'Problem Statement', 'problem',
+         [('• Bullet','• '),('Impact','[IMPACT] '),('Date/Time','[DATE/TIME] '),('System','[SYSTEM] ')],
+         'Describe the problem: what failed, when, who was affected...'),
+        ('root',       '🟡', 'Root Cause',         'rootcause',
+         [('• Bullet','• '),('Root Cause','[ROOT CAUSE] '),('Factor','[FACTOR] '),('Evidence','[EVIDENCE] ')],
+         'Explain the root cause: why it failed, contributing factors...'),
+        ('resolution', '🟢', 'Resolution',          'resolution',
+         [('• Bullet','• '),('Action','[ACTION] '),('Prevention','[PREVENTION] '),('Owner','[OWNER] ')],
+         'Describe the fix: actions taken, preventive measures, owners...'),
+    ] %}
+    <div class="rca-zone {{ cls }}" id="zone-{{ zone_id }}">
+        <div class="rca-zone-header rca-collapsible-header"
+             onclick="toggleRCAZone('{{ zone_id }}')" id="zone-header-{{ zone_id }}">
+            <div class="rca-zone-icon {{ cls }}">{{ emoji }}</div>
+            <span class="rca-zone-title">{{ title }}</span>
+            <div class="rca-zone-meta">
+                <span class="rca-text-status" id="zoneTextStatus-{{ zone_id }}"></span>
+                <span class="rca-img-count"   id="zoneImgCount-{{ zone_id }}">0 images</span>
+                <span class="rca-chevron"     id="zoneChev-{{ zone_id }}">▼</span>
+            </div>
+        </div>
+        <div class="rca-zone-body" id="zone-body-{{ zone_id }}">
+            {# Rich text toolbar #}
+            <div class="rta-toolbar">
+                <select class="rta-font-size" title="Font size"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')"
+                        onchange="applyRTACmd('{{ zone_id }}','fontSize',this.value)">
+                    {% for s in [8,9,10,11,12,14,16,18,20,24,28,32,36] %}
+                    <option value="{{ s }}" {{ 'selected' if s==11 else '' }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+                <div class="rta-sep"></div>
+                <button class="rta-btn" title="Bold"      onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','bold')"><b>B</b></button>
+                <button class="rta-btn" title="Italic"    onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','italic')"><i>I</i></button>
+                <button class="rta-btn" title="Underline" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','underline')"><u>U</u></button>
+                <button class="rta-btn rta-allcaps" title="Cycle case: ALL CAPS → Title → Sentence → lower"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','allCaps')">Aa</button>
+                <div class="rta-sep"></div>
+                <button class="rta-btn rta-color-btn" title="Text colour"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')"
+                        onclick="_toggleColorPopup(this,'{{ zone_id }}','foreColor')">
+                    <span style="border-bottom:3px solid #1e293b;padding-bottom:1px;">A</span>
+                </button>
+                <button class="rta-btn rta-color-btn" title="Highlight"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')"
+                        onclick="_toggleColorPopup(this,'{{ zone_id }}','hiliteColor')">
+                    <span style="background:#fef9c3;padding:0 3px;">▐</span>
+                </button>
+                <div class="rta-sep"></div>
+                <button class="rta-btn" title="Bullet list"   onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','insertUnorderedList')">☰</button>
+                <button class="rta-btn" title="Numbered list" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','insertOrderedList')">①</button>
+                <button class="rta-btn" title="Alphabet list" onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','insertAlphaList')" style="font-style:italic;font-weight:700;">a.</button>
+                <button class="rta-btn" title="Indent"        onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','indent')">→</button>
+                <button class="rta-btn" title="Outdent"       onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','outdent')">←</button>
+                <div class="rta-sep"></div>
+                <button class="rta-btn rta-reset" title="Reset formatting"
+                        onmousedown="rtaSaveSelection('{{ zone_id }}')" onclick="applyRTACmd('{{ zone_id }}','reset')">✕</button>
+            </div>
 
-    <div class="status-row">
-        <span class="status-label">Downloads:</span>
-        <span id="downloadStatus">Not generated</span>
+            <div class="rta-editor {{ cls }}"
+                 id="rca-editor-{{ zone_id }}"
+                 contenteditable="true"
+                 placeholder="{{ ta_ph }}"
+                 oninput="onZoneTextChange('{{ zone_id }}')"
+                 onkeydown="onRTAKeydown('{{ zone_id }}',event)"
+                 onfocus="_rtaSavedSel=null"></div>
+
+            <div class="rca-insert-row">
+                {% for label, val in toolbar_items %}
+                <button onclick="insertRCAPlaceholder('{{ zone_id }}','{{ val }}')">{{ label }}</button>
+                {% endfor %}
+                <button class="rca-clear-text-btn" onclick="clearZoneText('{{ zone_id }}')">✕ Clear</button>
+            </div>
+
+            {# File upload for images #}
+            <div class="rca-img-upload-row">
+                <label class="rca-img-upload-btn">
+                    📎 Add Images
+                    <input type="file" id="{{ zone_id }}_images" multiple accept="image/*"
+                           onchange="handleImageUpload('{{ zone_id }}', this)">
+                </label>
+                <span class="rca-img-upload-hint">or drag &amp; drop image files here</span>
+            </div>
+            <div id="{{ zone_id }}_preview_files" class="rca-file-chips"></div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {# ── References Zone ──────────────────────────────────────────── #}
+    <div class="rca-zone references" id="zone-references">
+        <div class="rca-zone-header rca-collapsible-header"
+             onclick="toggleRCAZone('references')" id="zone-header-references">
+            <div class="rca-zone-icon references">🔗</div>
+            <span class="rca-zone-title">References</span>
+            <div class="rca-zone-meta">
+                <span class="rca-text-status" id="zoneTextStatus-references"></span>
+                <span class="rca-img-count" id="zoneImgCount-references">0 references</span>
+                <span class="rca-chevron"   id="zoneChev-references">▼</span>
+            </div>
+        </div>
+        <div class="rca-zone-body" id="zone-body-references">
+            <p class="rca-refs-hint">
+                Azure DevOps user stories (VPA) and PTC articles extracted from incident notes.
+                Auto-filled from ServiceNow — edit freely.
+            </p>
+            <div class="rta-editor references"
+                 id="rca-editor-references"
+                 contenteditable="true"
+                 placeholder="No references found. Paste Azure user story URLs or PTC article links here..."
+                 oninput="onZoneTextChange('references')"
+                 onfocus="_rtaSavedSel=null"
+                 style="min-height:80px;"></div>
+            <div class="rca-refs-rendered" id="refsRendered"></div>
+        </div>
     </div>
 
 </div>
 
+{# Help modal #}
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">💡 RCA Report Generator — Help</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane"  id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block page_js %}

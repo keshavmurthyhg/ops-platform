@@ -1,0 +1,252 @@
+{% extends "main.html" %}
+{% block page_title %}Log Analyzer — OPS Platform{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('log_analyzer.static', filename='log_analyzer.css') }}">
+{% endblock %}
+
+{# ── Sidebar toolbar ── #}
+{% block sidebar_toolbar %}
+<div class="sidebar-toolbar">
+    <button class="clear-btn" onclick="clearWorkspace()" style="grid-column:span 2">Clear</button>
+</div>
+{% endblock %}
+
+{# ── Dock icons ── #}
+{% block dock_icons %}
+<button class="dock-item" id="dockFile"    onclick="switchDock('file')"    title="Open Files">📂</button>
+<button class="dock-item" id="dockFilter"  onclick="switchDock('filter')"  title="Filter & Search">🔍</button>
+<button class="dock-item" id="dockSummary" onclick="switchDock('summary')" title="Error Summary">📊</button>
+{% endblock %}
+
+{% block sidebar %}
+
+{# ── FILE PANEL ── #}
+<div class="la-panel" id="panelFile">
+    <div class="la-section-title">Open Log File(s)</div>
+
+    <div class="la-local-badge">⚡ Parsed entirely in browser — no upload</div>
+
+    <div class="la-drop-zone" id="dropZone"
+         onclick="document.getElementById('fileInput').click()"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <div class="la-drop-icon">📋</div>
+        <div class="la-drop-label">Click or drag log file(s) here</div>
+        <div class="la-drop-hint">MethodServer-*.log or any Windchill log4j file</div>
+    </div>
+    <input type="file" id="fileInput" multiple hidden onchange="handleFileSelect(this.files)">
+
+    <div class="la-meta-box" id="fileMetaBox" style="display:none">
+        <div class="la-meta-row"><span class="la-meta-label">File(s)</span>
+            <span class="la-meta-val" id="metaFiles" style="text-align:right;word-break:break-word">—</span></div>
+        <div class="la-meta-row"><span class="la-meta-label">Total size</span>
+            <span class="la-meta-val" id="metaSize">—</span></div>
+        <div class="la-meta-row"><span class="la-meta-label">Log entries</span>
+            <span class="la-meta-val" id="metaEntries">—</span></div>
+        <div class="la-meta-row"><span class="la-meta-label">Time range</span>
+            <span class="la-meta-val" id="metaRange">—</span></div>
+    </div>
+</div>
+
+{# ── FILTER PANEL ── #}
+<div class="la-panel hidden" id="panelFilter">
+    <div class="la-section-title">Filter Log Entries</div>
+
+    <div class="la-filter-group">
+        <label class="la-filter-label">⏱ Timestamp From</label>
+        <input type="text" id="fTs1" class="la-filter-input"
+               placeholder="2026-06-25 10:58:00" oninput="applyFilters()">
+    </div>
+    <div class="la-filter-group">
+        <label class="la-filter-label">⏱ Timestamp To</label>
+        <input type="text" id="fTs2" class="la-filter-input"
+               placeholder="2026-06-25 11:30:00" oninput="applyFilters()">
+    </div>
+
+    <div class="la-filter-group">
+        <label class="la-filter-label">🚦 Level</label>
+        <div class="la-level-pills" id="levelPills">
+            <button class="la-level-pill active" data-level="ERROR" onclick="toggleLevel(this)">ERROR</button>
+            <button class="la-level-pill active" data-level="WARN"  onclick="toggleLevel(this)">WARN</button>
+            <button class="la-level-pill active" data-level="INFO"  onclick="toggleLevel(this)">INFO</button>
+            <button class="la-level-pill active" data-level="DEBUG" onclick="toggleLevel(this)">DEBUG</button>
+            <button class="la-level-pill active" data-level="FATAL" onclick="toggleLevel(this)">FATAL</button>
+        </div>
+    </div>
+
+    <div class="la-filter-group">
+        <label class="la-filter-label">🧵 Thread contains</label>
+        <input type="text" id="fThread" class="la-filter-input"
+               placeholder="e.g. exec-103" oninput="applyFilters()">
+    </div>
+
+    <div class="la-filter-group">
+        <label class="la-filter-label">📦 Logger / Class</label>
+        <input type="text" id="fLogger" class="la-filter-input"
+               placeholder="e.g. wt.servlet, ServletRequest" oninput="applyFilters()">
+    </div>
+
+    <div class="la-filter-group">
+        <label class="la-filter-label">👤 User / Session ID</label>
+        <input type="text" id="fUser" class="la-filter-input"
+               placeholder="e.g. A546072" oninput="applyFilters()">
+    </div>
+
+    <div class="la-filter-group">
+        <label class="la-filter-label">🔎 Message contains</label>
+        <input type="text" id="fMsg" class="la-filter-input"
+               placeholder="e.g. Exception, 500, NullPointer" oninput="applyFilters()">
+    </div>
+
+    <button class="secondary-btn la-action-btn" onclick="clearFilters()">Clear All Filters</button>
+    <div class="la-filter-result" id="filterResult"></div>
+
+    <div class="la-divider"></div>
+    <div class="la-section-title">Jump to Timestamp</div>
+    <div class="la-filter-group">
+        <input type="text" id="jumpTs" class="la-filter-input" placeholder="2026-06-25 10:58:56">
+    </div>
+    <button class="secondary-btn la-action-btn" onclick="jumpToTimestamp()">⏩ Jump</button>
+    <div class="la-filter-result" id="jumpResult"></div>
+</div>
+
+{# ── SUMMARY PANEL — KPI only, details in popup ── #}
+<div class="la-panel hidden" id="panelSummary">
+    <div class="la-section-title">Error Summary</div>
+    <div class="la-kpi-grid" id="kpiGrid">
+        <div class="la-kpi-box la-kpi-fatal"><strong id="kpiFatal">—</strong><small>FATAL</small></div>
+        <div class="la-kpi-box la-kpi-error"><strong id="kpiError">—</strong><small>ERROR</small></div>
+        <div class="la-kpi-box la-kpi-warn"><strong id="kpiWarn">—</strong><small>WARN</small></div>
+        <div class="la-kpi-box la-kpi-info"><strong id="kpiInfo">—</strong><small>INFO</small></div>
+    </div>
+
+    <button class="la-details-btn" id="btnMoreDetails" onclick="showSummaryPopup()" style="display:none">
+        📋 Top Patterns &amp; Loggers →
+    </button>
+
+    <div class="la-divider"></div>
+    <div class="la-section-title">Quick Filter</div>
+    <button class="la-quick-btn" onclick="quickFilter('errors_warns')">ERRORs + WARNs + FATALs</button>
+    <button class="la-quick-btn" onclick="clearFilters()">Show All</button>
+</div>
+
+{% endblock %}
+
+{# ── Status rows ── #}
+{% block module_status %}
+<div class="gz-status-meta">
+    <div class="gz-status-row"><span class="gz-status-label">File:</span>
+        <span class="gz-status-val" id="statusFilename">—</span></div>
+    <div class="gz-status-row"><span class="gz-status-label">Entries:</span>
+        <span class="gz-status-val" id="statusEntries">—</span></div>
+    <div class="gz-status-row"><span class="gz-status-label">Last Action:</span>
+        <span class="gz-status-val" id="lastAction">Waiting</span></div>
+</div>
+{% endblock %}
+
+{% block top_center %}
+<div class="module-title-pill">📋 Log Analyzer</div>
+{% endblock %}
+
+{% block toolbar_left %}
+<input type="text" id="searchInput" class="toolbar-search-input"
+       placeholder="Search log entries…" oninput="quickSearch(this.value)" style="display:none">
+<button class="tbar-summary-btn hidden" id="btnSummary"
+        onclick="downloadSummary()">📄 Summary</button>
+{% endblock %}
+
+{% block toolbar_right %}
+<span id="rowCountBadge" class="gz-count-badge" style="display:none"></span>
+<div class="gz-view-toggle hidden" id="viewToggleGroup">
+    <button class="gz-view-btn active" id="btnViewTable" onclick="setView('table')">Table</button>
+    <button class="gz-view-btn"        id="btnViewRaw"   onclick="setView('raw')">Raw</button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">📋 Log Analyzer — Help</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane"  id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane"></div>
+        </div>
+    </div>
+</div>
+<div class="la-layout">
+
+    <div class="la-error-banner hidden" id="errorBanner"></div>
+
+    {# Reading overlay #}
+    <div class="la-reading-overlay" id="readingOverlay" style="display:none">
+        <div class="la-reading-card">
+            <div class="la-reading-icon">📋</div>
+            <div class="la-reading-title">Parsing log file…</div>
+            <div class="la-reading-name" id="readingFileName"></div>
+            <div class="la-reading-stats">
+                <span>Read: <strong id="readingBytes">0 MB</strong></span>
+                <span>Lines: <strong id="readingLines">0</strong></span>
+                <span>Entries: <strong id="readingEntries">0</strong></span>
+                <span>Errors: <strong id="readingErrors">0</strong></span>
+            </div>
+            <div class="la-reading-bar-bg"><div class="la-reading-bar-fill"></div></div>
+            <div class="la-reading-note">Parsed entirely in your browser — no upload needed.</div>
+        </div>
+    </div>
+
+    {# Empty state #}
+    <div class="la-empty-state" id="emptyState">
+        <div class="la-empty-icon">📋</div>
+        <div class="la-empty-title">No Log Loaded</div>
+        <div class="la-empty-sub">
+            Drop a Windchill <strong>MethodServer log4j</strong> file into the sidebar.<br>
+            Multiple files can be loaded together and merged by timestamp.
+        </div>
+    </div>
+
+    {# Virtual scroll table #}
+    <div class="la-virt-wrapper hidden" id="tableView"></div>
+
+    {# Raw view #}
+    <div class="la-raw-wrapper hidden" id="rawView">
+        <pre class="la-raw-pre" id="rawPre"></pre>
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block page_js %}
+<script src="{{ url_for('log_analyzer.static', filename='log_analyzer.js') }}"></script>
+<script>
+async function loadModuleHelpData() {
+    const idx = document.getElementById("helpModalIndexPane");
+    const cont = document.getElementById("helpModalContentPane");
+    if (!idx || !cont) return;
+    idx.innerHTML = "<div style='font-size:12px;color:#94a3b8;padding:12px;'>Loading…</div>";
+    try {
+        const r = await fetch("/api/help/log-analyzer");
+        const data = await r.json();
+        document.getElementById("helpModuleTitle").innerText = data.module_title;
+        idx.innerHTML = "";
+        data.topics.forEach(topic => {
+            const btn = document.createElement("button");
+            btn.className = "help-index-item";
+            btn.innerText = topic.title;
+            btn.onclick = () => {
+                document.querySelectorAll(".help-index-item").forEach(b => b.classList.remove("active-help-topic"));
+                btn.classList.add("active-help-topic");
+                cont.innerHTML = topic.content;
+            };
+            idx.appendChild(btn);
+        });
+        if (data.topics.length > 0) idx.firstChild.click();
+    } catch(err) {
+        idx.innerHTML = "<div style='color:#ef4444;padding:12px;font-size:12px;'>Failed to load help.</div>";
+    }
+}
+</script>
+{% endblock %}

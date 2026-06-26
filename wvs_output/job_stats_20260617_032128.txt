@@ -1,0 +1,18 @@
+Windchill WVS — Job Statistics Report
+Captured  : 20260617_032128
+Period    : 2026-06-16 → 2026-06-16
+Source    : https://vcewindchill.got.volvo.net/Windchill/ptc1/wvs/queueMonitorMain?containerOid=OR:wt.inf.container.OrgContainer:4678&u8=1
+
+══════════════════════════════════════════════════════════════════════
+  TABLE 1 — JOB SUMMARY STATISTICS (by Authoring Application)
+══════════════════════════════════════════════════════════════════════
+  (no data)
+
+
+══════════════════════════════════════════════════════════════════════
+  TABLE 2 — WORKER STATISTICS (by Worker Name)
+══════════════════════════════════════════════════════════════════════
+Worker Name         |  Total Jobs  |  Failed Jobs  |  Successful Jobs  |  % Failed Jobs  |  % Successful Jobs  |  Busy Time
+------------------  |  ----------  |  -----------  |  ---------------  |  -------------  |  -----------------  |  ---------
+Worker Utilization  |              |               |                   |                 |                     |           
+

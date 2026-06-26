@@ -1,6 +1,32 @@
 import re
 
 
+# ── Shared PTC case parser ────────────────────────────────────────────────────
+def parse_ptc_cases(raw):
+    """
+    Parse a PTC case field into a list of (display, numeric_id) tuples.
+
+    Handles:
+      - single:             "17979095"
+      - comma-separated:    "17979095, 17993513, 18004286"
+      - alpha-prefixed:     "C1234567"  →  display="C1234567", id="1234567"
+      - mixed:              "C1234567, 18007960"
+
+    Returns [] when value is empty / nan / "-".
+    """
+    if not raw:
+        return []
+    raw = str(raw).strip()
+    if raw.lower() in ("nan", "none", "nat", "-", ""):
+        return []
+    result = []
+    for part in [p.strip() for p in raw.split(",") if p.strip()]:
+        digits = re.sub(r"[^0-9]", "", part)
+        if digits:
+            result.append((part, digits))   # (original display, numeric id)
+    return result
+
+
 def extract_azure_id(text):
     if not text:
         return None
@@ -14,6 +40,16 @@ def extract_azure_id(text):
 
 
 def get_url(field, value):
+    """
+    Return a URL for a known field type and value.
+
+    field values:
+        "incident"         → ServiceNow incident URL
+        "azure bug"        → Azure DevOps VCEWindchillPLM work item URL
+        "ptc case"         → PTC case support URL
+        "azure_vpa"        → Azure DevOps VPA user story URL  (NEW)
+        "ptc_article"      → PTC article URL                  (NEW)
+    """
     if not value or value == "-":
         return None
 
@@ -38,18 +74,35 @@ def get_url(field, value):
             f"appserver/cs/view/case.jsp?n={value}"
         )
 
+    # ── NEW: VPA Azure user story (from references_service) ──────────────────
+    elif field == "azure_vpa":
+        return (
+            "https://dev.azure.com/VolvoGroup-DVP/VPA/"
+            f"_workitems/edit/{value}"
+        )
+
+    # ── NEW: PTC article (from references_service) ───────────────────────────
+    elif field == "ptc_article":
+        return (
+            f"https://www.ptc.com/en/support/article/{value}"
+        )
+
     return None
 
 
 # ---------------- PDF LINKS ---------------- #
 def make_pdf_link(value, url, styles):
+    """
+    Render a clickable PDF link — black text, no underline.
+    Matches the document-wide hyperlink style preference.
+    """
     from reportlab.platypus import Paragraph
 
     if not value or not url:
         return Paragraph("-", styles["Normal"])
 
     return Paragraph(
-        f'<link href="{url}">{value}</link>',
+        f'<link href="{url}" color="#000000">{value}</link>',
         styles["Normal"]
     )
 

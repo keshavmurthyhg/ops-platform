@@ -37,15 +37,12 @@ from common.utils.parsers import (
 #  CONSTANTS
 # ─────────────────────────────────────────────
 
+# Load ALL statuses — JS filter handles initial view (On Hold / Info Received)
+# Users can then filter to Closed, Cancelled etc via sidebar
 ACTIVE_STATES = [
-    "new",
-    "active",
-    "approved",
-    "committed",
-    "in progress",
-    "on hold",
-    "information received",
-    "spr filed",
+    "new", "active", "approved", "committed",
+    "in progress", "on hold", "information received",
+    "spr filed", "closed", "resolved", "cancelled", "rejected",
 ]
 
 

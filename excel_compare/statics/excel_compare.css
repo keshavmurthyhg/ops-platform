@@ -78,30 +78,24 @@
 }
 
 /* =========================================================================
-   3. METRIC KPI STRIP & SHEET MULTITABS
-   Layout row for dynamic cross-tab comparisons and workbook sheet lookups
+   3. METRIC KPI STRIP (now just the sheet tab row)
    ========================================================================= */
 .ec-kpi-strip {
-    height: 52px; 
-    background: white; 
+    height: 44px;
+    background: white;
     border-bottom: 1px solid #e2e8f0;
-    display: flex; 
-    align-items: center; 
-    padding: 0 20px; 
-    gap: 20px; 
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 6px;
     flex-shrink: 0;
 }
 
-.kpi-box { display: flex; align-items: baseline; gap: 6px; font-size: 12px; }
-.kpi-box strong { font-size: 18px; color: #1e293b; }
-.kpi-box.mod strong { color: #b45309; }
-.kpi-box.add strong { color: #15803d; }
-.kpi-box.rem strong { color: #b91c1c; }
-
 .sheet-tabs-container { 
-    margin-left: auto; 
     display: flex; 
-    gap: 6px; 
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow: hidden;
 }
 
 .tab-btn { 
@@ -357,3 +351,140 @@ td.gt { background: #e2e8f0; text-align: center; color: #64748b; font-size: 11px
 .help-icon { font-size: 24px; margin-bottom: 12px; }
 .help-card h4 { margin-bottom: 8px; color: #1e293b; }
 .help-card p { font-size: 13px; color: #64748b; line-height: 1.4; }
+/* =========================================================================
+   SIDEBAR KPI BOXES (below legend)
+   ========================================================================= */
+.ec-kpi-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 4px;
+}
+
+.ec-kpi-sidebar-box {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.ec-kpi-sidebar-box strong {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+}
+.ec-kpi-sidebar-box small {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.ec-kpi-sidebar-box.add strong { color: #4ade80; }
+.ec-kpi-sidebar-box.rem strong { color: #f87171; }
+.ec-kpi-sidebar-box.mod strong { color: #fbbf24; }
+.ec-kpi-sidebar-box.tot strong { color: #e2e8f0; }
+
+
+/* =========================================
+   ANIMATED PROGRESS BAR — OPS style
+   Classes applied by updateProcessingStatus()
+========================================= */
+
+@keyframes ops-shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+}
+
+.ops-bar-processing {
+    background: linear-gradient(
+        90deg,
+        #3b82f6 0%,
+        #60a5fa 40%,
+        #3b82f6 60%,
+        #1d4ed8 100%
+    ) !important;
+    background-size: 200% auto !important;
+    animation: ops-shimmer 1.6s linear infinite !important;
+}
+
+.ops-bar-completed {
+    background: #22c55e !important;
+    transition: width 0.4s ease !important;
+}
+
+.ops-bar-failed {
+    background: #ef4444 !important;
+}
+
+
+/* =========================================
+   STATUS META ROWS (sidebar footer)
+========================================= */
+
+.report-status-meta {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+
+.status-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   HELP INDEX BUTTONS (inside modal)
+========================================= */
+
+.help-index-item
+
+/* =========================================
+   HELP MODAL LEFT PANE BUTTONS
+   Dark text on light background (#f8fafc)
+   matches common.css help-modal-left-pane
+========================================= */
+
+.help-topic-btn,
+.help-index-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.help-topic-btn:hover,
+.help-index-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-left-color: #cbd5e1;
+}
+
+.help-topic-btn.active-help-topic,
+.help-index-item.active-help-topic {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
+    border-left-color: #0ea5e9;
+}
+

@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-import subprocess
+
 
 from io import BytesIO
 from datetime import datetime
@@ -37,6 +37,8 @@ from common.utils.links import (
 from operations_center.module.ops_azure_collector import (
     azure_cases
 )
+
+
 
 operations_center_bp = Blueprint(
     "operations_center",
@@ -121,7 +123,14 @@ def operations_center():
     )
 
     
-    dashboard_data["azure_data"] = azure_cases
+    # Use loader's TRACKER_USERS filtered data + merge user stories
+    try:
+        from operations_center.module.ops_user_stories_collector import user_stories
+        merged = list(dashboard_data["azure_data"]) + list(user_stories)
+        merged.sort(key=lambda r: r.get("raw_created_date",""), reverse=True)
+        dashboard_data["azure_data"] = merged
+    except Exception:
+        pass  # user_stories module optional
 
 
     # -----------------------------------
@@ -188,7 +197,10 @@ def operations_center():
             dashboard_data["ptc_data"],
 
         summary=
-            dashboard_data["summary"]
+            dashboard_data["summary"],
+
+        data_ages=
+            dashboard_data.get("data_ages", {})
     )
 
 @operations_center_bp.route(
@@ -237,7 +249,10 @@ def refresh_operations_data():
             dashboard_data["ptc_data"],
 
         "summary":
-            dashboard_data["summary"]
+            dashboard_data["summary"],
+
+        "data_ages":
+            dashboard_data.get("data_ages", {})
     })
 
 @operations_center_bp.route(
@@ -277,31 +292,63 @@ def launch_edge_debug_route():
 
 
 @operations_center_bp.route(
-    "/api/operations-center/refresh-ptc",
+    "/api/operations-center/upload-data",
     methods=["POST"]
 )
+def upload_data_file():
+    """
+    Accept a CSV/XLSX file upload and save it to the data/ folder
+    with the canonical name supplied as 'dest' (Snow.xlsx / Azure.csv / Ptc.csv).
+    """
+    ALLOWED_DESTS = {"Snow.xlsx", "Azure.csv", "Ptc.csv"}
+
+    try:
+        if "file" not in request.files:
+            return jsonify({"success": False, "message": "No file in request"}), 400
+
+        f    = request.files["file"]
+        dest = request.form.get("dest", "").strip()
+
+        if not dest or dest not in ALLOWED_DESTS:
+            return jsonify({
+                "success": False,
+                "message": f"Invalid destination '{dest}'. Must be one of: {', '.join(ALLOWED_DESTS)}"
+            }), 400
+
+        if not f.filename:
+            return jsonify({"success": False, "message": "No filename"}), 400
+
+        data_dir = Path("data")
+        data_dir.mkdir(parents=True, exist_ok=True)
+
+        save_path = data_dir / dest
+        f.save(str(save_path))
+
+        size_kb = save_path.stat().st_size // 1024
+
+        return jsonify({
+            "success": True,
+            "message": f"Saved {dest} ({size_kb:,} KB)",
+            "file":    str(save_path)
+        })
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+
 def refresh_ptc_csv_route():
     """
-    Executes the direct Python script to hook onto the open Edge session,
-    download the file, and save it to data/Ptc.csv.
+    Trigger a fresh PTC Case Tracker CSV download via Selenium.
+    Requires Edge to be running in debug mode on port 9222.
     """
-    try:
-        # Launch automation process
-        result = download_latest_ptc_csv()
-        
-        # Return status output structure safely to let client handle coloration and display logic
-        return jsonify({
-            "success": result.get("success", False),
-            "message": result.get("message", "Data processing terminated"),
-            "detail": result.get("detail", "")
-        })
-            
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "message": "Failed to execute PTC data refresh",
-            "detail": str(e)
-        })
+    result = download_latest_ptc_csv()
+
+    return jsonify({
+        "success": result["success"],
+        "message": result["message"],
+        "file":    result.get("file"),
+    })
 
 
 @operations_center_bp.route(
@@ -394,3 +441,243 @@ def get_azure_cases():
 
 
 
+# =============================================================================
+#  USER GROUP ROUTES — for group-based filtering in Azure tracker
+# =============================================================================
+
+@operations_center_bp.route("/api/operations-center/user-groups", methods=["GET"])
+def get_user_groups():
+    """Return group → [users] mapping from data/user_group_mapping.csv."""
+    import csv as _csv
+    from pathlib import Path
+    mapping_file = Path("data") / "user_group_mapping.csv"
+    groups = {}  # { display_name: group_name }
+    try:
+        if mapping_file.exists():
+            with open(mapping_file, encoding="utf-8") as f:
+                for row in _csv.DictReader(f):
+                    name  = (row.get("Name","") or "").strip()
+                    group = (row.get("Group","") or "").strip().upper()
+                    if name and group:
+                        groups[name] = group
+    except Exception as e:
+        log.error(f"user_group_mapping load error: {e}")
+    return jsonify({"success": True, "groups": groups})
+
+
+@operations_center_bp.route("/api/operations-center/user-groups", methods=["POST"])
+def save_user_groups():
+    """Save or update user→group mappings."""
+    import csv as _csv
+    from pathlib import Path
+    payload = request.get_json() or {}
+    updates = payload.get("groups", {})  # { "Pradnya Shinde": "WINDCHILL_TEAM" }
+    mapping_file = Path("data") / "user_group_mapping.csv"
+    mapping_file.parent.mkdir(parents=True, exist_ok=True)
+
+    existing = {}
+    if mapping_file.exists():
+        with open(mapping_file, encoding="utf-8") as f:
+            for row in _csv.DictReader(f):
+                name  = (row.get("Name","") or "").strip()
+                group = (row.get("Group","") or "").strip()
+                if name:
+                    existing[name] = group
+
+    existing.update(updates)
+    with open(mapping_file, "w", newline="", encoding="utf-8") as f:
+        w = _csv.DictWriter(f, fieldnames=["Name","Group"])
+        w.writeheader()
+        for name, group in sorted(existing.items()):
+            w.writerow({"Name": name, "Group": group.upper()})
+
+    return jsonify({"success": True, "saved": len(existing)})
+
+
+# =============================================================================
+#  REPORT ROUTES — Daily / Weekly / Summary / Range / Excel / PDF / Digest
+#  Appended to operations_center_routes.py
+# =============================================================================
+
+def _load_module(name):
+    try:
+        import importlib
+        for p in (f"common.utils.{name}", f"operations_center.module.{name}"):
+            try: return importlib.import_module(p)
+            except ImportError: pass
+    except Exception: pass
+    return None
+
+_re  = _load_module("report_engine")
+_dg  = _load_module("email_digest")
+
+
+def _ops_data():
+    d = get_operations_dashboard_data()
+    return dict(
+        support_data  = d.get("support_data",  []),
+        failure_data  = d.get("failure_data",  []),
+        incident_data = d.get("incident_data", []),
+        azure_data    = azure_cases,
+        ptc_data      = d.get("ptc_data",      []),
+    )
+
+def _wm_data():
+    import os, csv
+    transactions = worker_stats = []
+    wvs_queue = []
+    try:
+        from windchill_monitoring.module.windchill_scraper import scrape_windchill_data
+        snap = scrape_windchill_data(status_mode="FAILED")
+        transactions = snap.get("transactions", [])
+        worker_stats = snap.get("worker_stats", [])
+    except Exception:
+        pass
+    try:
+        p = os.path.join("data","history","wvs_queue_history.csv")
+        if os.path.exists(p):
+            latest = ""
+            with open(p, encoding="utf-8") as f:
+                for r in csv.DictReader(f):
+                    ts = r.get("captured_at","") or ""
+                    if ts > latest: latest = ts
+            if latest:
+                with open(p, encoding="utf-8") as f:
+                    for r in csv.DictReader(f):
+                        if (r.get("captured_at","") or "") == latest:
+                            wvs_queue.append(dict(r))
+    except Exception:
+        pass
+    return dict(transactions=transactions, wvs_queue=wvs_queue, worker_stats=worker_stats)
+
+def _parse_date_arg(s):
+    if not s: return None
+    from datetime import date as _d
+    try: return _d.fromisoformat(s)
+    except Exception: return None
+
+
+# ── Main report generator ─────────────────────────────────────────────────────
+@operations_center_bp.route("/api/operations-center/generate-report", methods=["POST"])
+def generate_report():
+    if not _re:
+        return jsonify({"success":False,"message":"report_engine.py not found"}), 500
+    try:
+        from flask import Response
+        payload      = request.get_json() or {}
+        report_type  = payload.get("report_type",  "daily_report")
+        from_date    = _parse_date_arg(payload.get("from_date",""))
+        to_date      = _parse_date_arg(payload.get("to_date",""))
+        date_label   = payload.get("date_label", str(from_date or ""))
+        trackers     = payload.get("trackers",   ["failure","support","incident","azure","ptc","wm_tx","wvs","workers"])
+        fmt          = payload.get("format",     "html")
+        settings     = payload.get("settings",   {})
+        now          = datetime.now().strftime("%d %b %Y %H:%M")
+
+        ops = _ops_data()
+        wm  = _wm_data()
+
+        kwargs = dict(
+            report_type   = report_type,
+            date_label    = date_label,
+            now           = now,
+            support_data  = ops["support_data"],
+            failure_data  = ops["failure_data"],
+            incident_data = ops["incident_data"],
+            azure_data    = ops["azure_data"],
+            ptc_data      = ops["ptc_data"],
+            transactions  = wm["transactions"],
+            wvs_queue     = wm["wvs_queue"],
+            worker_stats  = wm["worker_stats"],
+            trackers      = trackers,
+            settings      = settings,
+            from_date     = from_date,
+            to_date       = to_date,
+        )
+
+        if fmt == "excel":
+            data     = _re.build_excel_report(**kwargs)
+            ts       = datetime.now().strftime("%Y%m%d_%H%M")
+            filename = f"ops_{report_type}_{ts}.xlsx"
+            return Response(
+                data,
+                mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                headers  = {"Content-Disposition": f'attachment; filename="{filename}"'}
+            )
+
+        # HTML (also used for PDF — browser prints it)
+        html = _re.build_html_report(**kwargs)
+        if fmt == "pdf":
+            # Return HTML with print-on-load for PDF save
+            html = html.replace(
+                "<script>",
+                "<script>window.addEventListener('load',function(){setTimeout(function(){window.print();},800);});"
+            )
+        return Response(html, mimetype="text/html")
+
+    except Exception as e:
+        log.error(f"Report generation failed: {e}", exc_info=True)
+        if request.get_json({}).get("format","") == "html":
+            return Response(f"<h2>Report Error: {e}</h2>", mimetype="text/html")
+        return jsonify({"success":False,"message":str(e)}), 500
+
+
+# ── Digest routes (unchanged) ─────────────────────────────────────────────────
+@operations_center_bp.route("/api/operations-center/prepare-digest/<digest_type>", methods=["POST"])
+def prepare_digest(digest_type):
+    if not _dg:
+        return jsonify({"success":False,"message":"email_digest.py not found"}), 500
+    if digest_type not in _dg.DIGEST_TYPES:
+        return jsonify({"success":False,"message":f"Unknown type. Valid: {_dg.DIGEST_TYPES}"}), 400
+    try:
+        wm_types = ("wm_transactions","wvs_queue","worker_stats","weekly_summary")
+        kwargs   = {**_ops_data(), **(_wm_data() if digest_type in wm_types else {})}
+        return jsonify(_dg.prepare_daily_digest(digest_type, **kwargs))
+    except Exception as e:
+        return jsonify({"success":False,"message":str(e)}), 500
+
+
+@operations_center_bp.route("/api/operations-center/prepare-all-digests", methods=["POST"])
+def prepare_all_digests():
+    if not _dg:
+        return jsonify({"success":False,"message":"email_digest.py not found"}), 500
+    try:
+        kwargs  = {**_ops_data(), **_wm_data()}
+        results = _dg.prepare_all_digests(**kwargs)
+        alerts  = [r for r in results if r.get("is_alert")]
+        return jsonify({
+            "success"    : True,
+            "total"      : len(results),
+            "alerts"     : len(alerts),
+            "alert_types": [r["digest_type"] for r in alerts],
+            "results"    : results,
+            "folder"     : str(_dg.DIGEST_BASE / datetime.now().strftime("%Y-%m-%d")),
+        })
+    except Exception as e:
+        return jsonify({"success":False,"message":str(e)}), 500
+
+
+@operations_center_bp.route("/api/operations-center/list-digests", methods=["GET"])
+def list_digests():
+    if not _dg: return jsonify({"success":False,"digests":[]})
+    try:
+        days = int(request.args.get("days",7))
+        return jsonify({"success":True,"digests":_dg.list_saved_digests(days)})
+    except Exception as e:
+        return jsonify({"success":False,"message":str(e),"digests":[]})
+
+
+@operations_center_bp.route("/api/operations-center/view-digest", methods=["GET"])
+def view_digest():
+    from flask import Response, abort
+    from pathlib import Path
+    html_file = request.args.get("file","")
+    if not html_file: abort(400,"Missing file parameter")
+    try:
+        p = Path(html_file)
+        if "email_digests" not in str(p): abort(403,"Access denied")
+        return Response(p.read_text(encoding="utf-8"), mimetype="text/html")
+    except FileNotFoundError:
+        abort(404,"Digest file not found — regenerate the digest")
+    except Exception as e:
+        return f"<h2>Error: {e}</h2>", 500

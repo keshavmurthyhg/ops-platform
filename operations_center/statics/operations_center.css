@@ -166,12 +166,13 @@
    TOOLBAR
 ========================================== */
 
-.toolbar-left{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:nowrap;
-    overflow:hidden;
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Creates the distinct Left, Center, Right zones */
+    width: 100%;
+    gap: 0;
+    overflow: visible;
 }
 
 /* ==========================================
@@ -1108,4 +1109,1671 @@ body:has(#ptcSection) {
 #dashboardSection.active-section {
     display: flex;
     flex-direction: column;
+}
+
+
+/* Zone 1 & 3: Lock down identical sizing constraints on outer sections for structural balance */
+.toolbar-left > .primary-btn:not(.tracker-btn) {
+    flex: 0 0 140px;
+    height: 32px;
+    box-sizing: border-box;
+}
+
+/* Zone 2: Perfectly center-aligned workspace tab strip container */
+.nav-tabs-center-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* Tight, standardized gaps to eliminate uneven separation or overlaps */
+    flex: 1;
+}
+
+.nav-tabs-center-group .tracker-btn {
+    min-width: 95px; /* Unified base width constraints */
+    max-width: 120px;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Windchill View — icon+label button, always pinned to extreme right */
+.windchill-switcher-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #1a2e4a 100%) !important;
+    color: #93c5fd !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+.windchill-switcher-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a5f 100%) !important;
+    border-color: #60a5fa !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(37,99,235,0.4);
+    transform: translateY(-1px);
+}
+
+.windchill-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    animation: windchill-spin 8s linear infinite;
+    transform-origin: center;
+}
+.windchill-switcher-btn:hover .windchill-icon {
+    animation-duration: 2s;
+}
+@keyframes windchill-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.windchill-switcher-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+/* Keep old .app-switcher-btn as fallback alias */
+.app-switcher-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+/* ============================================================
+   UPLOAD DATA FILES — sidebar button + modal
+   ============================================================ */
+
+.upload-data-btn {
+    background: linear-gradient(135deg, #16a34a, #15803d) !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+.upload-data-btn:hover {
+    background: linear-gradient(135deg, #15803d, #166534) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22,163,74,0.35);
+}
+
+/* Overlay */
+.upload-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+/* Modal box */
+.upload-modal-box {
+    background: var(--bg-card, #fff);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 520px;
+    max-width: 95vw;
+    padding: 28px 32px 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.upload-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.upload-modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary, #111);
+}
+.upload-modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-muted, #888);
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+.upload-modal-close:hover { background: rgba(0,0,0,0.08); }
+
+.upload-modal-desc {
+    font-size: 13px;
+    color: var(--text-muted, #555);
+    margin: 0;
+    line-height: 1.5;
+}
+.upload-modal-desc code {
+    background: rgba(0,0,0,0.07);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* Individual upload zone */
+.upload-zone {
+    border: 1.5px solid var(--border, #e2e8f0);
+    border-radius: 10px;
+    padding: 14px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color 0.2s;
+}
+.upload-zone.zone-success { border-color: #16a34a; background: #f0fdf4; }
+.upload-zone.zone-error   { border-color: #dc2626; background: #fef2f2; }
+
+.upload-zone-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.upload-zone-icon { font-size: 16px; }
+.upload-zone-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary, #111);
+}
+.upload-zone-dest {
+    font-size: 11px;
+    color: var(--text-muted, #888);
+    margin-left: auto;
+    font-family: monospace;
+    background: rgba(0,0,0,0.05);
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.upload-zone-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Hide the real file input visually */
+.upload-zone-row input[type="file"] {
+    display: none;
+}
+.upload-file-label {
+    background: var(--accent, #2563eb);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+.upload-file-label:hover { background: #1d4ed8; }
+
+.upload-file-chosen {
+    font-size: 12px;
+    color: var(--text-muted, #666);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 260px;
+}
+
+.upload-zone-status {
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 16px;
+}
+.upload-zone-status.status-ok    { color: #16a34a; }
+.upload-zone-status.status-err   { color: #dc2626; }
+.upload-zone-status.status-info  { color: #2563eb; }
+
+/* Footer buttons */
+.upload-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+.upload-btn-upload {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+.upload-btn-upload:hover  { opacity: 0.9; transform: translateY(-1px); }
+.upload-btn-upload:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.upload-btn-cancel {
+    background: var(--bg-muted, #f1f5f9);
+    color: var(--text-primary, #333);
+    border: 1.5px solid var(--border, #e2e8f0);
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.upload-btn-cancel:hover { background: #e2e8f0; }
+
+.upload-modal-overall {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    min-height: 18px;
+}
+
+
+/* ============================================================
+   DATA COLLECTORS — dock section styles
+   ============================================================ */
+
+/* Sub-label above each collector group (Incidents / Azure / PTC) */
+.collector-group-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.5);
+    margin-top: 18px;
+    margin-bottom: 6px;
+    padding-left: 2px;
+}
+.collector-group-label:first-child {
+    margin-top: 4px;
+}
+
+/* Base collector button — inherits sidebar-btn sizing, adds flex layout */
+.collector-btn {
+    width: 100%;
+    height: 36px;
+    margin-bottom: 8px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.15s, transform 0.1s, opacity 0.15s;
+    border: 1px solid transparent;
+}
+.collector-btn:hover   { transform: translateY(-1px); }
+.collector-btn:active  { transform: translateY(0); }
+.collector-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Incidents / ServiceNow — teal */
+.collector-snow-btn {
+    background: #134e4a;
+    color: #5eead4;
+    border-color: #0f766e;
+}
+.collector-snow-btn:hover:not(:disabled) {
+    background: #0f766e;
+}
+
+/* Azure — blue */
+.collector-azure-btn {
+    background: #1e3a5f;
+    color: #93c5fd;
+    border-color: #1d4ed8;
+}
+.collector-azure-btn:hover:not(:disabled) {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+/* PTC Edge Launch — slate */
+.collector-edge-btn {
+    background: #1a3a5c;
+    color: #90caf9;
+    border-color: #2a5298;
+}
+.collector-edge-btn:hover:not(:disabled) {
+    background: #1e4a7a;
+}
+
+/* PTC Refresh — green */
+.collector-ptc-btn {
+    background: #14532d;
+    color: #86efac;
+    border-color: #166534;
+}
+.collector-ptc-btn:hover:not(:disabled) {
+    background: #166534;
+}
+
+/* Upload — amber */
+.collector-upload-btn {
+    background: #451a03;
+    color: #fcd34d;
+    border-color: #b45309;
+}
+.collector-upload-btn:hover:not(:disabled) {
+    background: #92400e;
+    color: #fff;
+}
+
+/* Status text below each button */
+.collector-status {
+    font-size: 11px;
+    line-height: 1.45;
+    color: #cfd8e3;
+    margin-top: -4px;
+    margin-bottom: 4px;
+    min-height: 14px;
+    word-break: break-word;
+}
+.collector-status.status-ok  { color: #4ade80; }
+.collector-status.status-err { color: #f87171; }
+.collector-status.status-run { color: #93c5fd; }
+
+/* "How to set up" help link */
+.collector-help-link {
+    font-size: 10px;
+    margin-top: 2px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+.collector-help-link a {
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+}
+.collector-help-link a:hover {
+    color: rgba(255,255,255,0.8);
+    text-decoration: underline;
+}
+
+
+/* ============================================================
+   MINI CARDS — extended height, thin scrollbar, last-update footer
+   ============================================================ */
+
+/* Make the cards taller to show more rows */
+.dashboard-tables-row {
+    min-height: 340px;
+}
+
+.dashboard-mini-card {
+    min-height: 320px;
+    max-height: 520px;
+}
+
+/* Thin, light webkit scrollbar for notif-list — like Windchill view */
+.notif-list {
+    scrollbar-width: thin;                        /* Firefox */
+    scrollbar-color: rgba(180,190,210,0.45) transparent;
+}
+.notif-list::-webkit-scrollbar {
+    width: 4px;
+}
+.notif-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.notif-list::-webkit-scrollbar-thumb {
+    background: rgba(180,190,210,0.45);
+    border-radius: 4px;
+}
+.notif-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(140,155,185,0.7);
+}
+
+/* Footer bar — last updated KPI */
+.mini-card-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 4px 2px;
+    margin-top: 4px;
+    border-top: 1px solid #f0f0f0;
+    font-size: 10.5px;
+    color: #9ca3af;
+    line-height: 1.3;
+}
+.mini-card-footer strong {
+    color: #6b7280;
+    font-weight: 600;
+}
+.mini-card-footer-icon {
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+
+/* =============================================================================
+   OPERATIONS CENTER — UNIFIED ADDITIONS
+   Progress bar, help modal, and shared card-height alignment.
+   ============================================================================= */
+
+
+/* ── 1. PROGRESS STATUS BAR — thin 4 px green bar (DCN Analytics style) ─────
+   The existing .search-progress-bar / .search-progress-fill already exist in
+   the template; these rules override height and colour only.                  */
+.search-progress-bar {
+    height: 4px !important;
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 6px;
+    width: 100%;
+}
+.search-progress-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #22c55e 0%, #4ade80 100%);
+    transition: width 0.35s ease;
+}
+.search-progress-fill.active-progress {
+    animation: ops-progress-pulse 1.2s ease-in-out infinite;
+}
+@keyframes ops-progress-pulse {
+    0%   { opacity: 0.7; }
+    50%  { opacity: 1;   }
+    100% { opacity: 0.7; }
+}
+
+
+/* ── 2. HELP MODAL — same structure/style as DCN Analytics + Windchill ───────
+   Triggered by the ? button in the common toolbar (common JS).                */
+.ops-help-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+}
+.ops-help-backdrop.hidden { display: none; }
+
+.ops-help-window {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+    width: 860px;
+    max-width: 95vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.ops-help-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px 16px;
+    background: #183153;
+    border-radius: 14px 14px 0 0;
+    flex-shrink: 0;
+}
+.ops-help-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ops-help-close {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.15s, color 0.15s;
+}
+.ops-help-close:hover { background: rgba(255,255,255,0.22); color: #f1f5f9; }
+
+.ops-help-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+.ops-help-index {
+    width: 220px;
+    flex-shrink: 0;
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+}
+.ops-help-nav-btn {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.ops-help-nav-btn:hover  { background: #e2e8f0; color: #111827; }
+.ops-help-nav-btn.active { background: #183153; color: #f1f5f9; font-weight: 700; }
+
+.ops-help-content {
+    flex: 1;
+    padding: 24px 28px;
+    overflow-y: auto;
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.65;
+}
+.ops-help-content h3    { font-size: 16px; font-weight: 700; color: #183153; margin: 0 0 10px; }
+.ops-help-content p     { margin: 0 0 10px; }
+.ops-help-content ul    { padding-left: 18px; margin: 0 0 10px; }
+.ops-help-content li    { margin-bottom: 5px; }
+.ops-help-content strong { color: #183153; }
+.ops-help-content code  {
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+
+/* ── 3. MINI CARD left-border separator per notification ─────────────────────
+   Already defined as .notif-snow / .notif-azure / .notif-ptc in existing CSS.
+   This section makes them visually taller/extended.                           */
+.dashboard-mini-card {
+    min-height: 340px;
+    max-height: 540px;
+}
+
+/* ── 4. UNIFIED CARD HEIGHTS across OPS and Windchill modules ────────────────
+   KPI tiles share the same minimum height on both pages.                      */
+.dashboard-kpi-tile {
+    min-height: 100px;
+}
+
+/* Help trigger button — sits next to Windchill switcher in toolbar */
+.ops-help-trigger-btn {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid #d1d5db;
+    background: #f8fafc;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.ops-help-trigger-btn:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+
+/* =============================================================================
+   OPS MINI CARDS — FINAL HEIGHT FIX (matches Windchill wm-cards-grid style)
+   The dashboard content area is a flex column; dashboard-tables-row must flex:1
+   so cards fill the remaining height exactly like wm-mini-card does.
+   ============================================================================= */
+
+/* Dashboard content wrapper — fill full column height */
+#dashboardSection {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    padding: 16px !important;
+    gap: 14px !important;
+    box-sizing: border-box !important;
+}
+
+/* KPI row — shrink to content only */
+.dashboard-kpi-row {
+    flex-shrink: 0 !important;
+}
+
+/* Mini cards row — fill ALL remaining height below KPI row */
+.dashboard-tables-row {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+}
+
+/* Each mini card — fills its grid cell with flex column */
+.dashboard-mini-card {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    border-radius: 10px !important;
+    border: 1px solid #e5e7eb !important;
+    padding: 12px 14px !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06) !important;
+}
+
+/* Header — fixed height, never shrinks */
+.mini-card-header {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 8px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* Scrollable notif list — fills all space between header and footer */
+.notif-list {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 4px 0 !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(180,190,210,0.45) transparent !important;
+}
+.notif-list::-webkit-scrollbar       { width: 4px; }
+.notif-list::-webkit-scrollbar-track { background: transparent; }
+.notif-list::-webkit-scrollbar-thumb { background: rgba(180,190,210,0.45); border-radius: 4px; }
+.notif-list::-webkit-scrollbar-thumb:hover { background: rgba(140,155,185,0.7); }
+
+/* Footer — fixed, always visible at bottom */
+.mini-card-footer {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    padding: 6px 4px 2px !important;
+    margin-top: 4px !important;
+    border-top: 1px solid #f0f0f0 !important;
+    font-size: 10.5px !important;
+    color: #9ca3af !important;
+}
+.mini-card-footer strong { color: #6b7280; font-weight: 600; }
+
+/* Scrollable content area — ensure no extra padding for dashboard section */
+.scrollable-report-content:has(#dashboardSection.active-section),
+.scrollable-report-content:has(#dashboardSection[style*="flex"]) {
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* ── HELP MODAL FIXED HEIGHT (common .help-modal-window is 75vh) ─────────────
+   Prevent right pane from changing modal height when switching topics.        */
+.help-modal-right-pane {
+    overflow-y: auto !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+}
+.help-modal-body {
+    overflow: hidden !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+}
+
+
+/* =============================================================================
+   OPS CENTER — PROGRESS BAR STATE CLASSES
+   Applied by updateProcessingStatus() to the common #progressFill element.
+   ============================================================================= */
+
+/* Slim 4 px bar */
+.progress-bar-bg {
+    height: 4px !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    background: rgba(255,255,255,0.15) !important;
+}
+.progress-bar-fill,
+#progressFill {
+    height: 100% !important;
+    border-radius: 20px !important;
+    background: #22c55e !important;
+    transition: width 0.4s ease, background 0.3s ease !important;
+}
+
+/* Processing: orange + blink */
+.ops-bar-processing {
+    background: #f59e0b !important;
+    animation: ops-blink 0.9s ease-in-out infinite !important;
+}
+
+/* Completed: green + stable */
+.ops-bar-completed {
+    background: #22c55e !important;
+    animation: none !important;
+}
+
+/* Failed: red + blink */
+.ops-bar-failed {
+    background: #ef4444 !important;
+    animation: ops-blink 0.7s ease-in-out infinite !important;
+}
+
+@keyframes ops-blink {
+    0%   { opacity: 1;   }
+    50%  { opacity: 0.5; }
+    100% { opacity: 1;   }
+}
+
+
+/* =============================================================================
+   OPS CENTER — COMPLETE LAYOUT OVERHAUL  (all rules below override earlier ones)
+   Approach: dashboard always visible, detail panel slides over it.
+   ============================================================================= */
+
+/* ── Scrollable content area — remove padding when showing dashboard ─────── */
+.scrollable-report-content {
+    padding: 12px !important;
+    gap: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+    height: calc(100vh - 106px) !important;  /* viewport minus topnav+toolbar */
+}
+
+/* ── Dashboard wrapper — fills the content area ──────────────────────────── */
+.ops-dashboard-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+    min-height: 0;
+    transition: opacity 0.25s ease;
+}
+
+/* ── KPI TILES ROW ───────────────────────────────────────────────────────── */
+.ops-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.ops-kpi-tile {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #e5e7eb;  /* accent overridden per type */
+    padding: 12px 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: box-shadow 0.15s, transform 0.1s;
+    min-height: 90px;
+}
+.ops-kpi-tile:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.1);
+    transform: translateY(-2px);
+}
+.ops-tile-icon { font-size: 20px; }
+.ops-tile-val  { font-size: 28px; font-weight: 800; line-height: 1; }
+.ops-tile-label { font-size: 12px; font-weight: 600; color: #374151; }
+.ops-tile-sub   { font-size: 10.5px; color: #9ca3af; }
+
+/* Per-tile accent colours */
+.ops-tile-support  { border-left-color: #3b82f6 !important; }
+.ops-tile-support  .ops-tile-val { color: #3b82f6; }
+.ops-tile-failure  { border-left-color: #ef4444 !important; }
+.ops-tile-failure  .ops-tile-val { color: #ef4444; }
+.ops-tile-snow     { border-left-color: #f28c38 !important; }
+.ops-tile-snow     .ops-tile-val { color: #f28c38; }
+.ops-tile-azure    { border-left-color: #0ea5e9 !important; }
+.ops-tile-azure    .ops-tile-val { color: #0ea5e9; }
+.ops-tile-ptc      { border-left-color: #8b5cf6 !important; }
+.ops-tile-ptc      .ops-tile-val { color: #8b5cf6; }
+
+/* ── MINI CARDS ROW ──────────────────────────────────────────────────────── */
+.ops-mini-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+}
+
+.ops-mini-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.ops-mini-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+.ops-mini-title { font-size: 12px; font-weight: 700; color: #111827; }
+.ops-mini-link  {
+    font-size: 11px; font-weight: 600; color: #f28c38;
+    cursor: pointer; text-decoration: none;
+}
+.ops-mini-link:hover { text-decoration: underline; }
+
+.ops-mini-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(180,190,210,.45) transparent;
+}
+.ops-mini-body::-webkit-scrollbar       { width: 4px; }
+.ops-mini-body::-webkit-scrollbar-track { background: transparent; }
+.ops-mini-body::-webkit-scrollbar-thumb { background: rgba(180,190,210,.45); border-radius: 4px; }
+
+.ops-notif-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f4f4f5;
+    border-left: 3px solid transparent;
+    font-size: 11px;
+    transition: background 0.1s;
+}
+.ops-notif-item:last-child { border-bottom: none; }
+.ops-notif-item:hover      { background: #f9fafb; }
+
+/* Left accent colours per data source */
+.ops-notif-snow  { border-left-color: #f28c38; }
+.ops-notif-azure { border-left-color: #0ea5e9; }
+.ops-notif-ptc   { border-left-color: #8b5cf6; }
+
+.ops-notif-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+}
+.ops-notif-num  { font-weight: 700; color: #111827; }
+.ops-notif-who  { color: #6b7280; font-size: 10.5px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ops-notif-desc { color: #6b7280; font-size: 10.5px; line-height: 1.4; }
+.ops-notif-empty { padding: 16px 12px; color: #9ca3af; font-size: 11px; text-align: center; }
+
+/* Status pills */
+.ops-status-pill {
+    font-size: 10px; font-weight: 700; padding: 1px 6px;
+    border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+}
+.ops-status-pill.ops-status-on-hold        { background: #fee2e2; color: #dc2626; }
+.ops-status-pill.ops-status-in-progress    { background: #fef3c7; color: #b45309; }
+.ops-status-pill.ops-status-working        { background: #dcfce7; color: #16a34a; }
+.ops-status-pill.ops-status-new            { background: #dbeafe; color: #1d4ed8; }
+.ops-status-pill.ops-status-active         { background: #fef3c7; color: #b45309; }
+.ops-status-pill.ops-status-resolved       { background: #dcfce7; color: #15803d; }
+.ops-status-pill.ops-status-information-received { background: #f3e8ff; color: #7c3aed; }
+.ops-status-pill.ops-status-closed         { background: #f1f5f9; color: #64748b; }
+.ops-status-pill.ops-status-spr-filed      { background: #dbeafe; color: #1d4ed8; }
+
+.ops-mini-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px 6px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 10px;
+    color: #9ca3af;
+}
+.ops-mini-footer strong { color: #6b7280; font-weight: 600; }
+
+/* ── DETAIL PANEL — slides over the dashboard ────────────────────────────── */
+.ops-detail-panel {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;
+}
+
+.ops-detail-hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+.ops-detail-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* KPI bar + close button row */
+.ops-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    background: #f8fafc;
+    flex-shrink: 0;
+    gap: 10px;
+}
+.ops-detail-kpi-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+.ops-dkpi-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 12px;
+    border: 1.5px solid;
+    border-radius: 8px;
+    min-width: 60px;
+    background: #fff;
+}
+.ops-dkpi-val { font-size: 18px; font-weight: 800; line-height: 1; }
+.ops-dkpi-lbl { font-size: 9.5px; color: #6b7280; font-weight: 600; white-space: nowrap; }
+
+.ops-detail-close {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ops-detail-close:hover { background: #f1f5f9; }
+
+/* Detail table body */
+.ops-detail-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+    padding: 10px 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(180,190,210,.45) transparent;
+}
+.ops-detail-table-wrap { width: 100%; }
+
+/* ── TOOLBAR — clean 3-button layout ─────────────────────────────────────── */
+.toolbar-left-section {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+}
+
+.ops-refresh-btn { flex-shrink: 0 !important; }
+
+/* Windchill switcher in OPS toolbar */
+.app-switcher-btn.wm-switcher,
+.windchill-switcher-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    height: 32px !important;
+    padding: 0 10px !important;
+    background: linear-gradient(135deg, #1e3a5f, #1a2e4a) !important;
+    color: #93c5fd !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+    transition: background 0.2s, color 0.2s !important;
+}
+.windchill-switcher-btn:hover,
+.app-switcher-btn.wm-switcher:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e3a5f) !important;
+    color: #fff !important;
+}
+.windchill-icon { width: 16px; height: 16px; flex-shrink: 0; animation: windchill-spin 8s linear infinite; }
+@keyframes windchill-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.windchill-switcher-label { font-size: 11px; font-weight: 700; }
+
+
+/* =============================================================================
+   OPS CENTER — FINAL DEFINITIVE OVERRIDES
+   All previous conflicting rules below are superseded here.
+   ============================================================================= */
+
+/* ── 1. Scrollable content: relative container, 12px padding all around ─────
+   The detail panel (position:absolute) positions itself within this.          */
+.scrollable-report-content {
+    position: relative !important;
+    padding: 12px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: calc(100vh - 106px) !important;
+    box-sizing: border-box !important;
+}
+
+/* ── 2. Dashboard wrapper — fills flex column ─────────────────────────────── */
+.ops-dashboard-wrap {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    transition: opacity 0.25s ease !important;
+}
+
+/* ── 3. KPI tiles row — no shrink ──────────────────────────────────────────── */
+.ops-kpi-row { flex-shrink: 0 !important; }
+
+/* ── 4. Mini cards row — fills remaining height ────────────────────────────── */
+.ops-mini-row {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+    overflow: hidden !important;
+}
+
+/* ── 5. Each mini card — flex column, fills grid cell ──────────────────────── */
+.ops-mini-card {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    border: 1px solid #e5e7eb !important;
+    padding: 10px 12px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05) !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+.ops-mini-header {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    margin-bottom: 4px !important;
+}
+.ops-mini-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(180,190,210,.45) transparent !important;
+}
+.ops-mini-body::-webkit-scrollbar       { width: 4px; }
+.ops-mini-body::-webkit-scrollbar-track { background: transparent; }
+.ops-mini-body::-webkit-scrollbar-thumb { background: rgba(180,190,210,.45); border-radius: 4px; }
+.ops-mini-footer {
+    flex-shrink: 0 !important;
+    border-top: 1px solid #f0f0f0 !important;
+    padding-top: 5px !important;
+    margin-top: 4px !important;
+    font-size: 10.5px !important;
+    color: #9ca3af !important;
+    display: flex !important;
+    gap: 4px !important;
+}
+
+/* ── 6. Detail panel — absolute overlay slides up from bottom ──────────────── */
+.ops-detail-panel {
+    position: absolute !important;
+    inset: 0 !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    z-index: 20 !important;
+    transition: transform 0.32s cubic-bezier(.4,0,.2,1), opacity 0.32s ease !important;
+}
+.ops-detail-hidden   { transform: translateY(100%) !important; opacity: 0 !important; pointer-events: none !important; }
+.ops-detail-visible  { transform: translateY(0) !important;    opacity: 1 !important; pointer-events: all !important; }
+
+/* ── 7. Toolbar — 3 buttons: Refresh | Dashboard | [spacer] | Windchill ────── */
+.toolbar-left-section {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+.ops-refresh-btn, .ops-dash-btn {
+    flex-shrink: 0 !important;
+}
+/* Push Windchill switcher to the right */
+.wm-switcher { margin-left: auto !important; flex-shrink: 0 !important; }
+
+/* ── 8. Sidebar processing footer — prevent overlap with content ───────────── */
+.processing-footer {
+    flex-shrink: 0 !important;
+}
+
+/* ── 9. Collection-status removed; make sure no old ghost elements show ─────── */
+.collection-status { display: none !important; }
+
+/* ── 10. OPS notif items — consistent left border like WM ──────────────────── */
+.ops-notif-item {
+    padding: 7px 8px !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    border-left: 3px solid transparent !important;
+}
+.ops-notif-snow  { border-left-color: #f28c38 !important; }
+.ops-notif-azure { border-left-color: #0ea5e9 !important; }
+.ops-notif-ptc   { border-left-color: #8b5cf6 !important; }
+.ops-notif-item:last-child { border-bottom: none !important; }
+.ops-notif-item:hover { background: #f9fafb !important; }
+
+
+/* ── OPS TOOLBAR — tabs group (shrinks between Refresh and Windchill) ────── */
+.ops-nav-tabs-group {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    overflow: hidden !important;
+}
+.ops-nav-tabs-group .tracker-btn {
+    flex: 0 1 auto !important;
+    min-width: 60px !important;
+    max-width: 110px !important;
+    font-size: 11px !important;
+    padding: 0 6px !important;
+    height: 30px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+
+/* =============================================================================
+   OPS — SECTION LAYOUT (WM pattern: display:none / display:flex via inline style)
+   ============================================================================= */
+
+/* All sections hidden by default; JS sets style="display:flex" to show one */
+.operations-section {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    box-sizing: border-box;
+    /* Fill the scrollable-report-content height */
+    min-height: calc(100vh - 150px);
+}
+
+/* The card must flex to fill remaining height so table scrolls internally */
+.operations-section .card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    margin: 0;
+}
+.operations-section .table-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+.operations-section .ops-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #ef8b35;
+}
+
+/* Dashboard section — always flex column */
+#dashboardSection {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    min-height: 0;
+}
+
+/* Equal padding in scrollable content area */
+.scrollable-report-content {
+    padding: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* ── KPI chip bar above each table ───────────────────────────────────────── */
+.ops-section-kpi-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 0 0 4px 0;
+}
+.ops-kpi-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 14px;
+    border: 2px solid currentColor;
+    border-radius: 8px;
+    line-height: 1.2;
+    background: #fff;
+    min-width: 70px;
+}
+.ops-kpi-chip-val { font-size: 20px; font-weight: 800; }
+.ops-kpi-chip-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; }
+
+/* ── Dashboard mini cards — full height ─────────────────────────────────── */
+#dashboardSection .dashboard-tables-row {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+#dashboardSection .dashboard-mini-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+#dashboardSection .notif-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* ── Windchill switcher ──────────────────────────────────────────────────── */
+.windchill-switcher-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    height: 32px !important;
+    padding: 0 12px !important;
+    background: linear-gradient(135deg, #1e3a5f, #1a2e4a) !important;
+    color: #93c5fd !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+}
+.windchill-switcher-btn:hover { background: linear-gradient(135deg,#1d4ed8,#1e3a5f) !important; color:#fff !important; }
+.windchill-icon { width:16px; height:16px; flex-shrink:0; animation: wc-spin 8s linear infinite; }
+.windchill-switcher-btn:hover .windchill-icon { animation-duration: 1.5s; }
+@keyframes wc-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+
+/* =============================================================================
+   OPS — SECTION TITLE ROW  (title + KPI chips inline, like WM)
+   ============================================================================= */
+
+/* Title row: flex row, chips align right of title */
+.ops-section-title-row {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.ops-section-title-row .section-title {
+    /* Override any margin/padding from .section-title rule */
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    white-space: nowrap;
+    justify-self: start;
+}
+
+/* KPI bar sits in the centre column */
+.ops-section-title-row .ops-section-kpi-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 0;
+    justify-self: center;
+}
+
+/* Back button pinned to the far right */
+.ops-section-title-row .ops-section-back-btn {
+    justify-self: end;
+}
+
+/* Chip — coloured border + text, like WM's TOTAL FAILED / RAPID / POTS pills */
+.ops-kpi-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3px 12px;
+    border: 2px solid currentColor;
+    border-radius: 7px;
+    line-height: 1.2;
+    background: #fff;
+    min-width: 60px;
+}
+.ops-kpi-chip-val { font-size: 16px; font-weight: 800; }
+.ops-kpi-chip-lbl { font-size: 9px;  font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; }
+
+/* Card: flex column so table-wrapper scrolls inside */
+.operations-section .card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;         /* title row has its own padding */
+}
+
+/* Table wrapper fills remaining space after title row */
+.operations-section .table-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* Sticky header */
+.operations-section .ops-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    background: #ef8b35 !important;
+}
+
+/* Mini card footer */
+.ops-mini-footer {
+    flex-shrink: 0;
+    border-top: 1px solid #f0f0f0;
+    padding: 5px 8px 2px;
+    font-size: 10.5px;
+    color: #9ca3af;
+    display: flex;
+    gap: 4px;
+}
+.ops-mini-footer strong { color: #6b7280; font-weight: 600; }
+
+/* ── Back button ─────────────────────────────────────────────────────────── */
+.ops-section-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 12px;
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.ops-section-back-btn::before {
+    content: "←";
+    font-size: 13px;
+    line-height: 1;
+}
+.ops-section-back-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+/* ════════════════════════════════════════════════════════
+   SIDEBAR REPORTS & SETTINGS — COMPACT LAYOUT FIX
+   ════════════════════════════════════════════════════════ */
+#reports-section .sidebar-section,
+#settings-section .sidebar-section {
+    padding: 0 !important;
+    margin-left: 0 !important;
+}
+
+#reports-section .sidebar-group-title,
+#settings-section .sidebar-group-title {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #93c5fd !important;
+    margin-bottom: 6px !important;
+    margin-top: 14px !important;
+    padding-left: 4px;
+}
+
+#reports-section .sidebar-group-title:first-child,
+#settings-section .sidebar-group-title:first-child {
+    margin-top: 4px !important;
+}
+
+.rpt-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.rpt-desc  { font-size: 10px; color: #93c5fd; margin-bottom: 6px; line-height: 1.3; }
+
+.rpt-btn {
+    display: block; width: 100%;
+    padding: 8px 10px; margin-bottom: 5px;
+    border-radius: 6px; border: 1px solid;
+    font-size: 11px; font-weight: 600;
+    cursor: pointer; text-align: left;
+    transition: background .12s, border-color .12s;
+}
+.rpt-daily   { background: rgba(22,163,74,.15);  color: #86efac; border-color: rgba(22,163,74,.3); }
+.rpt-weekly  { background: rgba(59,130,246,.15); color: #93c5fd; border-color: rgba(59,130,246,.3); }
+.rpt-summary { background: rgba(139,92,246,.15); color: #c4b5fd; border-color: rgba(139,92,246,.3); }
+.rpt-range   { background: rgba(251,191,36,.12); color: #fde68a; border-color: rgba(251,191,36,.3); }
+.rpt-daily:hover   { background: rgba(22,163,74,.28); }
+.rpt-weekly:hover  { background: rgba(59,130,246,.28); }
+.rpt-summary:hover { background: rgba(139,92,246,.28); }
+.rpt-range:hover   { background: rgba(251,191,36,.22); }
+
+#settings-section .sidebar-btn {
+    font-size: 11px !important;
+    padding: 7px 10px !important;
+    margin-bottom: 4px !important;
+}
+
+/* ════ AZURE TYPE PILLS ════ */
+.ops-type-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700; white-space: nowrap;
+}
+.pill-bug   { background: #fef2f2; color: #dc2626; }
+.pill-story { background: #eff6ff; color: #2563eb; }
+
+/* ════ REPORT MODAL OVERLAY ════ */
+.orm-panel {
+    background: #fff; border-radius: 12px;
+    width: min(560px, 94vw); max-height: 88vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,.25);
+    font-family: Segoe UI, Arial, sans-serif; overflow: hidden;
+}
+.orm-header {
+    background: #1e3a5f; color: #fff; padding: 14px 20px;
+    font-size: 15px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+}
+.orm-close { background: none; border: none; color: #93c5fd; font-size: 18px; cursor: pointer; }
+.orm-close:hover { color: #fff; }
+.orm-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+.orm-section-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em; color: #374151;
+    border-left: 3px solid #f28c38; padding-left: 8px; margin-bottom: 10px;
+}
+.orm-field-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.orm-date-row { gap: 14px; }
+.orm-date-row > div { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px; }
+.orm-label { font-size: 11px; font-weight: 700; color: #6b7280; white-space: nowrap; min-width: 130px; padding-top: 7px; }
+.orm-select, .orm-input {
+    flex: 1; padding: 6px 10px; border: 1px solid #d1d5db;
+    border-radius: 6px; font-size: 12px; color: #374151; outline: none;
+}
+.orm-select:focus, .orm-input:focus { border-color: #3b82f6; }
+.orm-thr-input { max-width: 80px; text-align: center; }
+.orm-thr-row .orm-label { min-width: 200px; }
+.orm-checkboxes { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+.orm-chk {
+    display: flex; align-items: center; gap: 5px; font-size: 12px; color: #374151;
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 5px; padding: 4px 8px; cursor: pointer;
+}
+.orm-footer {
+    padding: 12px 20px; border-top: 1px solid #e5e7eb;
+    display: flex; justify-content: flex-end; gap: 8px; background: #f9fafb; flex-shrink: 0;
+}
+.orm-btn { padding: 7px 18px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid; }
+.orm-btn-primary   { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+.orm-btn-primary:hover   { background: #1d4ed8; }
+.orm-btn-secondary { background: #fff; color: #374151; border-color: #d1d5db; }
+.orm-btn-secondary:hover { background: #f3f4f6; }
+
+/* ════ DIGEST PANEL (shared) ════ */
+.digest-overlay { position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.4);backdrop-filter:blur(2px); }
+.digest-panel {
+    position:fixed;right:0;top:0;bottom:0;z-index:9999;width:min(580px,96vw);
+    background:#fff;border-left:1px solid #e5e7eb;
+    box-shadow:-4px 0 32px rgba(0,0,0,.18);
+    display:flex;flex-direction:column;overflow:hidden;animation:dpSlideIn .2s ease;
+}
+@keyframes dpSlideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.dp-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:#1e3a5f;color:#fff;flex-shrink:0;}
+.dp-header-left{display:flex;align-items:center;gap:12px;}
+.dp-header-icon{font-size:24px;}
+.dp-header-title{font-size:15px;font-weight:700;}
+.dp-header-sub{font-size:11px;color:#93c5fd;margin-top:2px;}
+.dp-close{background:none;border:none;color:#93c5fd;font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;}
+.dp-close:hover{background:rgba(255,255,255,.15);color:#fff;}
+.dp-alert-banner{background:#fef2f2;border-bottom:1px solid #fca5a5;padding:10px 20px;font-size:12px;color:#dc2626;display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.dp-tag{background:#fee2e2;color:#991b1b;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700;}
+.dp-instructions{background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:8px 20px;font-size:12px;color:#1e40af;flex-shrink:0;}
+.dp-folder{background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:7px 20px;font-size:11px;color:#6b7280;flex-shrink:0;}
+.dp-folder code{color:#374151;font-size:11px;}
+.dp-list{flex:1;overflow-y:auto;padding:8px 16px;}
+.dp-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;margin-bottom:6px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;gap:8px;flex-wrap:wrap;}
+.dp-row-alert{border-color:#fca5a5;background:#fff7f7;}
+.dp-row-left{display:flex;align-items:center;gap:8px;}
+.dp-row-right{display:flex;gap:6px;flex-shrink:0;}
+.dp-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;white-space:nowrap;}
+.dp-badge-alert{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;}
+.dp-badge-ok{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;}
+.dp-type{font-size:12px;font-weight:600;color:#374151;}
+.dp-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;white-space:nowrap;transition:background .12s;}
+.dp-btn-view{background:#eff6ff;color:#2563eb;border-color:#bfdbfe;}
+.dp-btn-view:hover{background:#dbeafe;}
+.dp-btn-copy{background:#f9fafb;color:#374151;border-color:#d1d5db;}
+.dp-btn-copy:hover{background:#f3f4f6;}
+.dp-btn-primary{background:#1e3a5f;color:#fff;border-color:#1e3a5f;padding:6px 16px;font-size:12px;}
+.dp-btn-primary:hover{background:#1d4ed8;}
+.dp-btn-secondary{background:#fff;color:#374151;border-color:#d1d5db;padding:6px 14px;font-size:12px;}
+.dp-btn-secondary:hover{background:#f3f4f6;}
+.dp-footer{padding:12px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;background:#f9fafb;}
+
+/* Prepare Digest toolbar button */
+.ops-digest-btn {
+    background: #fffbeb !important; color: #92400e !important;
+    border: 1px solid #fbbf24 !important; border-radius: 8px !important;
+    font-weight: 700 !important; flex-shrink: 0 !important;
+    white-space: nowrap !important; cursor: pointer !important;
+    padding: 0 14px !important; transition: background .15s !important;
+}
+.ops-digest-btn:hover { background: #fef3c7 !important; }
+
+/* Toast */
+#opsToast{position:fixed;bottom:24px;right:24px;z-index:99997;max-width:420px;
+  padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;
+  box-shadow:0 4px 20px rgba(0,0,0,.18);transition:opacity .4s;cursor:pointer;display:none;color:#fff;}
+
+/* ════ DYNAMIC KPI — Total chip has distinct "locked" styling ════ */
+.ops-kpi-chip-total {
+    font-weight: 800 !important;
+    border-width: 2px !important;
+    position: relative;
+}
+.ops-kpi-chip-total::after {
+    content: "●";
+    position: absolute;
+    top: -4px; right: -4px;
+    font-size: 8px;
+    color: inherit;
+    opacity: .5;
 }

@@ -576,3 +576,126 @@ STACK DATE FIELDS
 .sidebar-bottom-section h3 {
     color: white !important;
 }
+
+/* =========================================
+   APP SWITCHER BUTTONS (toolbar-right)
+========================================= */
+
+.app-switcher-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+    white-space: nowrap;
+}
+
+.app-switcher-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+
+/* =========================================
+   ANIMATED PROGRESS BAR — OPS style
+========================================= */
+
+@keyframes ops-shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+}
+
+.ops-bar-processing {
+    background: linear-gradient(
+        90deg,
+        #3b82f6 0%,
+        #60a5fa 40%,
+        #3b82f6 60%,
+        #1d4ed8 100%
+    ) !important;
+    background-size: 200% auto !important;
+    animation: ops-shimmer 1.6s linear infinite !important;
+}
+
+.ops-bar-completed {
+    background: #22c55e !important;
+    transition: width 0.4s ease !important;
+}
+
+.ops-bar-failed {
+    background: #ef4444 !important;
+}
+
+
+/* =========================================
+   STATUS META ROWS (sidebar footer)
+========================================= */
+
+.report-status-meta {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.75);
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+
+.status-label {
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    flex-shrink: 0;
+}
+
+/* =========================================
+   HELP MODAL LEFT PANE BUTTONS
+   Dark text on light background (#f8fafc)
+   matches common.css help-modal-left-pane
+========================================= */
+
+.help-topic-btn,
+.help-index-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.help-topic-btn:hover,
+.help-index-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-left-color: #cbd5e1;
+}
+
+.help-topic-btn.active-help-topic,
+.help-index-item.active-help-topic {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
+    border-left-color: #0ea5e9;
+}
+

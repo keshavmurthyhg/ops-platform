@@ -1,0 +1,10 @@
+{
+  "digest_type": "incidents",
+  "subject": "[OPS] Incidents \u2014 11 total, 11 on hold \u2014 23 Jun \u2013 24 Jun 2026",
+  "from": "keshavamurthy.hg@consultant.volvo.com",
+  "to": "keshavamurthy.hg@consultant.volvo.com",
+  "generated_at": "2026-06-24 15:16:21",
+  "date": "2026-06-24",
+  "is_alert": true,
+  "html_file": "data\\email_digests\\2026-06-24\\incidents\\email_body.html"
+}

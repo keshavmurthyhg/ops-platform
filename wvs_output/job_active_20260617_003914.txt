@@ -1,0 +1,62 @@
+Windchill WVS Job Monitor — Active Jobs Snapshot
+Captured  : 20260617_003914
+URL       : https://vcewindchill.got.volvo.net/Windchill/ptc1/wvs/queueMonitorMain?containerOid=OR:wt.inf.container.OrgContainer:4678&u8=1
+Total rows: 45
+
+  Ready Jobs                6 rows
+  Executing Jobs            9 rows
+  Failed Jobs              30 rows
+
+POSITION  |  QUEUE            |  JOB          |  JOB_STATUS  |  NUMBER                  |  NAME                                                   |  VERSION  |  CONTEXT                        |  USER                                  |  POST_JOB
+--------  |  ---------------  |  -----------  |  ----------  |  ----------------------  |  -----------------------------------------------------  |  -------  |  -----------------------------  |  ------------------------------------  |  --------
+
+── READY (6) ────────────────────────────────────────
+5         |  LCREOQUEUE       |  330,152,128  |  READY       |  55441779.ASM            |  DECAL SET;QUEBEC - FRENCH                              |  02.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+4         |  LCREOQUEUE       |  330,152,127  |  READY       |  55441779.DRW            |  DECAL SET;QUEBEC - FRENCH                              |  02.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+3         |  LCREOQUEUE       |  330,151,976  |  READY       |  12792208.ASM            |  CONTROL PANEL;CONTROL COLUMN ELECTRIC LIGHTS           |  03.5     |  CMP-Asphalt                    |  Nick Bowers                           |          
+2         |  LCREOQUEUE       |  330,151,943  |  READY       |  55441716_P.ASM          |  DECAL SET; QUEBEC - PICTOGRAMS                         |  01.5     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+1         |  LCREOQUEUE       |  330,151,942  |  READY       |  55441716.ASM            |  DECAL SET;QUEBEC - PICTOGRAMS                          |  02.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+1         |  MOFFICEQUEUE     |  324,676,656  |  READY       |  56173434                |  RA40 Stage V 1.1 ROKA1308P00181011                     |  01.3     |  MWL_Tech_Department_Documents  |  Robbie Anderson                       |          
+
+── EXECUTING (9) ────────────────────────────────────────
+          |  MCREOQUEUE6      |  330,151,936  |  EXECUTING   |  56841310.DRW            |  CONNECTOR BACKSHELL;NTSEAL 20-POS;W/NOTCH              |  01.2     |  CMP-Soil                       |  Filip Brajovic                        |          
+          |  LCATIAQUEUE2     |  330,151,907  |  EXECUTING   |  56685884.CATPRODUCT     |  Attachment Kit JL220                                   |  01.38    |  WLO-Loader                     |  Maria Constanza Vitorgan Barrenechea  |          
+          |  MCATIAATB2       |  330,151,650  |  EXECUTING   |  53943506.CATPART        |  RADIATOR;A30 NGH                                       |  05.3     |  ENG-Engines                    |  Windchill Administrator (Site)        |          
+          |  MCATIAATB1       |  330,151,611  |  EXECUTING   |  55156471.CATPART        |  RADIATOR;A40;BAR and PLATE Aluminium Cooler            |  01.3     |  ENG-Engines                    |  Windchill Administrator (Site)        |          
+          |  LCREOQUEUE4      |  330,149,284  |  EXECUTING   |  56841310.DRW            |  CONNECTOR BACSKEHLL; NTSEAL 20-POS; W/NOTCH            |  01.1     |  CMP-Soil                       |  Filip Brajovic                        |          
+          |  LCREOQUEUE5      |  330,148,147  |  EXECUTING   |  53909264.DRW            |  53909264                                               |  01.3     |  ART-Hauler-Medium              |  Karl Hällebrand                       |          
+          |  HCREOQUEUE3      |  330,147,546  |  EXECUTING   |  53477317.DRW            |  SPRING PIN                                             |  01.4     |  Rigid Hauler                   |  Windchill Administrator (Site)        |          
+          |  HCREOQUEUE2      |  330,147,514  |  EXECUTING   |  53478979.DRW            |  INSTRUCTION DRAWING;R100E Hoist Cylinder Rod Assembly  |  01.8     |  Rigid Hauler                   |  Windchill Administrator (Site)        |          
+          |  HCREOQUEUE1      |  330,147,513  |  EXECUTING   |  53477317.DRW            |  SPRING PIN                                             |  01.4     |  Rigid Hauler                   |  Windchill Administrator (Site)        |          
+
+── JOB FAILED (30) ────────────────────────────────────────
+          |  LCREOQUEUE6      |  330,151,912  |  JOB FAILED  |  53529524.DRW            |  FLASHER;FLASHER WITH CONNECTOR                         |  01.8     |  CMP-Soil                       |  Nick Bowers                           |          
+          |  LCREOQUEUE6      |  330,151,892  |  JOB FAILED  |  53916101.DRW            |  DECAL;WARNING-NO ENTRY(NO TEXT)                        |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,885  |  JOB FAILED  |  53916100.DRW            |  DECAL;WARNING-NO ENTRY                                 |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,880  |  JOB FAILED  |  53916099.DRW            |  DECAL;DO NOT LIFT                                      |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,874  |  JOB FAILED  |  53923856.DRW            |  DECAL;WARNING-PRESSURIZED FLUID                        |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,869  |  JOB FAILED  |  53916097.DRW            |  DECAL;WARNING-DO NOT USE ETHER                         |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,864  |  JOB FAILED  |  54822435_FINAL_TIM.PRT  |  AXLE CASING                                            |  02.2     |  DLS-Driveline                  |  Bingaman Jordan                       |          
+          |  LCREOQUEUE6      |  330,151,843  |  JOB FAILED  |  53916094.DRW            |  DECAL;BATTERY EXPLOSION HAZARD                         |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,833  |  JOB FAILED  |  53916092.DRW            |  DECAL;WARNING-NO RIDER                                 |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,828  |  JOB FAILED  |  53916085.PRT            |  DECAL;UREA TANK ADBLUE/DEF;FRENCH                      |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE6      |  330,151,752  |  JOB FAILED  |  53916085.DRW            |  DECAL;UREA TANK ADBLUE/DEF;FRENCH                      |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  MCATIAQUEUE3     |  330,151,672  |  JOB FAILED  |  54501162.CATDRAWING     |  RADIATOR                                               |  01.7     |  TECH-EMOB                      |  Windchill Administrator (Site)        |          
+          |  MCATIAQUEUE2     |  330,151,638  |  JOB FAILED  |  54861744.CATDRAWING     |  CHARGE AIR COOLER;ART NGH;BAR AND PLATE                |  04.8     |  ENG-Engines                    |  Windchill Administrator (Site)        |          
+          |  LCATIATWXQUEUE1  |  330,151,579  |  JOB FAILED  |  55644728.CATDRAWING     |  BLEEDER NIPPLE                                         |  01.3     |  TECH-EMOB                      |  Thingworx Admin                       |          
+          |  LCATIATWXQUEUE1  |  330,151,574  |  JOB FAILED  |  17509660.CATDRAWING     |  CHARGE AIR COOLER                                      |  02.5     |  COM-Components                 |  Thingworx Admin                       |          
+          |  LCATIATWXQUEUE2  |  330,151,569  |  JOB FAILED  |  53943506.CATDRAWING     |  RADIATOR;A30 NGH                                       |  05.5     |  ENG-Engines                    |  Thingworx Admin                       |          
+          |  LCATIATWXQUEUE2  |  330,151,564  |  JOB FAILED  |  54501162.CATDRAWING     |  RADIATOR                                               |  01.7     |  TECH-EMOB                      |  Thingworx Admin                       |          
+          |  LCATIATWXQUEUE1  |  330,151,551  |  JOB FAILED  |  54861744.CATDRAWING     |  CHARGE AIR COOLER;ART NGH;BAR AND PLATE                |  04.8     |  ENG-Engines                    |  Thingworx Admin                       |          
+          |  MCATIAATB1       |  330,151,535  |  JOB FAILED  |  15096620.CATPART        |  COOLING PACKAGE                                        |  01.2     |  COM-Components                 |  Windchill Administrator (Site)        |          
+          |  LCATIATWXQUEUE2  |  330,151,491  |  JOB FAILED  |  53943506.CATPART        |  RADIATOR;A30 NGH                                       |  05.3     |  ENG-Engines                    |  Thingworx Admin                       |          
+          |  LCATIATWXQUEUE1  |  330,151,486  |  JOB FAILED  |  55156471.CATDRAWING     |  RADIATOR;A40;BAR and PLATE Aluminium Cooler            |  01.2     |  ENG-Engines                    |  Thingworx Admin                       |          
+          |  LCREOQUEUE4      |  330,149,213  |  JOB FAILED  |  53905856.DRW            |  53905856                                               |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LOFFICEQUEUE1    |  330,149,138  |  JOB FAILED  |  56554973.TXT            |  WIRING HARNESS;REAR WALL;SD75B                         |  01.3     |  CMP-Soil                       |  Windchill Administrator (Site)        |          
+          |  LOFFICEQUEUE1    |  330,149,115  |  JOB FAILED  |  56554973.TXT            |  WIRING HARNESS;REAR WALL;SD75B                         |  01.4     |  CMP-Soil                       |  Windchill Administrator (Site)        |          
+          |  LOFFICEQUEUE1    |  330,149,114  |  JOB FAILED  |  56554973.TXT            |  WIRING HARNESS;REAR WALL;SD75B                         |  01.2     |  CMP-Soil                       |  Windchill Administrator (Site)        |          
+          |  LOFFICEQUEUE1    |  330,149,100  |  JOB FAILED  |  56554973.PDF            |  WIRING HARNESS;REAR WALL;SD75B                         |  01.3     |  CMP-Soil                       |  Windchill Administrator (Site)        |          
+          |  LOFFICEQUEUE1    |  330,149,094  |  JOB FAILED  |  56554973.PDF            |  WIRING HARNESS;REAR WALL;SD75B                         |  01.2     |  CMP-Soil                       |  Windchill Administrator (Site)        |          
+          |  LCREOQUEUE4      |  330,148,972  |  JOB FAILED  |  53905842.DRW            |  DECAL;BATTERY EXPLOSION HAZARD                         |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE4      |  330,148,967  |  JOB FAILED  |  53905842.PRT            |  DECAL;BATTERY EXPLOSION HAZARD                         |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          
+          |  LCREOQUEUE4      |  330,148,962  |  JOB FAILED  |  53905837.DRW            |  WARNING DECAL;PRESSURIZED FLUID                        |  01.2     |  CMP-Asphalt                    |  Pagnotta Fran                         |          

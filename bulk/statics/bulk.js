@@ -553,3 +553,101 @@ document.addEventListener("DOMContentLoaded", function () {
     if (downloadsSection)
         downloadsSection.style.display = "none";
 });
+
+/* =========================================
+   OPS-STYLE PROGRESS BAR CONTROLLER
+   Replaces the old showProgress/updateProgress/
+   completeProgress/failProgress pattern.
+   Works with main.html IDs.
+========================================= */
+
+function updateProcessingStatus(message, detail, state) {
+    const status  = document.getElementById("statusMessage");
+    const text    = document.getElementById("progressText");
+    const fill    = document.getElementById("progressFill");
+    const wrapper = document.getElementById("progressWrapper");
+
+    if (status) status.innerText = message;
+    if (text)   text.innerText   = detail || "";
+
+    if (!fill || !wrapper) return;
+
+    fill.classList.remove("ops-bar-processing", "ops-bar-completed", "ops-bar-failed");
+
+    if (state === "processing") {
+        wrapper.classList.remove("hidden");
+        fill.style.width = "70%";
+        fill.classList.add("ops-bar-processing");
+
+    } else if (state === "completed") {
+        wrapper.classList.remove("hidden");
+        fill.style.width = "100%";
+        fill.classList.add("ops-bar-completed");
+        setTimeout(() => {
+            wrapper.classList.add("hidden");
+            fill.style.width = "0%";
+            fill.classList.remove("ops-bar-completed");
+        }, 2000);
+
+    } else {
+        wrapper.classList.remove("hidden");
+        fill.style.width = "100%";
+        fill.classList.add("ops-bar-failed");
+        setTimeout(() => {
+            wrapper.classList.add("hidden");
+            fill.style.width = "0%";
+            fill.classList.remove("ops-bar-failed");
+        }, 3000);
+    }
+}
+
+
+/* =========================================
+   HELP MODAL — fetches from module API
+   Endpoint set per-module below.
+========================================= */
+
+function loadModuleHelpData() {
+    const endpoint = window._helpEndpoint || "/api/help/report";
+    fetch(endpoint)
+        .then(r => r.json())
+        .then(data => {
+            const titleEl = document.getElementById("helpModuleTitle");
+            if (titleEl) titleEl.textContent = "💡 " + (data.module_title || "Help");
+
+            const indexPane   = document.getElementById("helpModalIndexPane");
+            const contentPane = document.getElementById("helpModalContentPane");
+            if (!indexPane || !contentPane) return;
+
+            indexPane.innerHTML   = "";
+            contentPane.innerHTML = "";
+
+            const topics = data.topics || [];
+            if (!topics.length) {
+                contentPane.innerHTML = "<p>No help topics available.</p>";
+                return;
+            }
+
+            topics.forEach((topic, i) => {
+                const btn = document.createElement("button");
+                btn.className   = "help-topic-btn" + (i === 0 ? " active-help-topic" : "");
+                btn.textContent = topic.title;
+                btn.onclick     = () => {
+                    document.querySelectorAll(".help-topic-btn")
+                            .forEach(b => b.classList.remove("active-help-topic"));
+                    btn.classList.add("active-help-topic");
+                    contentPane.innerHTML = topic.content;
+                };
+                indexPane.appendChild(btn);
+            });
+
+            contentPane.innerHTML = topics[0].content;
+        })
+        .catch(err => {
+            console.error("Help load failed:", err);
+            const pane = document.getElementById("helpModalContentPane");
+            if (pane) pane.innerHTML = "<p>Help content could not be loaded.</p>";
+        });
+}
+
+window._helpEndpoint = '/api/help/bulk';

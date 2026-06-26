@@ -1,0 +1,8 @@
+Windchill WVS Job Monitor — Active Jobs Snapshot
+Captured  : 20260616_222741
+URL       : https://vcewindchill.got.volvo.net/Windchill/ptc1/wvs/queueMonitorMain?containerOid=OR:wt.inf.container.OrgContainer:4678&u8=1
+Filters   : Ready Jobs, Executing Jobs, Failed Jobs
+Total rows: 14
+
+POSITION  |  QUEUE  |  JOB            |  JOB_STATUS  |  NUMBER      |  NAME                 |  VERSION                                                       |  CONTEXT  |  USER                           |  POST_JOB                      
+--------  |  -----  |  -------------  |  ----------  |  ----------  |  -------------------  |  ------------------------------------------------------------  |  -------  |  -----------------------------  |  ------------------------------

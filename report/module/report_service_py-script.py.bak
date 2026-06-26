@@ -1,0 +1,125 @@
+import os
+import pandas as pd
+
+from report.module.doc_generator import (
+    generate_pdf,
+    generate_word_doc_wrapper
+)
+
+from common.utils.links import extract_azure_id
+from common.utils.formatters import (
+    format_description
+)
+
+
+from common.logger import setup_logger
+logger = setup_logger("rca")
+
+
+def load_incident_data(incident_number):
+    """
+    Load incident data from Snow.xlsx
+    Mirrors bulk_generator normalization exactly.
+    """
+
+    snow_file = os.path.join("data", "Snow.xlsx")
+
+    if not os.path.exists(snow_file):
+        raise Exception("Snow.xlsx not found in data folder")
+
+    df = pd.read_excel(snow_file)
+
+    # ✅ BULK DOES THIS — report was missing it entirely
+    df.columns = [
+        str(col).strip().lower()
+        for col in df.columns
+    ]
+
+    row = df[df["number"].astype(str).str.strip() == incident_number.strip()]
+
+    if row.empty:
+        raise Exception(f"{incident_number} not found in Snow.xlsx")
+
+    r = row.iloc[0]
+
+    # ✅ Extract azure bug from resolution notes (same as bulk)
+    resolution_notes = str(r.get("resolution notes", "")).strip()
+    azure_bug = extract_azure_id(resolution_notes)
+
+    # ✅ All keys lowercase — matching normalized columns (same as bulk)
+    return {
+        "number":               r.get("number"),
+        "short_description":    r.get("short description"),
+        "description":          format_description(r.get("description")),
+        "priority":             r.get("priority"),
+        "created_by":           r.get("opened by"),
+        "opened_by":            r.get("opened by"),
+        "assigned_to":          r.get("assigned to"),
+        "created_date":         r.get("created"),
+        "resolved_date":        r.get("resolved"),
+        "ptc_case":             r.get("vendor ticket"),
+        "azure_bug":            azure_bug,
+
+        # Spaced keys for rca_service.py get_value()
+        "resolution notes":     resolution_notes,
+        "work notes":           r.get("work notes", ""),
+        "additional comments":  r.get("additional comments", ""),
+
+        # Underscored aliases also included (bulk has both)
+        "resolution_notes":     resolution_notes,
+        "work_notes":           r.get("work notes", ""),
+        "additional_comments":  r.get("additional comments", ""),
+    }
+
+
+def generate_incident_report(
+    incident_number,
+    report_type
+):
+    """
+    Main reusable report service
+    """
+
+    data = load_incident_data(
+        incident_number
+    )
+
+    output_folder = "outputs"
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    if report_type == "pdf":
+
+        pdf_buffer = generate_pdf(data)
+
+        output_path = os.path.join(
+            output_folder,
+            f"{incident_number}.pdf"
+        )
+
+        with open(output_path, "wb") as f:
+            f.write(pdf_buffer)
+
+        return output_path
+
+    elif report_type == "word":
+
+        word_buffer = generate_word_doc_wrapper(
+            data
+        )
+
+        output_path = os.path.join(
+            output_folder,
+            f"{incident_number}.docx"
+        )
+
+        with open(output_path, "wb") as f:
+            f.write(word_buffer)
+
+        return output_path
+
+    else:
+        raise Exception(
+            "Invalid report type"
+        )

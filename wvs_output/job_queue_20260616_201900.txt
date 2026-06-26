@@ -1,0 +1,16 @@
+Windchill WVS Job Monitor — Job Queue Snapshot
+Captured : 20260616_201900
+URL      : https://vcewindchill.got.volvo.net/Windchill/ptc1/wvs/queueMonitorMain?containerOid=OR:wt.inf.container.OrgContainer:4678&u8=1
+Rows     : 9
+
+POSITION  |  QUEUE  |  JOB           |  JOB_STATUS  |  NUMBER          |  NAME                    |  VERSION                                                 |  CONTEXT  |  USER                           |  POST_JOB             
+--------  |  -----  |  ------------  |  ----------  |  --------------  |  ----------------------  |  ------------------------------------------------------  |  -------  |  -----------------------------  |  ---------------------
+          |  1      |  MOFFICEQUEUE  |              |  READY           |  56173434                |  RA40 Stage V 1.1 ROKA1308P00181011                      |  01.3     |  MWL_Tech_Department_Documents  |  Robbie Anderson      
+          |         |  LCATIAATB1    |              |  EXECUTING       |  53517084.CATPRODUCT     |  DU;Hydraulic tank;L150 L180 L200                        |  01.6     |  WLO-Loader ESK CONV            |  Olov Thor            
+          |         |  LCREOQUEUE2   |              |  EXECUTING       |  53446247_TIM.PRT        |  53446247.prt                                            |  01.6     |  WLO-Loader                     |  cadadmin, cadadmin   
+          |         |  LCATIAATB3    |              |  EXECUTING       |  53446247.CATPART        |  BRACKET                                                 |  01.6     |  WLO-Loader                     |  Rembisz Lukasz       
+          |         |  LCATIAQUEUE2  |              |  JOB SUCCESSFUL  |  53437563.CATDRAWING     |  SUPPORT LEG                                             |  01.15    |  WLO-Loader                     |  Tomasz Sokolowski (2)
+          |         |  LCATIAATB2    |              |  EXECUTING       |  54262027.CATPRODUCT     |  SAFETY DECAL;Hot surface - Hyd tank / No text (2x);VAR  |  01.3     |  WLO-Loader                     |  Olov Thor            
+          |         |  LCATIAQUEUE4  |              |  JOB SUCCESSFUL  |  56956211.CATPART        |  56956211                                                |  01.2     |  EXC-KONZ                       |  Daniel Mueller       
+          |         |  LCATIAQUEUE3  |              |  JOB SUCCESSFUL  |  53918610_00.CATPRODUCT  |  HYDRAULIC PIPING BOOM                                   |  01.3     |  EXC-KONZ                       |  Daniel Mueller       
+          |         |  LCREOQUEUE3   |              |  JOB SUCCESSFUL  |  53446247_TIM.PRT        |  53446247.prt                                            |  01.5     |  WLO-Loader                     |  cadadmin, cadadmin   

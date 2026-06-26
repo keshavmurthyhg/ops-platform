@@ -292,3 +292,271 @@
     font-weight: 600;
     opacity: 0.8;
 }
+
+/* =========================================
+   APP SWITCHER BUTTONS (toolbar-right)
+========================================= */
+
+.app-switcher-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+    white-space: nowrap;
+}
+
+.app-switcher-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+
+/* =========================================
+   ANIMATED PROGRESS BAR — OPS style
+   Uses main.html IDs: progressWrapper,
+   progressFill, progressText
+========================================= */
+
+@keyframes ops-shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+}
+
+.ops-bar-processing {
+    background: linear-gradient(
+        90deg,
+        #3b82f6 0%,
+        #60a5fa 40%,
+        #3b82f6 60%,
+        #1d4ed8 100%
+    ) !important;
+    background-size: 200% auto !important;
+    animation: ops-shimmer 1.6s linear infinite !important;
+}
+
+.ops-bar-completed {
+    background: #22c55e !important;
+    transition: width 0.4s ease !important;
+}
+
+.ops-bar-failed {
+    background: #ef4444 !important;
+}
+
+/* =========================================
+   HELP MODAL LEFT PANE BUTTONS
+   Dark text on light background (#f8fafc)
+   matches common.css help-modal-left-pane
+========================================= */
+
+.help-topic-btn,
+.help-index-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.help-topic-btn:hover,
+.help-index-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-left-color: #cbd5e1;
+}
+
+.help-topic-btn.active-help-topic,
+.help-index-item.active-help-topic {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
+    border-left-color: #0ea5e9;
+}
+
+
+
+/* =====================================================
+   SIDEBAR — compact panels
+===================================================== */
+.sb-panel { padding: 6px 0; }
+.sb-divider { height:1px; background:rgba(255,255,255,.1); margin:8px 0; }
+.sb-section-title { font-size:10px; font-weight:700; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:.6px; margin:8px 0 5px; }
+.sidebar-hint { font-size:10px; color:rgba(255,255,255,.4); margin:6px 0 0; line-height:1.4; }
+.sb-dl-section-label { font-size:10px; font-weight:700; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
+.sb-dl-btns { display:flex; flex-direction:column; gap:5px; margin-top:6px; }
+.sb-dl-btn { border:none; border-radius:7px; padding:9px 10px; font-size:11px; font-weight:700; cursor:pointer; color:white; width:100%; transition:opacity .15s; }
+.sb-dl-btn:hover { opacity:.85; }
+.sb-dl-btn.word { background:#2f80ed; }
+.sb-dl-btn.pdf  { background:#e74c3c; }
+.sb-dl-btn.both { background:#8e44ad; }
+.sb-dl-btn.pptx { background:#7c3aed; margin-top:4px; }
+
+/* RCA sidebar rows */
+.rca-sidebar-rows { display:flex; flex-direction:column; gap:3px; margin-bottom:8px; }
+.rca-sb-row { display:flex; align-items:center; gap:7px; padding:6px 8px; border-radius:7px; background:rgba(255,255,255,.07); cursor:pointer; transition:background .15s; }
+.rca-sb-row:hover { background:rgba(255,255,255,.12); }
+.rca-sb-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.rca-sb-dot.problem    { background:#f87171; }
+.rca-sb-dot.rootcause  { background:#fbbf24; }
+.rca-sb-dot.resolution { background:#34d399; }
+.rca-sb-label  { font-size:11px; color:rgba(255,255,255,.8); font-weight:500; flex:1; }
+.rca-sb-chip { font-size:10px; padding:1px 6px; border-radius:10px; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-weight:700; }
+.rca-sb-chip.has-content { background:#3b82f6; color:white; }
+.rca-sb-chevron { font-size:12px; color:rgba(255,255,255,.3); }
+
+/* Update preview button in sidebar */
+.rca-generate-btn { width:100%; background:#2f80ed; color:white; border:none; border-radius:7px; padding:9px; font-size:11px; font-weight:700; cursor:pointer; margin-top:4px; transition:opacity .15s; }
+.rca-generate-btn:hover { opacity:.85; }
+
+/* Images in report radios */
+.option-radio-group { display:flex; flex-direction:column; gap:4px; margin:4px 0; }
+.option-radio-item { display:flex; align-items:flex-start; gap:8px; padding:7px 8px; border-radius:7px; background:rgba(255,255,255,.07); cursor:pointer; transition:background .15s; }
+.option-radio-item:hover { background:rgba(255,255,255,.12); }
+.option-radio-item input[type="radio"] { accent-color:#4da6ff; margin-top:2px; flex-shrink:0; }
+.option-radio-label { font-size:11px; color:rgba(255,255,255,.85); font-weight:600; display:block; }
+.option-radio-hint  { font-size:10px; color:rgba(255,255,255,.4); display:block; margin-top:2px; }
+
+
+/* =====================================================
+   RCA EDITOR — collapsible zones
+===================================================== */
+.rca-editor-card { background:white; border-radius:16px; padding:24px; margin-bottom:24px; }
+.rca-editor-card h3 { font-size:18px; font-weight:700; color:#1e293b; margin:0 0 4px; }
+.rca-panel-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; }
+.rca-subtitle { font-size:12px; color:#64748b; margin:0; }
+.rca-expand-all-btn { border:1px solid #e2e8f0; background:white; border-radius:6px; padding:4px 10px; font-size:11px; color:#475569; cursor:pointer; flex-shrink:0; }
+.rca-expand-all-btn:hover { background:#f1f5f9; }
+
+.rca-zone { border-radius:10px; border:2px solid #e2e8f0; background:#f8fafc; margin-bottom:10px; overflow:hidden; }
+.rca-collapsible-header { display:flex; align-items:center; gap:9px; padding:11px 14px; cursor:pointer; user-select:none; transition:background .12s; }
+.rca-collapsible-header:hover { background:rgba(0,0,0,.03); }
+.rca-zone-icon { width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.rca-zone-icon.problem    { background:#fee2e2; }
+.rca-zone-icon.rootcause  { background:#fef3c7; }
+.rca-zone-icon.resolution { background:#dcfce7; }
+.rca-zone-title { font-size:13px; font-weight:700; color:#1e293b; }
+.rca-zone-meta  { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.rca-text-status { font-size:10px; color:#94a3b8; }
+.rca-text-status.has-text { color:#16a34a; }
+.rca-img-count  { font-size:11px; color:#64748b; font-weight:600; }
+.rca-chevron    { font-size:12px; color:#94a3b8; }
+.rca-zone-body  { padding:0 14px 14px; }
+.rca-zone.collapsed .rca-zone-body { display:none; }
+
+
+/* =====================================================
+   RICH TEXT EDITOR
+===================================================== */
+.rta-toolbar { display:flex; align-items:center; gap:2px; flex-wrap:wrap; padding:4px 7px; background:#f8fafc; border:1px solid #e2e8f0; border-bottom:none; border-radius:7px 7px 0 0; }
+.rta-btn { border:1px solid transparent; background:transparent; border-radius:4px; padding:3px 6px; cursor:pointer; font-size:12px; color:#475569; font-family:inherit; min-width:24px; text-align:center; transition:background .1s; }
+.rta-btn:hover { background:#e2e8f0; }
+.rta-allcaps { font-size:10px; font-weight:700; letter-spacing:.4px; }
+.rta-reset { font-size:10px; margin-left:auto; }
+.rta-reset:hover { background:#fee2e2; color:#ef4444; }
+.rta-color-btn { min-width:24px; font-size:13px; }
+.rta-sep { width:1px; height:16px; background:#e2e8f0; margin:0 2px; flex-shrink:0; }
+.rta-font-size { border:1px solid #e2e8f0; border-radius:4px; padding:2px 3px; font-size:11px; color:#475569; background:white; width:42px; }
+
+.rta-editor { min-height:100px; padding:10px 12px; font-size:13px; line-height:1.7; color:#1e293b; background:white; border:1px solid #e2e8f0; box-sizing:border-box; outline:none; overflow-y:auto; font-family:inherit; }
+.rta-editor:empty::before { content:attr(placeholder); color:#94a3b8; pointer-events:none; display:block; }
+.rta-editor:focus { background:#fafffe; }
+.rta-editor.problem    { border-left:3px solid #fca5a5; }
+.rta-editor.rootcause  { border-left:3px solid #fcd34d; }
+.rta-editor.resolution { border-left:3px solid #86efac; }
+.rta-editor ul, .rta-editor ol { padding-left:1.6em; margin:4px 0; }
+.rta-editor li { margin:2px 0; }
+
+/* Quick insert row */
+.rca-insert-row { display:flex; gap:4px; flex-wrap:wrap; padding:5px 6px; background:#f1f5f9; border:1px solid #e2e8f0; border-top:none; margin-bottom:10px; }
+.rca-insert-row button { border:1px solid #e2e8f0; background:white; border-radius:4px; padding:2px 7px; font-size:10px; color:#475569; cursor:pointer; font-weight:600; }
+.rca-insert-row button:hover { background:#e2e8f0; }
+.rca-clear-text-btn { margin-left:auto !important; color:#ef4444 !important; }
+
+/* Image upload row */
+.rca-img-upload-row { display:flex; align-items:center; gap:10px; margin:8px 0 4px; }
+.rca-img-upload-btn { display:inline-flex; align-items:center; gap:5px; border:1px dashed #cbd5e1; border-radius:6px; padding:5px 12px; font-size:11px; color:#475569; cursor:pointer; background:#f8fafc; transition:border-color .15s; }
+.rca-img-upload-btn:hover { border-color:#94a3b8; }
+.rca-img-upload-btn input[type="file"] { display:none; }
+.rca-img-upload-hint { font-size:10px; color:#94a3b8; }
+.rca-file-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+.file-chip { background:#e8eef7; color:#172b46; padding:4px 10px; border-radius:16px; font-size:11px; display:flex; align-items:center; gap:4px; }
+.remove-file { cursor:pointer; color:#64748b; font-size:13px; }
+.remove-file:hover { color:#ef4444; }
+
+/* Update preview button */
+.update-btn-wrapper { margin-top:16px; }
+.update-preview-btn { background:#2f80ed; color:white; border:none; border-radius:8px; padding:10px 22px; font-size:13px; font-weight:600; cursor:pointer; transition:opacity .15s; }
+.update-preview-btn:hover { opacity:.85; }
+
+/* Colour grid popup */
+.color-grid-popup { background:white; border-radius:10px; border:1px solid #e2e8f0; padding:10px; box-shadow:0 8px 32px rgba(0,0,0,.18); z-index:99999; width:220px; }
+.color-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:4px; margin-bottom:8px; }
+.color-swatch { width:20px; height:20px; border-radius:4px; cursor:pointer; border:1.5px solid rgba(0,0,0,.1); transition:transform .1s; }
+.color-swatch:hover { transform:scale(1.25); }
+.color-more-row { display:flex; align-items:center; justify-content:space-between; padding-top:6px; border-top:1px solid #f1f5f9; }
+.color-more-lbl { font-size:11px; color:#475569; font-weight:600; }
+.color-more-input { width:28px; height:28px; border-radius:50%; border:1.5px solid #e2e8f0; cursor:pointer; padding:0; }
+
+/* Preview images side by side */
+#previewContainer img { max-width:340px !important; max-height:210px !important; height:auto !important; width:auto !important; display:inline-block !important; margin:3px 5px 3px 0 !important; border-radius:4px; border:1px solid #e2e8f0; }
+
+
+/* =====================================================
+   REFERENCES ZONE
+===================================================== */
+.rca-zone.references { border-color: #8b5cf6; }
+.rca-zone-icon.references { background: #ede9fe; }
+.rca-sb-dot.references { background: #a78bfa; }
+
+.rca-rta-editor.references,
+.rta-editor.references { border-left: 3px solid #8b5cf6; }
+
+.rca-refs-hint {
+    font-size: 11px;
+    color: #64748b;
+    margin: 0 0 8px;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+.rca-refs-rendered {
+    margin-top: 8px;
+}
+
+.rca-refs-rendered table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.rca-refs-rendered td, .rca-refs-rendered th {
+    padding: 7px 10px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.rca-refs-rendered th {
+    background: #f1f5f9;
+    font-size: 11px;
+    font-weight: 600;
+}

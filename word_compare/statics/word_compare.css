@@ -116,26 +116,8 @@
 .chip.modified { background: #fef9c3; color: #713f12; }
 
 /* =========================================================================
-   4. STATS ROW (inside processing footer)
+   4. (reserved)
    ========================================================================= */
-.wc-stats-row {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-}
-.stat-pill {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.stat-pill.add { background: #dcfce7; color: #14532d; }
-.stat-pill.rem { background: #fee2e2; color: #7f1d1d; }
-.stat-pill.mod { background: #fef9c3; color: #713f12; }
 
 /* =========================================================================
    5. EMPTY STATE
@@ -403,23 +385,306 @@
     color: #334155;
 }
 
+/* =========================================================================
+   10. DIFF OUTER WRAPPER (flex column for kpi + tabs + split)
+   ========================================================================= */
+.wc-diff-outer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.wc-diff-outer .wc-split-container {
+    flex: 1;
+    min-height: 0;
+}
+
+/* =========================================================================
+   11. SECTION KPI STRIP (above tabs)
+   ========================================================================= */
+.wc-section-kpi-strip {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 16px;
+    height: 42px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+
+/* ─── Tabs-per-page selector ─── */
+.wc-tpp-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.tpp-label {
+    font-size: 11px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+.wc-tpp-selector select {
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    font-size: 12px;
+    color: #1e293b;
+    cursor: pointer;
+    outline: none;
+}
+.wc-tpp-selector select:focus { border-color: #94a3b8; }
+
+.sec-kpi {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    font-size: 12px;
+    color: #64748b;
+}
+.sec-kpi strong { font-size: 17px; font-weight: 700; }
+.sec-kpi.add strong { color: #15803d; }
+.sec-kpi.rem strong { color: #b91c1c; }
+.sec-kpi.mod strong { color: #b45309; }
+
+/* =========================================================================
+   12. PAGINATION BAR
+   ========================================================================= */
+.wc-pagination {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.pg-btn {
+    width: 28px;
+    height: 26px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+    background: #1e3a5f;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, opacity 0.15s;
+    line-height: 1;
+    padding: 0;
+}
+.pg-btn:hover:not(:disabled) { background: #162f52; }
+.pg-btn:disabled { opacity: 0.35; cursor: default; }
+
+.pg-label {
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e3a5f;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    min-width: 90px;
+    justify-content: center;
+}
+
+/* =========================================================================
+   13. SECTION TABS ROW
+   ========================================================================= */
+.wc-section-tabs {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    max-height: 88px;      /* ~2 rows max before scroll */
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.wc-section-tab {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: #e2e8f0;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 11.5px;
+    color: #475569;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+.wc-section-tab:hover { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
+.wc-section-tab.active {
+    background: #162f52;
+    color: white;
+    border-color: #162f52;
+    font-weight: 600;
+}
+
+.tab-label { max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+
+.tab-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 10px;
+    min-width: 16px;
+    text-align: center;
+}
+.wc-section-tab.active .tab-badge { background: rgba(255,255,255,0.25); }
+
+/* =========================================================================
+   14. SIDEBAR KPI BOXES
+   ========================================================================= */
+.wc-kpi-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 4px;
+}
+
+.kpi-sidebar-box {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.kpi-sidebar-box strong {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+}
+.kpi-sidebar-box small {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.kpi-sidebar-box.add strong { color: #4ade80; }
+.kpi-sidebar-box.rem strong { color: #f87171; }
+.kpi-sidebar-box.mod strong { color: #fbbf24; }
+.kpi-sidebar-box.tot strong { color: #e2e8f0; }
+
+
+/* =========================================
+   ANIMATED PROGRESS BAR — OPS style
+   Classes applied by updateProcessingStatus()
+========================================= */
+
+@keyframes ops-shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+}
+
+.ops-bar-processing {
+    background: linear-gradient(
+        90deg,
+        #3b82f6 0%,
+        #60a5fa 40%,
+        #3b82f6 60%,
+        #1d4ed8 100%
+    ) !important;
+    background-size: 200% auto !important;
+    animation: ops-shimmer 1.6s linear infinite !important;
+}
+
+.ops-bar-completed {
+    background: #22c55e !important;
+    transition: width 0.4s ease !important;
+}
+
+.ops-bar-failed {
+    background: #ef4444 !important;
+}
+
+
+/* =========================================
+   STATUS META ROWS (sidebar footer)
+========================================= */
+
+.report-status-meta {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+
+.status-label {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   HELP INDEX BUTTONS (inside modal)
+========================================= */
+
+.help-index-item
+
+/* =========================================
+   HELP MODAL LEFT PANE BUTTONS
+   Dark text on light background (#f8fafc)
+   matches common.css help-modal-left-pane
+========================================= */
+
+.help-topic-btn,
 .help-index-item {
     display: block;
     width: 100%;
-    padding: 9px 16px;
-    background: none;
-    border: none;
     text-align: left;
-    font-size: 12px;
-    color: #475569;
+    padding: 10px 14px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background 0.15s, color 0.15s;
     border-left: 3px solid transparent;
-    transition: all 0.15s;
 }
-.help-index-item:hover { background: #e2e8f0; }
-.active-help-topic {
-    background: #e0f2fe !important;
+
+.help-topic-btn:hover,
+.help-index-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-left-color: #cbd5e1;
+}
+
+.help-topic-btn.active-help-topic,
+.help-index-item.active-help-topic {
+    background: #e0f2fe;
     color: #0369a1;
     font-weight: 600;
-    border-left-color: #0ea5e9 !important;
+    border-left-color: #0ea5e9;
 }
+

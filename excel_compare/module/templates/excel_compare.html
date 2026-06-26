@@ -1,0 +1,131 @@
+{% extends "home.html" %}
+
+{% block sidebar %}
+
+<div class="sidebar-content excel-sidebar">
+
+    <!-- Fixed Top -->
+    <div class="sidebar-top-fixed">
+
+        <button class="clear-workspace-btn">
+            Clear Workspace
+        </button>
+
+        <div class="upload-card">
+            <h4>Upload Files</h4>
+
+            <label>Old File</label>
+            <input type="file" id="oldFile">
+
+            <label>New File</label>
+            <input type="file" id="newFile">
+        </div>
+
+        <div class="sidebar-action-buttons">
+            <button id="uploadBtn">Upload Files</button>
+            <button id="compareBtn">Run Compare</button>
+            <button id="downloadBtn">Download Report</button>
+        </div>
+
+    </div>
+
+    <!-- Fixed Bottom -->
+    <div class="sidebar-bottom-fixed">
+        <div class="processing-status-card">
+            <h4>Status</h4>
+            <p id="statusText">Waiting for upload...</p>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Top Navigation -->
+<div class="top-nav-bar">
+
+    <div class="top-nav-left">
+        <a href="/" class="top-home-btn">🏠 Home</a>
+    </div>
+
+    <div class="top-nav-center">
+        <div class="module-title-pill">
+            Excel Compare
+        </div>
+    </div>
+
+    <div class="top-nav-right">
+        <button class="help-btn">?</button>
+    </div>
+
+</div>
+
+
+<!-- Main Content -->
+<div class="scrollable-report-content">
+
+    <!-- Toolbar -->
+    <div class="report-toolbar">
+        <button>Filter Changes</button>
+        <button>Export Summary</button>
+        <button>Refresh</button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+
+        <div class="kpi-card">
+            <h3>Rows Changed</h3>
+            <p id="rowsChanged">0</p>
+        </div>
+
+        <div class="kpi-card">
+            <h3>Columns Changed</h3>
+            <p id="columnsChanged">0</p>
+        </div>
+
+        <div class="kpi-card">
+            <h3>New Rows</h3>
+            <p id="newRows">0</p>
+        </div>
+
+        <div class="kpi-card">
+            <h3>Deleted Rows</h3>
+            <p id="deletedRows">0</p>
+        </div>
+
+    </div>
+
+    <!-- Results Table -->
+    <div class="card">
+        <h3>Comparison Results</h3>
+
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>Sheet</th>
+                    <th>Cell</th>
+                    <th>Old Value</th>
+                    <th>New Value</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="resultTable">
+                <tr>
+                    <td colspan="5" class="empty-table-message">
+                        No comparison data available
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="{{ url_for('excel_compare.static', filename='excel_compare.js') }}"></script>
+
+{% endblock %}

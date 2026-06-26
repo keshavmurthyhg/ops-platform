@@ -6,6 +6,7 @@ from common.utils.text_cleaner import format_description
 from common.utils.parsers import extract_azure_id
 
 from report.module.services.rca_service import build_rca
+from report.module.services.references_service import extract_references, format_references_text
 from common.logger import setup_logger
 
 logger = setup_logger("doc_generator")
@@ -62,6 +63,20 @@ def prepare_data(data):
         "resolution",
         ""
     )
+
+    # Extract references — preserve user-edited list (with environment overrides)
+    # if it was already set on the incoming data (e.g. from references_json payload).
+    logger.info("Extracting references")
+    incoming_refs = safe_data.get("references")
+    if incoming_refs:
+        # Already set (user may have edited environments) — keep as-is
+        refs = incoming_refs
+        logger.info("References preserved from incoming data: %d", len(refs))
+    else:
+        refs = extract_references(safe_data)
+        safe_data["references"] = refs
+        logger.info("References found: %d", len(refs))
+    safe_data["references_text"] = format_references_text(refs)
 
     return safe_data
 

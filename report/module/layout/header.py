@@ -1,7 +1,10 @@
 from reportlab.platypus import Table, TableStyle, Paragraph
 from reportlab.lib import colors
 
-from common.utils.links import get_url, make_pdf_link
+from common.utils.links import get_url, make_pdf_link, parse_ptc_cases
+
+# PTC support case URL — must match links.py get_url("ptc case", ...)
+_PTC_CASE_URL = "https://support.ptc.com/appserver/cs/view/case.jsp?n={}"
 
 
 def build_pdf_header(data, wrap_link, format_date):
@@ -10,32 +13,46 @@ def build_pdf_header(data, wrap_link, format_date):
         return Paragraph(str(x or "-"), style=None)
 
     def safe_link(field, value):
-            """
-            Keep links clickable while preventing blank values.
-            """
-        
-            if not value:
-                return wrap("-")
-        
-            value = str(value).strip()
-        
-            if value.lower() in ["nan", "none", "nat", "-"]:
-                return wrap("-")
-        
-            try:
-                url = get_url(field, value)
-        
-                # If valid URL exists → clickable link
-                if url:
-                    return wrap_link(field, value)
-        
-                # fallback → plain text
-                return wrap(value)
-        
-            except Exception as e:
-                print(f"{field} link error:", e)
-                return wrap(value)
-                
+        """Keep links clickable while preventing blank values."""
+        if not value:
+            return wrap("-")
+        value = str(value).strip()
+        if value.lower() in ["nan", "none", "nat", "-"]:
+            return wrap("-")
+        try:
+            url = get_url(field, value)
+            if url:
+                return wrap_link(field, value)
+            return wrap(value)
+        except Exception as e:
+            print(f"{field} link error:", e)
+            return wrap(value)
+
+    def build_ptc_cell(raw):
+        """
+        Build a Paragraph with each PTC case individually hyperlinked.
+        Uses parse_ptc_cases from links.py — handles comma-separated lists
+        and alpha-prefixed IDs (e.g. C1234567 → strips to 1234567 for URL).
+        """
+        if not raw:
+            return wrap("-")
+        raw = str(raw).strip()
+        if raw.lower() in ("nan", "none", "nat", "-", ""):
+            return wrap("-")
+
+        cases = parse_ptc_cases(raw)   # [(display, num_id), ...]
+        if not cases:
+            return wrap(raw)
+
+        parts_html = []
+        for display, num_id in cases:
+            url = _PTC_CASE_URL.format(num_id)
+            parts_html.append(
+                f'<link href="{url}" color="#000000">{display}</link>'
+            )
+
+        return Paragraph(", ".join(parts_html), style=None)
+
     table = Table(
         [
             [
@@ -52,7 +69,7 @@ def build_pdf_header(data, wrap_link, format_date):
             ],
             [
                 "PTC CASE",
-                safe_link("ptc case", data.get("ptc_case")),
+                build_ptc_cell(data.get("ptc_case")),
                 "ASSIGNED TO",
                 wrap(data.get("assigned_to"))
             ],

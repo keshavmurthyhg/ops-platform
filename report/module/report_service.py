@@ -17,80 +17,62 @@ logger = setup_logger("rca")
 
 def load_incident_data(incident_number):
     """
-    Load incident data from snow.xlsx
+    Load incident data from Snow.xlsx
     and normalize for report generator
     """
 
-    snow_file = os.path.join("data", "snow.xlsx")
+    snow_file = os.path.join("data", "Snow.xlsx")
 
     if not os.path.exists(snow_file):
-        raise Exception("snow.xlsx not found in data folder")
+        raise Exception("Snow.xlsx not found in data folder")
 
     df = pd.read_excel(snow_file)
 
+    # Normalize ALL column headers to lowercase + stripped
+    df.columns = [
+        str(col).strip().lower()
+        for col in df.columns
+    ]
+
+    # Match incident number
     row = df[
-        df["Number"].astype(str).str.strip()
-        == incident_number
+        df["number"].astype(str).str.strip() == incident_number.strip()
     ]
 
     if row.empty:
-        raise Exception(
-            f"{incident_number} not found in snow.xlsx"
-        )
+        raise Exception(f"{incident_number} not found in Snow.xlsx")
 
     r = row.iloc[0]
 
-    # Extract resolution notes properly
-    resolution_notes = str(
-        r.get("Resolution notes", "")
-    ).strip()
+    def val(col):
+        v = r.get(col, "")
+        if v is None:
+            return ""
+        s = str(v).strip()
+        return "" if s.lower() in ("nan", "nat", "none") else s
 
-    print("RESOLUTION NOTES:")
-    print(resolution_notes)
+    return {
+        "number":               val("number"),
+        "short_description":    val("short description"),
+        "description":          format_description(val("description")),
+        "priority":             val("priority"),
+        "created_by":           val("opened by"),
+        "opened_by":            val("opened by"),
+        "assigned_to":          val("assigned to"),
+        "created_date":         val("created"),
+        "resolved_date":        val("resolved"),
+        "ptc_case":             val("vendor ticket"),
 
-    data = {
-        "number": r.get("Number"),
+        # Spaced keys for rca_service.py
+        "resolution notes":     val("resolution notes"),
+        "work notes":           val("work notes"),
+        "additional comments":  val("additional comments"),
 
-        "assigned_to": r.get("Assigned to"),
-
-        "created_date": r.get("Created"),
-        "resolved_date": r.get("Resolved"),
-
-        "priority": r.get("Priority"),
-
-        "short_description": r.get(
-            "Short description"
-        ),
-
-        "description": format_description(
-            r.get("Description")
-        ),
-
-        # IMPORTANT → keep exact key expected by doc_generator
-        "resolution notes": resolution_notes,
-
-        "work notes": r.get(
-            "Work notes"
-        ),
-
-        "additional comments": r.get(
-            "Additional comments"
-        ),
-
-        "created_by": r.get(
-            "Opened by"
-        ),
-
-        "opened_by": r.get(
-            "Opened by"
-        ),
-
-        "ptc_case": r.get(
-            "Vendor ticket"
-        )
+        # Underscored aliases
+        "resolution_notes":     val("resolution notes"),
+        "work_notes":           val("work notes"),
+        "additional_comments":  val("additional comments"),
     }
-
-    return data
 
 
 def generate_incident_report(

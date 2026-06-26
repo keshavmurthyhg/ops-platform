@@ -1,0 +1,15 @@
+Windchill WVS — Job Statistics Report
+Captured  : 20260617_012118
+Source    : https://vcewindchill.got.volvo.net/Windchill/ptc1/wvs/queueMonitorMain?containerOid=OR:wt.inf.container.OrgContainer:4678&u8=1
+
+══════════════════════════════════════════════════════════════════════
+  TABLE 1 — JOB SUMMARY STATISTICS (by Authoring Application)
+══════════════════════════════════════════════════════════════════════
+  (no data)
+
+
+══════════════════════════════════════════════════════════════════════
+  TABLE 2 — WORKER STATISTICS (by Worker Name)
+══════════════════════════════════════════════════════════════════════
+  (no data)
+

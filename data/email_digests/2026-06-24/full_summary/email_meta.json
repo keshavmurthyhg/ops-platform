@@ -1,0 +1,10 @@
+{
+  "digest_type": "full_summary",
+  "subject": "[OPS DAILY] Summary Report \u2014 46 failures, 11 incidents, 259 WM tx failed \u2014 24 Jun 2026 13:59",
+  "from": "keshavamurthy.hg@consultant.volvo.com",
+  "to": "keshavamurthy.hg@consultant.volvo.com",
+  "generated_at": "2026-06-24 13:59:37",
+  "date": "2026-06-24",
+  "is_alert": true,
+  "html_file": "data\\email_digests\\2026-06-24\\full_summary\\email_body.html"
+}

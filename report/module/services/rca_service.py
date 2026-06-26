@@ -1,226 +1,489 @@
+"""
+rca_service.py
+==============
+Builds RCA sections using sentence classification + domain signals.
+
+Approach:
+  1. Expand compound sentences at causal connectors (Therefore / Hence / etc.)
+  2. Classify each sentence: NOISE / ROOT_CAUSE / RESOLUTION / GENERAL
+  3. Route classified sentences to the correct RCA section
+  4. Rewrite problem statement from description fields with noise removed
+  5. Append escalation/tracking note when Azure bug is referenced
+
+FULLY OFFLINE — pure pip packages:
+    pip install nltk scikit-learn
+
+Setup: extract nltk_data_offline.zip into your project root:
+    ops-platform/
+        nltk_data/        ← extracted here
+        report/
+        common/
+"""
+
+import os
 import re
+import logging
+
+logger = logging.getLogger("rca_service")
 
 
-# ---------------- SAFE VALUE ---------------- #
+# ─────────────────────────────────────────────────────────────────────────────
+# POINT NLTK AT PROJECT-LOCAL DATA FOLDER
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _find_project_root():
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(8):
+        if os.path.isdir(os.path.join(current, "nltk_data")):
+            return current
+        parent = os.path.dirname(current)
+        if parent == current:
+            break
+        current = parent
+    return None
+
+_project_root = _find_project_root()
+_PROJECT_NLTK = os.path.join(_project_root, "nltk_data") if _project_root else None
+
+if _PROJECT_NLTK and os.path.isdir(_PROJECT_NLTK):
+    import nltk as _nltk_cfg
+    if _PROJECT_NLTK not in _nltk_cfg.data.path:
+        _nltk_cfg.data.path.insert(0, _PROJECT_NLTK)
+    logger.info("RCA: using local NLTK data at %s", _PROJECT_NLTK)
+else:
+    logger.warning("RCA: nltk_data not found — extract nltk_data_offline.zip into project root")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLASSIFICATION SIGNAL LISTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Sentences matching any of these → dropped entirely
+_NOISE_SIGNALS = [
+    # ── Hedging / personal opinion ──────────────────────────────────────────
+    "i believe", "i think", "i feel", "maybe", "perhaps",
+    # ── Cross-reference noise ─────────────────────────────────────────────
+    "see for example", "also see", "see for", "for example",
+    # ── Closing / admin statements ────────────────────────────────────────
+    "i am closing", "closing the incident", "close the incident",
+    "closing this", "closing ticket", "i am closing this",
+    "as confirmed by jordan", "as confirmed by",
+    # ── Pleasantries / social filler ──────────────────────────────────────
+    "please close", "keep you posted", "will keep you posted",
+    "as discussed", "hi team", "hi l2", "hi l3", "hi all", "hi everyone",
+    "hello", "thanks", "thank you", "regards",
+    "over teams", "over the team's chat", "over a call",
+    "hope this helps", "kindly",
+    # ── Action requests / questions ───────────────────────────────────────
+    "please check", "please confirm", "please validate", "please review",
+    "please test", "please proceed", "please look into",
+    "can you check", "can you please", "can you confirm",
+    "can you have a look", "could you please", "could you check",
+    "would you please", "would you be able",
+    "can you look", "please let me know", "let me know",
+    "please advise", "please provide", "please share",
+    # ── Status/tracking filler ─────────────────────────────────────────────
+    "waiting for", "currently waiting", "waiting to",
+    "call scheduled", "assigned to", "priority changed",
+    "attachment", "attached",
+    # ── Confirm-to-close / validation requests ────────────────────────────
+    "please test and confirm", "test and confirm",
+    "confirm to close", "confirm if", "please confirm if",
+    "validate and close", "validate and confirm",
+    "check and confirm", "verify and confirm",
+    "test this and", "re-test", "retest",
+    # ── Questions (sentences that are actual questions) ────────────────────
+    # Handled separately by _is_question() function below
+]
+
+# Sentence-ending question patterns — strip interrogative sentences
+_QUESTION_PATTERN = re.compile(r"\?\s*$")
+
+# Person name attribution lines: "- Firstname Lastname (Work notes)"
+# Also: "Firstname Lastname (Work notes) Hi L2, ..."
+_NAME_PREFIX = re.compile(
+    r"^\s*-?\s*[A-Z][a-z]+\s+[A-Z][a-z]+\s*\((?:Work notes|Additional comments|Resolution notes)\)",
+    re.IGNORECASE,
+)
+
+def _is_noise_sentence(sent):
+    """Return True if this sentence should be excluded from RCA output."""
+    if len(sent) < 15:
+        return True
+    # Strip sentences that are pure questions
+    if _QUESTION_PATTERN.search(sent.rstrip()):
+        return True
+    # Strip person-name attribution lines
+    if _NAME_PREFIX.match(sent):
+        return True
+    if _NAME_LINE.match(sent):
+        return True
+    lower = sent.lower()
+    if any(n in lower for n in _NOISE_SIGNALS):
+        return True
+    return False
+
+# Sentences matching these → ROOT CAUSE section
+_ROOT_CAUSE_SIGNALS = [
+    "blocked by", "ootb", "delegate",
+    "due to", "caused by", "root cause", "because",
+    "identified", "investigation", "found that", "determined",
+    "not configured", "not granted", "missing permission",
+    "access control", "policy", "acl", "configuration issue",
+    "after upgrade", "after windchill", "after wc",
+    "was removed", "has been removed", "button was removed",
+    "visibility is controlled", "controlled by",
+]
+
+# Sentences matching these → RESOLUTION section
+_RESOLUTION_SIGNALS = [
+    "acl needs", "needs to be created", "acl to be created", "new acl",
+    "create acl", "grant permission", "granted permission",
+    "permission needs to be", "modify permission granted",
+    "validation was performed", "observation:", "observations:",
+    "when modify permission", "when permission is granted",
+    "option is visible", "user is able to see", "edit association option is visible",
+    "workaround", "escalated to", "bug created", "feature created",
+    "resolved", "fixed", "applied the fix", "correction applied",
+]
+
+# Splits compound sentences at causal connector words
+_CAUSAL_SPLIT = re.compile(
+    r"\s*\b(Therefore|Hence|As a result|Thus|Consequently|"
+    r"To resolve this|To fix this)\b[,\s]+",
+    re.IGNORECASE,
+)
+_CAUSAL_WORDS = re.compile(
+    r"^(Therefore|Hence|As a result|Thus|Consequently|"
+    r"To resolve this|To fix this)$",
+    re.IGNORECASE,
+)
+
+# Name lines: "- Firstname Lastname (Work notes)"
+_NAME_LINE = re.compile(r"^\s*-\s*[A-Z][a-z]+ [A-Z][a-z]+\s*\(")
+
+# Ticket number references like "See 17358061"
+_TICKET_REF = re.compile(r"\bSee\s+\d{5,}\b", re.IGNORECASE)
+
+# Hedging phrases to strip from short description
+_HEDGE_PARENS = re.compile(r"\s*\(maybe[^)]*\)", re.IGNORECASE)
+_HEDGE_WORDS  = re.compile(r"\s*\bmaybe\b\s*", re.IGNORECASE)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+
 def safe_text(val):
     if val is None:
         return ""
-
     val = str(val).strip()
-
-    if val.lower() in ["nan", "nat", "none"]:
-        return ""
-
-    return val
+    return "" if val.lower() in ("nan", "nat", "none") else val
 
 
-# ---------------- GET COLUMN SAFELY ---------------- #
-def get_value(data, *possible_keys):
-    """
-    Supports both:
-    'resolution notes'
-    'resolution_notes'
-    """
-    for key in possible_keys:
-        if key in data:
-            return safe_text(data.get(key))
+def get_value(data, *keys):
+    for k in keys:
+        v = safe_text(data.get(k, ""))
+        if v:
+            return v
     return ""
 
 
-# ---------------- CLEAN NOISE ---------------- #
-def clean_lines(text):
+def _clean_raw(text):
+    """Strip timestamps, phone numbers, ticket refs; tag URLs for detection."""
+    if not text:
+        return ""
+    text = re.sub(r"\d{4}-\d{2}-\d{2}[\s\d:]{0,9}", " ", text)
+    # Tag azure/ptc URLs for resolution note detection, strip others
+    text = re.sub(r"https?://dev\.azure\.com/\S+", "DEVLINK", text)
+    text = re.sub(r"https?://\S+", " ", text)   # strip all other URLs cleanly
+    text = re.sub(r"\+?\d[\d\s\-]{7,}", " ", text)
+    text = _TICKET_REF.sub("", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def _expand_sentences(text):
+    """
+    Tokenise text into sentences, then split each sentence at causal
+    connectors (Therefore / Hence / etc.) so root cause and resolution
+    parts of compound sentences are separated correctly.
+    """
+    text = _clean_raw(text)
     if not text:
         return []
 
-    noise_words = [
-        "hello",
-        "hi team",
-        "thanks",
-        "thank you",
-        "regards",
-        "br",
-        "please close",
-        "closing incident",
-        "call scheduled",
-        "waiting for response",
-        "waiting for update",
-        "attached",
-        "attachment:",
-        "assigned to",
-        "priority changed"
-    ]
+    try:
+        from nltk.tokenize import sent_tokenize
+        raw_sents = sent_tokenize(text)
+    except Exception:
+        raw_sents = re.split(r"(?<=[.!?])\s+(?=[A-Z])", text)
 
-    cleaned = []
+    expanded = []
+    for s in raw_sents:
+        parts = _CAUSAL_SPLIT.split(s)
+        clean_parts = [
+            p.strip() for p in parts
+            if p.strip()
+            and not _CAUSAL_WORDS.match(p.strip())
+            and len(p.strip()) > 20
+        ]
+        expanded.extend(clean_parts if clean_parts else [s.strip()])
 
-    for raw in text.split("\n"):
-        line = raw.strip()
+    return expanded
 
-        if not line:
+
+def _classify(sent):
+    """
+    Classify a sentence into one of:
+        NOISE / ROOT_CAUSE / RESOLUTION / GENERAL
+    Uses the expanded _is_noise_sentence() which covers person names,
+    questions, please/validate/confirm/close phrases.
+    """
+    if _is_noise_sentence(sent):
+        return "NOISE"
+
+    lower = sent.lower()
+
+    if any(r in lower for r in _ROOT_CAUSE_SIGNALS):
+        return "ROOT_CAUSE"
+    if any(r in lower for r in _RESOLUTION_SIGNALS):
+        return "RESOLUTION"
+
+    return "GENERAL"
+
+
+def _dedup(sentences, max_n):
+    """Remove near-duplicate sentences, return up to max_n."""
+    seen, out = set(), []
+    for s in sentences:
+        key = re.sub(r"\s+", " ", s.lower())[:70]
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(s)
+        if len(out) >= max_n:
+            break
+    return out
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PROBLEM STATEMENT BUILDER
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_problem(data):
+    """
+    Build a clean, non-repetitive problem statement:
+    - Short description (stripped of hedging like 'maybe')
+    - Core user impact sentence from description
+    Filters: 'I believe', ticket refs, 'See for example', repeated WC13 refs.
+    """
+    short_desc = get_value(data, "short description", "short_description")
+    description = get_value(data, "description")
+
+    # Clean short description — remove hedging but keep the technical context
+    sd = _HEDGE_PARENS.sub("", short_desc).strip()
+    sd = _HEDGE_WORDS.sub(" ", sd).strip()
+    sd = re.sub(r"\s+", " ", sd).strip()
+
+    desc_sents = _expand_sentences(description)
+
+    chosen = []
+    seen_concepts = set(sd.lower().split())
+
+    for s in desc_sents:
+        lower = s.lower()
+        # Hard filters
+        if _classify(s) == "NOISE":
+            continue
+        if "i believe" in lower or "i think" in lower:
+            continue
+        if "see for" in lower or "also see" in lower:
+            continue
+        if "cad side" in lower:
+            continue
+        # Avoid repeating wc13 / windchill 13 if already in sd
+        if ("wc13" in lower or "windchill 13" in lower) and \
+           ("wc13" in sd.lower() or "windchill 13" in sd.lower()):
             continue
 
-        lower = line.lower()
-
-        # remove timestamps
-        if re.match(r"^\d{4}-\d{2}-\d{2}", line):
+        # Avoid high concept overlap with already chosen content
+        words = set(s.lower().split())
+        overlap = len(words & seen_concepts) / max(len(words), 1)
+        if overlap > 0.55:
             continue
 
-        # remove pure names
-        if len(line.split()) <= 2 and line.istitle():
-            continue
+        chosen.append(s)
+        seen_concepts |= words
+        if len(chosen) >= 2:
+            break
 
-        # remove noise lines
-        if any(x in lower for x in noise_words):
-            continue
-
-        cleaned.append(line)
-
-    return cleaned
+    parts = [sd] + chosen
+    return " ".join(parts)
 
 
-# ---------------- PROBLEM STATEMENT ---------------- #
-def build_problem(data):
-    short_desc = get_value(
-        data,
-        "short description",
-        "short_description"
-    )
+# ─────────────────────────────────────────────────────────────────────────────
+# ROOT CAUSE BUILDER
+# ─────────────────────────────────────────────────────────────────────────────
 
-    desc = get_value(
-        data,
-        "description"
-    )
+def _build_root_cause(sentences_by_tag):
+    """
+    Root cause = technical findings from investigation:
+    - What is blocking / preventing the functionality
+    - Why it happened (upgrade, config change, missing ACL, etc.)
+    """
+    root_sents = sentences_by_tag.get("ROOT_CAUSE", [])
 
-    problem_lines = []
+    if not root_sents:
+        return "The root cause could not be determined from the available notes. Further investigation is required."
 
-    if short_desc:
-        problem_lines.append(short_desc)
-
-    if desc:
-        short_clean = short_desc.lower().strip()
-        desc_clean = desc.lower().strip()
-
-        if (
-            desc_clean != short_clean
-            and short_clean not in desc_clean
-            and desc_clean not in short_clean
-        ):
-            problem_lines.append(desc)
-
-    problem_lines = list(dict.fromkeys(problem_lines))
-
-    return "\n".join(problem_lines[:2])
+    return " ".join(_dedup(root_sents, 3))
 
 
-# ---------------- ROOT CAUSE ---------------- #
-def build_root_cause(data):
-    resolution_notes = get_value(
-        data,
-        "resolution notes",
-        "resolution_notes"
-    )
+# ─────────────────────────────────────────────────────────────────────────────
+# RESOLUTION BUILDER
+# ─────────────────────────────────────────────────────────────────────────────
 
-    work_notes = get_value(
-        data,
-        "work notes",
-        "work_notes"
-    )
+def _build_resolution(sentences_by_tag, raw_notes):
+    """
+    Resolution = what was done or needs to be done:
+    - Fix applied / configuration change
+    - Validation result
+    - If not resolved: workaround or escalation note
+    """
+    res_sents = sentences_by_tag.get("RESOLUTION", [])
 
-    comments = get_value(
-        data,
-        "additional comments",
-        "additional_comments"
-    )
-
-    combined = "\n".join([
-        resolution_notes,
-        work_notes,
-        comments
-    ])
-
-    lines = clean_lines(combined)
-
-    root_lines = []
-
-    for line in lines:
-        lower = line.lower()
-
-        if (
-            "cause:" in lower
-            or "root cause" in lower
-            or "incorrect path" in lower
-            or "certificate" in lower
-            or "validation issue" in lower
-            or "failed due to" in lower
-            or "exception" in lower
-            or "error" in lower
-            or "unable to" in lower
-        ):
-            root_lines.append(line)
-
-    # fallback if no explicit cause found
-    if not root_lines:
-        for line in lines:
-            lower = line.lower()
-
-            if not any(x in lower for x in [
-                "validated",
-                "working fine",
-                "working now",
-                "closed",
-                "resolved"
-            ]):
-                root_lines.append(line)
-                break
-
-    root_lines = list(dict.fromkeys(root_lines))
-
-    return "\n".join(root_lines[:4])
-
-
-# ---------------- RESOLUTION ---------------- #
-def build_resolution(data):
-    resolution_notes = get_value(
-        data,
-        "resolution notes",
-        "resolution_notes"
-    )
-
-    lines = clean_lines(resolution_notes)
-
-    resolution_lines = []
-
-    for line in lines:
-        lower = line.lower()
-
-        if any(x in lower for x in [
-            "resolution:",
-            "resolved",
-            "fixed",
-            "implemented",
-            "modified",
-            "restarted",
-            "validated",
-            "working fine",
-            "working now",
-            "successful",
-            "success",
-            "closed"
+    # Include GENERAL sentences that describe concrete actions
+    for s in sentences_by_tag.get("GENERAL", []):
+        lower = s.lower()
+        if any(kw in lower for kw in [
+            "permission", "acl", "modify", "enable", "provide",
+            "configure", "update", "apply", "create",
         ]):
-            resolution_lines.append(line)
+            res_sents.append(s)
 
-    # fallback → use resolution notes directly
-    if not resolution_lines and lines:
-        resolution_lines = lines[:3]
+    res_final = _dedup(res_sents, 4)
 
-    resolution_lines = list(dict.fromkeys(resolution_lines))
+    if not res_final:
+        res_final = ["Resolution steps are pending. The issue has been escalated for further investigation."]
 
-    return "\n".join(resolution_lines[:5])
+    # ── Append contextual closing note ────────────────────────────────────────
+    notes_lower = raw_notes.lower()
+
+    is_resolved   = any(w in notes_lower for w in [
+        "resolved", "working now", "working fine", "confirmed working",
+        "validation was performed", "user confirmed",
+    ])
+    has_azure_bug = "devlink" in notes_lower or (
+        "azure" in notes_lower and any(w in notes_lower for w in ["feature", "bug", "work item"])
+    )
+    has_workaround = any(w in notes_lower for w in ["workaround", "alternative", "interim solution"])
+
+    if is_resolved and has_azure_bug:
+        res_final.append(
+            "The fix has been validated successfully. "
+            "An Azure DevOps feature has been created to track the permanent configuration change."
+        )
+    elif has_azure_bug and not is_resolved:
+        res_final.append(
+            "The issue has been escalated to the development team. "
+            "An Azure DevOps feature has been raised to implement the required configuration change."
+        )
+    elif has_workaround:
+        res_final.append(
+            "A workaround has been identified. "
+            "A permanent fix is pending and will be tracked through the development backlog."
+        )
+
+    return " ".join(_dedup(res_final, 5))
 
 
-# ---------------- MAIN ---------------- #
-def build_rca(data):
-    return {
-        "problem_statement": build_problem(data),
-        "root_cause": build_root_cause(data),
-        "resolution": build_resolution(data)
+# ─────────────────────────────────────────────────────────────────────────────
+# FALLBACK — used when no usable sentences are extracted
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _fallback_root_cause(data):
+    combined = "\n".join([
+        get_value(data, "resolution notes", "resolution_notes"),
+        get_value(data, "work notes",       "work_notes"),
+        get_value(data, "additional comments", "additional_comments"),
+    ])
+    skip = {"validated", "working fine", "working now", "closing", "resolved"}
+    lines = [l.strip() for l in combined.split("\n")
+             if l.strip() and not any(s in l.lower() for s in skip)]
+    return " ".join(lines[:2]) if lines else "Insufficient information available."
+
+
+def _fallback_resolution(data):
+    notes = get_value(data, "resolution notes", "resolution_notes")
+    kws = ["resolved", "fixed", "applied", "validated", "working", "granted", "created"]
+    lines = [l.strip() for l in notes.split("\n") if l.strip()]
+    res = [l for l in lines if any(k in l.lower() for k in kws)]
+    return " ".join((res or lines)[:2]) if (res or lines) else "Insufficient information available."
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MAIN BUILDER
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_rca_smart(data):
+    res_notes   = get_value(data, "resolution notes",   "resolution_notes")
+    work_notes  = get_value(data, "work notes",         "work_notes")
+    comments    = get_value(data, "additional comments","additional_comments")
+
+    raw_notes = " ".join(filter(None, [res_notes, work_notes, comments]))
+
+    # Expand and classify all sentences from investigative fields
+    all_sents = _expand_sentences(raw_notes)
+
+    sentences_by_tag = {
+        "ROOT_CAUSE": [],
+        "RESOLUTION": [],
+        "GENERAL":    [],
     }
+
+    for s in all_sents:
+        tag = _classify(s)
+        if tag in sentences_by_tag:
+            sentences_by_tag[tag].append(s)
+
+    problem   = _build_problem(data)
+    root      = _build_root_cause(sentences_by_tag)
+    resolution = _build_resolution(sentences_by_tag, raw_notes)
+
+    return {
+        "problem_statement": problem,
+        "root_cause":        root,
+        "resolution":        resolution,
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PUBLIC INTERFACE
+# ─────────────────────────────────────────────────────────────────────────────
+
+def build_rca(data: dict) -> dict:
+    """
+    Builds RCA by classifying sentences from incident notes into
+    Problem / Root Cause / Resolution sections.
+
+    Falls back to simple extraction if classification yields no results.
+
+    Args:
+        data: incident dict with keys:
+              short description, description,
+              resolution notes, work notes, additional comments
+
+    Returns:
+        {"problem_statement": str, "root_cause": str, "resolution": str}
+    """
+    try:
+        return _build_rca_smart(data)
+    except Exception as exc:
+        logger.warning("RCA smart build failed (%s) — using fallback", exc)
+        short_desc = get_value(data, "short description", "short_description")
+        return {
+            "problem_statement": short_desc or "Insufficient information available.",
+            "root_cause":        _fallback_root_cause(data),
+            "resolution":        _fallback_resolution(data),
+        }

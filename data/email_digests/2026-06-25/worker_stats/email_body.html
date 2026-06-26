@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Segoe UI,Arial,sans-serif; background:#f4f6f9;
+       padding:20px; color:#374151; font-size:13px; }
+.wrap { max-width:960px; margin:auto; }
+.header { background:linear-gradient(135deg,#1e3a5f,#1a2e4a); color:#fff;
+          padding:18px 24px; border-radius:10px 10px 0 0; }
+.header h1 { font-size:17px; font-weight:700; }
+.header .meta { font-size:11px; color:#93c5fd; margin-top:5px;
+                display:flex; gap:16px; flex-wrap:wrap; }
+.body { background:#fff; padding:20px 24px;
+        border:1px solid #e5e7eb; border-top:none; }
+.kpi-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.kpi-box { flex:1; min-width:80px; background:#f9fafb;
+           border:1px solid #e5e7eb; border-radius:8px;
+           padding:10px 14px; text-align:center; }
+.kpi-box-val { font-size:22px; font-weight:800; }
+.kpi-box-lbl { font-size:9px; font-weight:700; text-transform:uppercase;
+               letter-spacing:.05em; color:#6b7280; margin-top:2px; }
+.kpi-box.alert { border-color:#fca5a5; background:#fef2f2; }
+.section { margin-bottom:22px; }
+.section-title { font-size:13px; font-weight:700; color:#374151;
+                 border-left:4px solid #f28c38; padding-left:10px;
+                 margin-bottom:10px; }
+.alert-banner { background:#fef2f2; border:1px solid #fca5a5;
+                border-radius:8px; padding:10px 14px; margin-bottom:14px;
+                font-size:12px; color:#dc2626; line-height:1.6; }
+.alert-banner ul { margin:6px 0 0 18px; }
+.date-window { background:#eff6ff; border:1px solid #bfdbfe;
+               border-radius:6px; padding:6px 14px; margin-bottom:14px;
+               font-size:11px; color:#1e40af; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { background:#f9fafb; padding:7px 10px; text-align:left;
+     font-weight:700; color:#374151; border-bottom:2px solid #e5e7eb;
+     white-space:nowrap; }
+td { padding:6px 10px; border-bottom:1px solid #f3f4f6; vertical-align:top; }
+tr:hover td { background:#f9fafb; }
+.badge { display:inline-block; padding:2px 7px; border-radius:999px;
+         font-size:10px; font-weight:700; }
+.red   { background:#fef2f2; color:#dc2626; }
+.amber { background:#fffbeb; color:#d97706; }
+.green { background:#f0fdf4; color:#16a34a; }
+.blue  { background:#eff6ff; color:#2563eb; }
+.gray  { background:#f3f4f6; color:#6b7280; }
+.no-records { color:#9ca3af; text-align:center; padding:18px;
+              font-style:italic; }
+.breakdown-table td:last-child { font-weight:700; }
+.footer { background:#f9fafb; padding:10px 24px;
+          border-radius:0 0 10px 10px; border:1px solid #e5e7eb;
+          border-top:none; font-size:11px; color:#9ca3af; }
+.footer-row { display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+</style></head><body><div class="wrap"><div class="header">
+  <h1>⚠ Worker Stats</h1>
+  <div class="meta">
+    <span>🕐 25 Jun 2026 14:28</span>
+    
+    <span>📤 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📥 keshavamurthy.hg@consultant.volvo.com</span>
+    <span>📋 ⚠ Action Required</span>
+  </div>
+</div><div class="body">
+<div class="alert-banner">⚠ <strong>Alert:</strong><ul><li>High fail rate workers (≥10.0%): SEGOTN15670.vcn.ds.volvo.net-OFFICE:1, segotn19368-2-PROE:1, segotn19368-3-PROE:1</li></ul></div>
+<div class="date-window">📅 Cumulative stats as of 25 Jun 2026 14:28</div>
+<div class="section">
+  <div class="section-title">Worker Summary</div>
+  <div class="kpi-row"><div class="kpi-box"><div class="kpi-box-val" style="color:#374151;">28</div><div class="kpi-box-lbl">Workers</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#0ea5e9;">4782</div><div class="kpi-box-lbl">Total Jobs</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#ef4444;">389</div><div class="kpi-box-lbl">Total Failed</div></div><div class="kpi-box"><div class="kpi-box-val" style="color:#f59e0b;">8.13%</div><div class="kpi-box-lbl">Avg Fail %</div></div></div>
+</div>
+<div class="section">
+  <div class="section-title">All Workers — Sorted by Fail %</div>
+  <table><thead><tr><th>Worker</th><th>Total</th><th>Failed</th><th>Success</th><th>Fail %</th></tr></thead><tbody><tr><td>segotn19368-3-PROE:1</td><td>1</td><td>1</td><td>0</td><td><strong style="color:#dc2626;">100.00%</strong></td></tr><tr><td>SEGOTN15670.vcn.ds.volvo.net-OFFICE:1</td><td>593</td><td>340</td><td>253</td><td><strong style="color:#dc2626;">57.34%</strong></td></tr><tr><td>segotn19368-2-PROE:1</td><td>5</td><td>2</td><td>3</td><td><strong style="color:#dc2626;">40.00%</strong></td></tr><tr><td>segotn18415-3-PROE:1</td><td>101</td><td>6</td><td>95</td><td><strong style="color:#d97706;">5.94%</strong></td></tr><tr><td>segotn18415-1-PROE:1</td><td>270</td><td>12</td><td>258</td><td><strong style="color:#16a34a;">4.44%</strong></td></tr><tr><td>segotn13403-1.got.volvo.net-PROE:1</td><td>265</td><td>8</td><td>257</td><td><strong style="color:#16a34a;">3.02%</strong></td></tr><tr><td>segotn18415-2-PROE:1</td><td>299</td><td>8</td><td>291</td><td><strong style="color:#16a34a;">2.68%</strong></td></tr><tr><td>segotwvm1605.vcn.ds.volvo.net-CATIAV5:1</td><td>53</td><td>1</td><td>52</td><td><strong style="color:#16a34a;">1.89%</strong></td></tr><tr><td>segotn13404-2.got.volvo.net-PROE:1</td><td>124</td><td>2</td><td>122</td><td><strong style="color:#16a34a;">1.61%</strong></td></tr><tr><td>segotn13404-1.got.volvo.net-PROE:1</td><td>269</td><td>4</td><td>265</td><td><strong style="color:#16a34a;">1.49%</strong></td></tr><tr><td>segotn13403-3.got.volvo.net-PROE:1</td><td>130</td><td>1</td><td>129</td><td><strong style="color:#16a34a;">0.77%</strong></td></tr><tr><td>segotwvm1604.vcn.ds.volvo.net-CATIAV5:1</td><td>145</td><td>1</td><td>144</td><td><strong style="color:#16a34a;">0.69%</strong></td></tr><tr><td>segotwvm1483.vcn.ds.volvo.net-CATIAV5:1</td><td>308</td><td>1</td><td>307</td><td><strong style="color:#16a34a;">0.32%</strong></td></tr><tr><td>segotwvm1484.vcn.ds.volvo.net-CATIAV5:1</td><td>342</td><td>1</td><td>341</td><td><strong style="color:#16a34a;">0.29%</strong></td></tr><tr><td>segotwvm1482.vcn.ds.volvo.net-CATIAV5:1</td><td>395</td><td>1</td><td>394</td><td><strong style="color:#16a34a;">0.25%</strong></td></tr><tr><td>segotn13403-2.got.volvo.net-PROE:1</td><td>249</td><td>0</td><td>249</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotn13404-3.got.volvo.net-PROE:1</td><td>78</td><td>0</td><td>78</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>SEGOTN15670-1-THUMBNAIL:1</td><td>1</td><td>0</td><td>1</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotn19368-1-PROE:1</td><td>18</td><td>0</td><td>18</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1480.vcn.ds.volvo.net-CATIAV5:1</td><td>46</td><td>0</td><td>46</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1481.vcn.ds.volvo.net-CATIAV5:1</td><td>425</td><td>0</td><td>425</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1485.vcn.ds.volvo.net-CATIAV5:1</td><td>228</td><td>0</td><td>228</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1486.vcn.ds.volvo.net-CATIAV5:1</td><td>32</td><td>0</td><td>32</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1487.vcn.ds.volvo.net-CATIAV5:1</td><td>105</td><td>0</td><td>105</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1488.vcn.ds.volvo.net-CATIAV5:1</td><td>97</td><td>0</td><td>97</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1602.vcn.ds.volvo.net-CATIAV5:1</td><td>20</td><td>0</td><td>20</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>segotwvm1603.vcn.ds.volvo.net-CATIAV5:1</td><td>183</td><td>0</td><td>183</td><td><strong style="color:#16a34a;">0.00%</strong></td></tr><tr><td>Worker Utilization</td><td>—</td><td>—</td><td>—</td><td><strong style="color:#16a34a;"></strong></td></tr></tbody></table>
+</div></div><div class="footer"><div class="footer-row"><span>Ops Platform · Worker Stats Digest</span><span>Generated: 25 Jun 2026 14:28</span></div></div></div></body></html>

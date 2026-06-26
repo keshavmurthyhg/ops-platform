@@ -1,6 +1,8 @@
+'use strict';
+
 let generatedFileName = null;
-let updatedCells = {};
-let newRows = [];
+let updatedCells      = {};
+let newRowsList       = [];
 
 
 /* =========================================
@@ -8,668 +10,361 @@ let newRows = [];
 ========================================= */
 
 function showExcelSection(sectionName, event) {
+    document.querySelectorAll('.dock-item')
+            .forEach(i => i.classList.remove('active-dock'));
+    document.querySelectorAll('.dock-section')
+            .forEach(s => s.classList.remove('active-section'));
 
-    document.querySelectorAll(".dock-item")
-        .forEach(item => {
-            item.classList.remove("active-dock");
-        });
-
-    document.querySelectorAll(".dock-section")
-        .forEach(section => {
-            section.classList.remove("active-section");
-        });
-
-    document
-        .getElementById(sectionName + "-section")
-        .classList.add("active-section");
-
-    event.currentTarget.classList.add("active-dock");
+    const target = document.getElementById(sectionName + '-section');
+    if (target) target.classList.add('active-section');
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active-dock');
+    }
 }
 
-/* =====================================================
-FILE NAMES
-===================================================== */
+
+/* =========================================
+   FILE NAMES
+========================================= */
 
 function updateFileNames() {
+    const f1 = document.getElementById('file1');
+    const f2 = document.getElementById('file2');
 
-    const file1 =
-        document.getElementById("file1");
+    const name1 = f1.files.length ? f1.files[0].name : 'Select Old Excel...';
+    const name2 = f2.files.length ? f2.files[0].name : 'Select New Excel...';
 
-    const file2 =
-        document.getElementById("file2");
+    document.getElementById('file1Name').innerText = name1;
+    document.getElementById('file2Name').innerText = name2;
 
-    document.getElementById(
-        "file1Name"
-    ).innerText =
-
-        file1.files.length
-            ? file1.files[0].name
-            : "No file selected";
-
-    document.getElementById(
-        "file2Name"
-    ).innerText =
-
-        file2.files.length
-            ? file2.files[0].name
-            : "No file selected";
+    // Update sidebar status rows
+    const s1 = document.getElementById('statusOldFile');
+    const s2 = document.getElementById('statusNewFile');
+    if (s1) s1.innerText = f1.files.length
+        ? (name1.length > 22 ? name1.substring(0, 20) + '…' : name1)
+        : '—';
+    if (s2) s2.innerText = f2.files.length
+        ? (name2.length > 22 ? name2.substring(0, 20) + '…' : name2)
+        : '—';
 }
 
 
-/* =====================================================
-PROCESSING STATUS
-===================================================== */
+/* =========================================
+   OPS-STYLE PROGRESS BAR CONTROLLER
+   Works with main.html IDs:
+   statusMessage, progressWrapper,
+   progressFill, progressText
+========================================= */
 
-function showProcessing(message) {
+function updateProcessingStatus(message, detail, state) {
+    const status  = document.getElementById('statusMessage');
+    const text    = document.getElementById('progressText');
+    const fill    = document.getElementById('progressFill');
+    const wrapper = document.getElementById('progressWrapper');
+    const last    = document.getElementById('lastAction');
 
-    const statusMessage =
-        document.getElementById("statusMessage");
+    if (status) status.innerText = message;
+    if (text)   text.innerText   = detail || '';
+    if (last)   last.innerText   = detail || message;
 
-    const progressWrapper =
-        document.getElementById("progressWrapper");
+    if (!fill || !wrapper) return;
 
-    const progressFill =
-        document.getElementById("progressFill");
+    fill.classList.remove('ops-bar-processing', 'ops-bar-completed', 'ops-bar-failed');
 
-    const progressText =
-        document.getElementById("progressText");
+    if (state === 'processing') {
+        wrapper.classList.remove('hidden');
+        fill.style.width = '70%';
+        fill.classList.add('ops-bar-processing');
 
-    if (statusMessage) {
-        statusMessage.innerText = "Processing...";
-    }
+    } else if (state === 'completed') {
+        wrapper.classList.remove('hidden');
+        fill.style.width = '100%';
+        fill.classList.add('ops-bar-completed');
+        setTimeout(() => {
+            wrapper.classList.add('hidden');
+            fill.style.width = '0%';
+            fill.classList.remove('ops-bar-completed');
+        }, 2000);
 
-    if (progressWrapper) {
-        progressWrapper.classList.remove("hidden");
-    }
-
-    if (progressFill) {
-
-        progressFill.style.background =
-            "linear-gradient(90deg,#22c55e,#4ade80)";
-
-        progressFill.style.width = "60%";
-
-        progressFill.classList.add(
-            "active-progress"
-        );
-    }
-
-    if (progressText) {
-        progressText.innerText = message;
-    }
-}
-
-
-function showCompleted(message) {
-
-    const statusMessage =
-        document.getElementById("statusMessage");
-
-    const progressFill =
-        document.getElementById("progressFill");
-
-    const progressText =
-        document.getElementById("progressText");
-
-    if (statusMessage) {
-        statusMessage.innerText = "Completed";
-    }
-
-    if (progressFill) {
-
-        progressFill.style.width = "100%";
-
-        progressFill.classList.remove(
-            "active-progress"
-        );
-    }
-
-    if (progressText) {
-        progressText.innerText = message;
+    } else {
+        wrapper.classList.remove('hidden');
+        fill.style.width = '100%';
+        fill.classList.add('ops-bar-failed');
+        setTimeout(() => {
+            wrapper.classList.add('hidden');
+            fill.style.width = '0%';
+            fill.classList.remove('ops-bar-failed');
+        }, 3000);
     }
 }
 
-function showFailed(message) {
 
-    const statusMessage =
-        document.getElementById("statusMessage");
-
-    const progressWrapper =
-        document.getElementById("progressWrapper");
-
-    const progressFill =
-        document.getElementById("progressFill");
-
-    const progressText =
-        document.getElementById("progressText");
-
-    if (progressWrapper) {
-        progressWrapper.classList.remove("hidden");
-    }
-
-    if (statusMessage) {
-        statusMessage.innerText = "Failed";
-    }
-
-    if (progressText) {
-        progressText.innerText = message;
-    }
-
-    if (progressFill) {
-
-        progressFill.style.width = "100%";
-
-        progressFill.style.background =
-            "linear-gradient(90deg,#ef4444,#dc2626)";
-
-        progressFill.classList.remove(
-            "active-progress"
-        );
-    }
-}
-
-/* =====================================================
-MERGE
-===================================================== */
+/* =========================================
+   MERGE
+========================================= */
 
 async function mergeExcelFiles() {
 
-    const file1 =
-        document.getElementById(
-            "file1"
-        ).files[0];
-
-    const file2 =
-        document.getElementById(
-            "file2"
-        ).files[0];
-
-    const keyColumn =
-        document.getElementById(
-            "uniqueKeyColumn"
-        ).value.trim();
-
-    const latestLogic =
-        document.getElementById(
-            "mergeMode"
-        ).value;
-
-    const dateColumn =
-        document.getElementById(
-            "dateColumn"
-        ).value.trim();
-
+    const file1      = document.getElementById('file1').files[0];
+    const file2      = document.getElementById('file2').files[0];
+    const keyColumn  = document.getElementById('uniqueKeyColumn').value.trim();
+    const latestLogic = document.getElementById('mergeMode').value;
+    const dateColumn = document.getElementById('dateColumn').value.trim();
 
     if (!file1 || !file2) {
-
-        showFailed(
-            "Upload both Excel files"
-        );
-
+        updateProcessingStatus('Error', 'Upload both Excel files', 'failed');
         return;
     }
 
-
     if (!keyColumn) {
-
-        showFailed(
-            "Enter unique key column"
-        );
-
+        updateProcessingStatus('Error', 'Enter unique key column', 'failed');
         return;
     }
 
     try {
+        updateProcessingStatus('Processing', 'Preparing merge...', 'processing');
 
-        showProcessing(
-            "Preparing merge..."
-        );
+        const formData = new FormData();
+        formData.append('file1',         file1);
+        formData.append('file2',         file2);
+        formData.append('key_column',    keyColumn);
+        formData.append('latest_logic',  latestLogic);
+        formData.append('date_column',   dateColumn);
 
-        const formData =
-            new FormData();
+        updateProcessingStatus('Processing', 'Merging records...', 'processing');
 
-        formData.append(
-            "file1",
-            file1
-        );
+        const response = await fetch('/excel-merge/process', {
+            method: 'POST',
+            body:   formData
+        });
 
-        formData.append(
-            "file2",
-            file2
-        );
-
-        formData.append(
-            "key_column",
-            keyColumn
-        );
-
-        formData.append(
-            "latest_logic",
-            latestLogic
-        );
-
-        formData.append(
-            "date_column",
-            dateColumn
-        );
-
-
-        showProcessing(
-            "Merging records..."
-        );
-
-
-        const response =
-            await fetch(
-                "/excel-merge/process",
-                {
-                    method: "POST",
-                    body: formData
-                }
-            );
-
-        const result =
-            await response.json();
-
+        const result = await response.json();
 
         if (!result.success) {
-
-            showFailed(
-                result.message
-            );
-
+            updateProcessingStatus('Error', result.message, 'failed');
             return;
         }
 
-
-        generatedFileName =
-            result.download_file;
-
-
-        /* =========================
-        STORE HIGHLIGHT DATA
-        ========================= */
-
-        updatedCells =
-            result.updated_cells || {};
-
-        newRows =
-            result.new_rows_list || [];
-
-
-        /* =========================
-        UPDATE UI
-        ========================= */
+        generatedFileName = result.download_file;
+        updatedCells      = result.updated_cells    || {};
+        newRowsList       = result.new_rows_list    || [];
 
         updateKPI(result);
-
-        renderPreviewTable(
-            result.preview_rows || [],
-            result.preview_columns || []
-        );
-
+        renderPreviewTable(result.preview_rows || [], result.preview_columns || []);
         activateDownloadButton();
 
-        showCompleted(
-            "Excel merge completed successfully"
-        );
+        updateProcessingStatus('Ready', 'Excel merge completed successfully', 'completed');
 
-    }
-
-    catch(error) {
-
+    } catch (error) {
         console.error(error);
-
-        showFailed(
-            "Excel merge failed"
-        );
+        updateProcessingStatus('Error', 'Excel merge failed', 'failed');
     }
 }
 
 
-/* =====================================================
-KPI
-===================================================== */
+/* =========================================
+   KPI — now updates strip in main area
+========================================= */
 
 function updateKPI(result) {
+    document.getElementById('totalRows').innerText        = result.total_rows        || 0;
+    document.getElementById('updatedRows').innerText      = result.updated_rows      || 0;
+    document.getElementById('newRows').innerText          = result.new_rows          || 0;
+    document.getElementById('duplicatesRemoved').innerText = result.duplicates_removed || 0;
 
-    document.getElementById(
-        "totalRows"
-    ).innerText =
-        result.total_rows || 0;
-
-    document.getElementById(
-        "updatedRows"
-    ).innerText =
-        result.updated_rows || 0;
-
-    document.getElementById(
-        "newRows"
-    ).innerText =
-        result.new_rows || 0;
-
-    document.getElementById(
-        "duplicatesRemoved"
-    ).innerText =
-        result.duplicates_removed || 0;
+    // Show the KPI strip
+    const strip = document.getElementById('kpiStrip');
+    if (strip) strip.classList.remove('hidden');
 }
 
 
-/* =====================================================
-DOWNLOAD
-===================================================== */
+/* =========================================
+   DOWNLOAD
+========================================= */
 
 function activateDownloadButton() {
-
-    document.getElementById(
-        "downloadBtn"
-    ).classList.remove(
-        "hidden"
-    );
+    document.getElementById('downloadBtn').classList.remove('hidden');
 }
-
 
 function downloadMergedExcel() {
-
     if (!generatedFileName) {
-
-        alert(
-            "No merged output available"
-        );
-
+        alert('No merged output available');
         return;
     }
-
-    window.location.href =
-        `/excel-merge/download/${generatedFileName}`;
+    updateProcessingStatus('Processing', 'Preparing download...', 'processing');
+    window.location.href = `/excel-merge/download/${generatedFileName}`;
+    setTimeout(() => {
+        updateProcessingStatus('Ready', 'Download started', 'completed');
+    }, 1500);
 }
 
 
-/* =====================================================
-PREVIEW TABLE
-===================================================== */
+/* =========================================
+   PREVIEW TABLE
+========================================= */
 
 function renderPreviewTable(rows, columns) {
-
-    const head =
-        document.getElementById(
-            "mergeTableHead"
-        );
-
-    const body =
-        document.getElementById(
-            "mergeTableBody"
-        );
+    const head = document.getElementById('mergeTableHead');
+    const body = document.getElementById('mergeTableBody');
 
     if (!rows.length) {
-
-        body.innerHTML = `
-            <tr>
-                <td colspan="20"
-                    class="empty-search-message">
-
-                    No preview available
-
-                </td>
-            </tr>
-        `;
-
+        body.innerHTML = `<tr><td colspan="20" class="empty-search-message">No preview available</td></tr>`;
         return;
     }
 
-    /* =========================
-       HEADER
-    ========================= */
-
-    let headHtml = "<tr>";
-
+    // Header
+    let headHtml = '<tr>';
     columns.forEach((col, index) => {
-
-        let className = "";
-
-        const lower =
-            col.toLowerCase();
-
-        if (index === 0) {
-
-            className = "number-column";
-        }
-
-        else if (
-
-            lower.includes("description") ||
-            lower.includes("comment") ||
-            lower.includes("resolution") ||
-            lower.includes("additional")
-
-        ) {
-
-            className = "long-text-column";
-        }
-
-        else {
-
-            className = "small-column";
-        }
-
-        headHtml += `
-            <th class="${className}">
-                ${col}
-            </th>
-        `;
+        const cls = getColumnClass(col, index);
+        headHtml += `<th class="${cls}">${escHtml(col)}</th>`;
     });
-
-    headHtml += "</tr>";
-
+    headHtml += '</tr>';
     head.innerHTML = headHtml;
 
-    /* =========================
-       BODY
-    ========================= */
-
-    let bodyHtml = "";
-
+    // Body
+    let bodyHtml = '';
     rows.forEach(row => {
-
-        bodyHtml += "<tr>";
-
-        const rowId =
-            String(
-                row[columns[0]] || ""
-            );
+        bodyHtml += '<tr>';
+        const rowId = String(row[columns[0]] || '');
+        const isNew = newRowsList.includes(rowId);
 
         columns.forEach((col, index) => {
+            const cls      = getColumnClass(col, index);
+            const isUpdated = !isNew && updatedCells[rowId] && updatedCells[rowId].includes(col);
+            const extraCls = isNew ? 'new-cell' : (isUpdated ? 'updated-cell' : '');
+            const val      = escHtml(String(row[col] ?? ''));
 
-            let className = "";
-
-            const lower =
-                col.toLowerCase();
-
-            if (index === 0) {
-
-                className = "number-column";
-            }
-
-            else if (
-
-                lower.includes("description") ||
-                lower.includes("comment") ||
-                lower.includes("resolution") ||
-                lower.includes("additional")
-
-            ) {
-
-                className = "long-text-column";
-            }
-
-            else {
-
-                className = "small-column";
-            }
-
-            let extraClass = "";
-
-            if (newRows.includes(rowId)) {
-
-                extraClass = "new-cell";
-            }
-
-            else if (
-
-                updatedCells[rowId] &&
-                updatedCells[rowId].includes(col)
-
-            ) {
-
-                extraClass = "updated-cell";
-            }
-
-            bodyHtml += `
-                <td
-                    class="${className} ${extraClass}"
-                    title="${row[col] ?? ""}">
-
-                    ${row[col] ?? ""}
-
-                </td>
-            `;
+            bodyHtml += `<td class="${cls} ${extraCls}" title="${String(row[col] ?? '')}">${val}</td>`;
         });
 
-        bodyHtml += "</tr>";
+        bodyHtml += '</tr>';
     });
-
     body.innerHTML = bodyHtml;
 }
 
-/* =====================================================
-CLEAR WORKSPACE
-===================================================== */
+function getColumnClass(col, index) {
+    if (index === 0) return 'number-column';
+    const lower = col.toLowerCase();
+    if (lower.includes('description') || lower.includes('comment') ||
+        lower.includes('resolution')  || lower.includes('additional')) {
+        return 'long-text-column';
+    }
+    return 'small-column';
+}
 
-function clearExcelWorkspace() {
-
-    document.getElementById(
-        "file1"
-    ).value = "";
-
-    document.getElementById(
-        "file2"
-    ).value = "";
-
-    document.getElementById(
-        "file1Name"
-    ).innerText =
-        "No file selected";
-
-    document.getElementById(
-        "file2Name"
-    ).innerText =
-        "No file selected";
-
-    document.getElementById(
-        "uniqueKeyColumn"
-    ).value = "";
-
-    document.getElementById(
-        "mergeMode"
-    ).value = "prefer_new";
-
-    document.getElementById(
-        "dateColumn"
-    ).value = "";
-
-    generatedFileName = null;
-
-    document.getElementById(
-        "downloadBtn"
-    ).classList.add(
-        "hidden"
-    );
-
-    updateKPI({
-        total_rows: 0,
-        updated_rows: 0,
-        new_rows: 0,
-        duplicates_removed: 0
-    });
-
-    document.getElementById(
-        "mergeTableHead"
-    ).innerHTML = "";
-
-    document.getElementById(
-        "mergeTableBody"
-    ).innerHTML = `
-        <tr>
-            <td colspan="20"
-                class="empty-search-message">
-
-                Workspace cleared
-
-            </td>
-        </tr>
-    `;
-
-    
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
 
 
-/* =====================================================
-EVENTS
-===================================================== */
+/* =========================================
+   CLEAR WORKSPACE
+========================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+function clearExcelWorkspace() {
+    document.getElementById('file1').value         = '';
+    document.getElementById('file2').value         = '';
+    document.getElementById('file1Name').innerText = 'Select Old Excel...';
+    document.getElementById('file2Name').innerText = 'Select New Excel...';
+    document.getElementById('uniqueKeyColumn').value = '';
+    document.getElementById('mergeMode').value     = 'prefer_new';
+    document.getElementById('dateColumn').value    = '';
 
-        resetProcessingStatus();
+    generatedFileName = null;
+    updatedCells      = {};
+    newRowsList       = [];
 
-        document
-            .getElementById(
-                "mergeBtn"
-            )
-            .addEventListener(
-                "click",
-                mergeExcelFiles
-            );
+    document.getElementById('downloadBtn').classList.add('hidden');
 
-        document
-            .getElementById(
-                "downloadBtn"
-            )
-            .addEventListener(
-                "click",
-                downloadMergedExcel
-            );
+    const strip = document.getElementById('kpiStrip');
+    if (strip) strip.classList.add('hidden');
 
-        document
-            .getElementById(
-                "file1"
-            )
-            .addEventListener(
-                "change",
-                updateFileNames
-            );
+    updateKPI({ total_rows: 0, updated_rows: 0, new_rows: 0, duplicates_removed: 0 });
 
-        document
-            .getElementById(
-                "file2"
-            )
-            .addEventListener(
-                "change",
-                updateFileNames
-            );
+    document.getElementById('mergeTableHead').innerHTML = '';
+    document.getElementById('mergeTableBody').innerHTML =
+        `<tr><td colspan="20" class="empty-search-message">Workspace cleared</td></tr>`;
 
-        const clearBtn =
-            document.querySelector(
-                ".sidebar-toolbar button"
-            );
+    const s1 = document.getElementById('statusOldFile');
+    const s2 = document.getElementById('statusNewFile');
+    if (s1) s1.innerText = '—';
+    if (s2) s2.innerText = '—';
 
-        if (clearBtn) {
+    updateProcessingStatus('Ready', 'Workspace cleared', 'completed');
+    document.getElementById('lastAction').innerText = 'Workspace cleared';
+}
 
-            clearBtn.addEventListener(
-                "click",
-                clearExcelWorkspace
-            );
-        }
-    }
-);
+
+/* =========================================
+   HELP MODAL
+   Fetches from /api/help/excel-merge
+   Called by common.js toggleHelpSystemModal()
+========================================= */
+
+function loadModuleHelpData() {
+    fetch('/api/help/excel-merge')
+        .then(r => r.json())
+        .then(data => {
+            const titleEl = document.getElementById('helpModuleTitle');
+            if (titleEl) titleEl.textContent = '💡 ' + (data.module_title || 'Help');
+
+            const indexPane   = document.getElementById('helpModalIndexPane');
+            const contentPane = document.getElementById('helpModalContentPane');
+            if (!indexPane || !contentPane) return;
+
+            indexPane.innerHTML   = '';
+            contentPane.innerHTML = '';
+
+            const topics = data.topics || [];
+            if (!topics.length) {
+                contentPane.innerHTML = '<p>No help topics available.</p>';
+                return;
+            }
+
+            topics.forEach((topic, i) => {
+                const btn = document.createElement('button');
+                btn.className   = 'help-topic-btn' + (i === 0 ? ' active-help-topic' : '');
+                btn.textContent = topic.title;
+                btn.onclick     = () => {
+                    document.querySelectorAll('.help-topic-btn')
+                            .forEach(b => b.classList.remove('active-help-topic'));
+                    btn.classList.add('active-help-topic');
+                    contentPane.innerHTML = topic.content;
+                };
+                indexPane.appendChild(btn);
+            });
+
+            contentPane.innerHTML = topics[0].content;
+        })
+        .catch(err => {
+            console.error('Help load failed:', err);
+            const pane = document.getElementById('helpModalContentPane');
+            if (pane) pane.innerHTML = '<p>Help content could not be loaded.</p>';
+        });
+}
+
+
+/* =========================================
+   INIT
+========================================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    resetProcessingStatus();
+
+    document.getElementById('mergeBtn')
+            .addEventListener('click', mergeExcelFiles);
+
+    document.getElementById('downloadBtn')
+            .addEventListener('click', downloadMergedExcel);
+
+    document.getElementById('file1')
+            .addEventListener('change', updateFileNames);
+
+    document.getElementById('file2')
+            .addEventListener('change', updateFileNames);
+});

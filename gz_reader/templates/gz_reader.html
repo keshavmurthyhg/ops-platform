@@ -1,0 +1,323 @@
+{% extends "main.html" %}
+
+{% block page_title %}GZ Reader — OPS Platform{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('gz_reader.static', filename='gz_reader.css') }}">
+{% endblock %}
+
+{# ── Sidebar toolbar ── #}
+{% block sidebar_toolbar %}
+<div class="sidebar-toolbar">
+    <button class="clear-btn" onclick="clearWorkspace()" style="grid-column:span 2">Clear</button>
+</div>
+{% endblock %}
+
+{# ── Dock icons (dock-item from common.css) ── #}
+{% block dock_icons %}
+<button class="dock-item" id="dockFile"   onclick="switchDock('file')"   title="Upload File">📂</button>
+<button class="dock-item" id="dockSplit"  onclick="switchDock('split')"  title="Split File">✂️</button>
+<button class="dock-item" id="dockFilter" onclick="switchDock('filter')" title="Filter Records">🔍</button>
+{% endblock %}
+
+{# ── Sidebar panels ── #}
+{% block sidebar %}
+
+{# FILE #}
+<div class="gz-dock-panel" id="panelFile">
+    <div class="gz-section-title">Open GZ File</div>
+
+    <div class="gz-local-badge">⚡ No upload — reads locally in browser</div>
+
+    <div class="gz-drop-zone" id="dropZone"
+         onclick="document.getElementById('fileInput').click()"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <div class="gz-drop-icon">🗜️</div>
+        <div class="gz-drop-label">Click or drag a <strong>.gz</strong> file here</div>
+        <div class="gz-drop-hint">.gz file or plain decompressed JMXData</div>
+    </div>
+    <input type="file" id="fileInput" hidden onchange="handleFileSelect(this.files[0])">
+
+    <div class="gz-meta-box" id="fileMetaBox" style="display:none">
+        <div class="gz-meta-row"><span class="gz-meta-label">File</span>
+            <span class="gz-meta-val" id="metaFilename">—</span></div>
+        <div class="gz-meta-row"><span class="gz-meta-label">Format</span>
+            <span class="gz-meta-val gz-format-badge" id="metaFormat">—</span></div>
+        <div class="gz-meta-row"><span class="gz-meta-label">Compressed</span>
+            <span class="gz-meta-val" id="metaCompressed">—</span></div>
+        <div class="gz-meta-row"><span class="gz-meta-label">Decompressed</span>
+            <span class="gz-meta-val" id="metaDecompressed">—</span></div>
+        <div class="gz-meta-row"><span class="gz-meta-label">Records</span>
+            <span class="gz-meta-val" id="metaRows">—</span></div>
+    </div>
+
+    <div id="splitUploadStatus" class="gz-server-sync" style="display:none"></div>
+
+    <button class="primary-btn gz-action-btn" id="btnDownload" style="display:none"
+            onclick="downloadDecompressed()">⬇ Download Decompressed</button>
+</div>
+
+{# SPLIT #}
+<div class="gz-dock-panel hidden" id="panelSplit">
+    <div class="gz-section-title">Split Large File</div>
+
+    {# Inline upload — shown when no file loaded yet #}
+    <div id="splitUploadZone">
+        <div class="gz-drop-zone gz-drop-zone-sm" id="dropZoneSplit"
+             onclick="document.getElementById('fileInputSplit').click()"
+             ondragover="onDragOver2(event)" ondragleave="onDragLeave2(event)" ondrop="onDrop2(event)">
+            <div class="gz-drop-icon" style="font-size:20px">🗜️</div>
+            <div class="gz-drop-label" style="font-size:11px">Click or drag a <strong>.gz</strong> file</div>
+        </div>
+        <input type="file" id="fileInputSplit" accept=".gz" hidden
+               onchange="handleFileSelect(this.files[0]); switchDock('split')">
+    </div>
+
+    {# Loaded file indicator — shown after upload #}
+    <div class="gz-split-file-chip hidden" id="splitFileChip">
+        <span class="gz-split-file-icon">🗜️</span>
+        <span class="gz-split-file-name" id="splitFileLabel">—</span>
+        <button class="gz-split-file-change" onclick="switchDock('file')" title="Change file">↩</button>
+    </div>
+
+    <p class="gz-panel-note" style="margin-top:6px">
+        Splits into readable plain-text chunks saved to <code>outputs/</code>
+        and previewed here as each one is written.
+    </p>
+
+    <div class="gz-split-group">
+        <span class="gz-split-label">Chunk size (MB)</span>
+        <div class="gz-preset-row">
+            <button class="gz-preset active" onclick="setChunk(25,this)">25</button>
+            <button class="gz-preset"        onclick="setChunk(50,this)">50</button>
+            <button class="gz-preset"        onclick="setChunk(100,this)">100</button>
+            <button class="gz-preset"        onclick="setChunk(200,this)">200</button>
+        </div>
+        <div class="gz-custom-row">
+            <span class="gz-meta-label">Custom:</span>
+            <input type="number" id="customMb" class="gz-custom-input"
+                   min="5" max="500" value="25" oninput="setCustomChunk(this.value)">
+            <span class="gz-meta-label">MB</span>
+        </div>
+    </div>
+
+    <div class="gz-estimate" id="splitEstimate">Upload a file first.</div>
+
+    <button class="primary-btn gz-action-btn gz-split-btn" id="btnSplit"
+            onclick="doSplit()" disabled>✂ Split &amp; Preview Chunks</button>
+
+    <div class="gz-split-hint hidden" id="splitNoFileHint">
+        ⚠ Upload a .gz file first (use the zone above or the 📂 panel).
+    </div>
+
+    <p class="gz-panel-note gz-note-dim" style="margin-top:8px">
+        Output: <code>outputs/JMXData_part001.txt</code> etc.
+        Binary framing stripped — fully readable in any text editor.
+    </p>
+</div>
+
+{# FILTER #}
+<div class="gz-dock-panel hidden" id="panelFilter">
+    <div class="gz-section-title">Filter Records</div>
+
+    <div class="gz-filter-group">
+        <label class="gz-filter-label">⏱ Timestamp From</label>
+        <input type="text" id="fTs1" class="gz-filter-input"
+               placeholder="2025-11-10 01:49:00" oninput="applyFilters()">
+    </div>
+    <div class="gz-filter-group">
+        <label class="gz-filter-label">⏱ Timestamp To</label>
+        <input type="text" id="fTs2" class="gz-filter-input"
+               placeholder="2025-11-10 02:30:00" oninput="applyFilters()">
+    </div>
+    <div class="gz-filter-group">
+        <label class="gz-filter-label">👤 User / Principal</label>
+        <input type="text" id="fUser" class="gz-filter-input"
+               placeholder="e.g. wcadmin" oninput="applyFilters()">
+    </div>
+    <div class="gz-filter-group">
+        <label class="gz-filter-label">🔷 Component (wt.fv, wt.util…)</label>
+        <input type="text" id="fComp" class="gz-filter-input"
+               placeholder="e.g. wt.fv, wt.util" oninput="applyFilters()">
+    </div>
+    <div class="gz-filter-group">
+        <label class="gz-filter-label">📦 MBean / Cache</label>
+        <input type="text" id="fAttr" class="gz-filter-input"
+               placeholder="e.g. ReplicaFolder, WTException" oninput="applyFilters()">
+    </div>
+    <div class="gz-filter-group">
+        <label class="gz-filter-label">💡 Value contains</label>
+        <input type="text" id="fVal" class="gz-filter-input"
+               placeholder="e.g. REMOVE_UNFER, Remove" oninput="applyFilters()">
+    </div>
+
+    <button class="secondary-btn gz-action-btn" onclick="clearFilters()">Clear All Filters</button>
+    <div class="gz-filter-result" id="filterResult"></div>
+
+    <div style="border-top:1px solid rgba(255,255,255,.08);margin:10px 0"></div>
+    <div class="gz-section-title">Jump to Timestamp</div>
+    <div class="gz-filter-group">
+        <input type="text" id="jumpTs" class="gz-filter-input" placeholder="2025-11-10 01:49:55">
+    </div>
+    <button class="secondary-btn gz-action-btn" onclick="jumpToTimestamp()">⏩ Jump to Row</button>
+    <div class="gz-filter-result" id="jumpResult"></div>
+</div>
+
+{% endblock %}
+
+{# ── Processing footer status rows ── #}
+{% block module_status %}
+<div class="gz-status-meta">
+    <div class="gz-status-row">
+        <span class="gz-status-label">File:</span>
+        <span class="gz-status-val" id="statusFilename">—</span>
+    </div>
+    <div class="gz-status-row">
+        <span class="gz-status-label">Format:</span>
+        <span class="gz-status-val" id="statusFormat">—</span>
+    </div>
+    <div class="gz-status-row">
+        <span class="gz-status-label">Last Action:</span>
+        <span class="gz-status-val" id="lastAction">Waiting for upload</span>
+    </div>
+</div>
+{% endblock %}
+
+{# ── Module title (top bar center) ── #}
+{% block top_center %}
+<div class="module-title-pill">🗜️ GZ Reader</div>
+{% endblock %}
+
+{# ── Toolbar left: view toggle + search ── #}
+{% block toolbar_left %}
+<input type="text" id="searchInput" class="toolbar-search-input"
+       placeholder="Search all columns…" oninput="quickSearch(this.value)" style="display:none">
+<button class="tbar-summary-btn hidden" id="btnSummary"
+        onclick="downloadSummary()">📄 Summary</button>
+{% endblock %}
+
+{# ── Toolbar right: badges ── #}
+{% block toolbar_right %}
+<span id="rowCountBadge" class="gz-count-badge" style="display:none"></span>
+<span id="formatPill"    class="gz-format-pill" style="display:none"></span>
+<span id="pageIndicator" class="gz-page-indicator" style="display:none"></span>
+<button id="btnNextPage" class="tbar-next-btn" style="display:none"
+        onclick="loadNextPage()">⏩ Load Next 500k Rows</button>
+<div class="gz-view-toggle hidden" id="viewToggleGroup">
+    <button class="gz-view-btn active" id="btnViewTable"  onclick="setView('table')">Table</button>
+    <button class="gz-view-btn"        id="btnViewRaw"    onclick="setView('raw')">Raw Text</button>
+    <button class="gz-view-btn"        id="btnViewChunks" onclick="setView('chunks')" style="display:none">Chunks</button>
+</div>
+{% endblock %}
+
+{# ── Main content ── #}
+{% block content %}
+{# Help modal — position:fixed so not clipped by overflow:hidden parents #}
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">🗜️ GZ Reader — Help</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane"  id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane"></div>
+        </div>
+    </div>
+</div>
+<div class="gz-layout">
+
+    <div class="gz-jmx-bar hidden" id="jmxBar">
+        <span>ℹ️</span>
+        <span id="jmxBarText">JMX binary detected.</span>
+        <span class="gz-jmx-trunc" id="jmxTruncNote"></span>
+    </div>
+
+    <div class="gz-error-banner hidden" id="errorBanner"></div>
+
+    {# Reading progress overlay — shown while browser decompresses locally #}
+    <div class="gz-reading-overlay" id="readingOverlay" style="display:none">
+        <div class="gz-reading-card">
+            <div class="gz-reading-icon">🗜️</div>
+            <div class="gz-reading-title">Reading file locally…</div>
+            <div class="gz-reading-name" id="readingFileName"></div>
+            <div class="gz-reading-stats">
+                <span>Size: <strong id="readingFileSize">—</strong></span>
+                <span>Decompressed: <strong id="readingDecomp">0 MB</strong></span>
+                <span>Lines read: <strong id="readingLines">0</strong></span>
+            </div>
+            <div class="gz-reading-bar-bg"><div class="gz-reading-bar-fill"></div></div>
+            <div class="gz-reading-note">
+                No upload needed — file is decompressed directly in your browser.<br>
+                The table will appear as soon as reading is complete.
+            </div>
+        </div>
+    </div>
+
+    {# Empty state #}
+    <div class="gz-empty-state" id="emptyState">
+        <div class="gz-empty-icon">🗜️</div>
+        <div class="gz-empty-title">No File Loaded</div>
+        <div class="gz-empty-sub">
+            Upload a Windchill <strong>.gz</strong> export using the sidebar.<br>
+            JMX, XML, CSV, JSON and text exports are all supported.
+        </div>
+    </div>
+
+    {# Table view — virtual scroll built by JS #}
+    <div class="gz-virt-wrapper hidden" id="tableView"></div>
+
+    {# Raw text view #}
+    <div class="gz-raw-wrapper hidden" id="rawView">
+        <div class="gz-raw-toolbar">
+            <span class="gz-raw-hint">Binary framing stripped — readable text segments only</span>
+            <button class="gz-raw-wrap-btn" id="rawWrapBtn" onclick="toggleWrap()">Wrap: ON</button>
+        </div>
+        <pre class="gz-raw-pre" id="rawPre"></pre>
+    </div>
+
+    {# Chunk live preview #}
+    <div class="gz-chunk-area hidden" id="chunksView">
+        <div class="gz-chunk-tabs" id="chunkTabs"></div>
+        <div class="gz-chunk-viewer" id="chunkViewer">
+            <div class="gz-chunk-progress" id="chunkProgress">
+                <div>Splitting file — chunks appear here as they are written…</div>
+                <div class="gz-chunk-progress-bar"><div class="gz-chunk-progress-fill"></div></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('gz_reader.static', filename='gz_reader.js') }}"></script>
+<script>
+async function loadModuleHelpData() {
+    const idx = document.getElementById("helpModalIndexPane");
+    const content = document.getElementById("helpModalContentPane");
+    if (!idx || !content) return;
+    idx.innerHTML = "<div style='font-size:12px;color:#94a3b8;padding:12px;'>Loading…</div>";
+    try {
+        const r = await fetch("/api/help/gz-reader");
+        const data = await r.json();
+        document.getElementById("helpModuleTitle").innerText = data.module_title;
+        idx.innerHTML = "";
+        data.topics.forEach(topic => {
+            const btn = document.createElement("button");
+            btn.className = "help-index-item";
+            btn.innerText = topic.title;
+            btn.onclick = () => {
+                document.querySelectorAll(".help-index-item").forEach(b => b.classList.remove("active-help-topic"));
+                btn.classList.add("active-help-topic");
+                content.innerHTML = topic.content;
+            };
+            idx.appendChild(btn);
+        });
+        if (data.topics.length > 0) idx.firstChild.click();
+    } catch(err) {
+        idx.innerHTML = "<div style='color:#ef4444;padding:12px;font-size:12px;'>Failed to load help.</div>";
+    }
+}
+</script>
+{% endblock %}

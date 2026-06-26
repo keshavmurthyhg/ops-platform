@@ -1,0 +1,449 @@
+{% extends "main.html" %}
+
+{# ============================================================================
+   WINDCHILL ACTIVE OPERATIONS MONITORING
+   windchill_monitoring/templates/windchill_monitoring.html
+
+   Sections:
+     page_css      — module stylesheet
+     top_center    — module title pill
+     dock_icons    — sidebar dock (Automation ⚙️ | Reports 📊)
+     toolbar_left  — nav tabs + Refresh + OPS switcher
+     sidebar       — Automation + Reports panels + progress bar
+     content       — Dashboard / Failure / WVS / Worker sections
+                     + Help modal
+     page_js       — module script
+   ============================================================================ #}
+
+{% block page_title %}Windchill Active Operations Monitoring{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('common_static.static', filename='css/common.css') }}">
+<link rel="stylesheet" href="/operations_center/static/operations_center.css">
+<link rel="stylesheet" href="{{ url_for('windchill_monitoring.static', filename='windchill_monitoring.css') }}">
+{% endblock %}
+
+{% block top_center %}
+<div class="module-title-pill">Windchill Active Operations Monitoring</div>
+{% endblock %}
+
+{# ── Dock icons — Automation and Reports ──────────────────────────────────── #}
+{% block dock_icons %}
+<div class="dock-item active-dock" onclick="showSidebarSection('automation-section', this)" title="Automation">⚙️</div>
+<div class="dock-item"             onclick="showSidebarSection('reports-section', this)"    title="Export Reports">📊</div>
+{% endblock %}
+
+{# ── Toolbar — nav tabs | Refresh Data | OPS switcher ─────────────────────── #}
+{% block toolbar_left %}
+
+{# Refresh Data — leftmost #}
+<button class="snapshot-btn" id="btnRefreshCSV" onclick="loadFromCSV()"
+        title="Reload all panels from saved CSV history files" style="flex-shrink:0;">
+    🔄 Refresh Data
+</button>
+
+{# Run Now — triggers live automation #}
+<button class="snapshot-btn wm-run-btn" id="btnRunAutomation" onclick="runFullAutomation()"
+        title="Run live automation now" style="flex-shrink:0;">
+    ▶ Run Now
+</button>
+
+{# Collect Stats — triggers worker stat collection #}
+<button class="snapshot-btn wm-collect-btn" id="btnCollectStats" onclick="collectStats()"
+        title="Collect worker statistics from Edge" style="flex-shrink:0;">
+    📥 Collect Stats
+</button>
+
+{# Nav tabs — fill remaining space #}
+<div class="wm-nav-tabs-group">
+    <button class="primary-btn tracker-btn active" id="dashboardToolbarBtn" onclick="showSection('dashboard')">📊 Dashboard</button>
+    <button class="primary-btn tracker-btn"        id="failureToolbarBtn"   onclick="showSection('failure')">⚠️ Failures</button>
+    <button class="primary-btn tracker-btn"        id="wvsToolbarBtn"       onclick="showSection('wvs')">⚡ WVS Queue</button>
+    <button class="primary-btn tracker-btn"        id="workerToolbarBtn"    onclick="showSection('worker')">🖥️ Workers</button>
+</div>
+
+{# App switcher — pinned right #}
+<a href="/operations-center" class="app-switcher-icon wm-switcher" title="Switch to Operations Center"
+   style="margin-left:auto; flex-shrink:0;">
+    <svg class="wm-switcher-gear" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+        <path d="M16 2v4M16 26v4M2 16h4M26 16h4
+                 M6.3 6.3l2.8 2.8M22.9 22.9l2.8 2.8
+                 M25.7 6.3l-2.8 2.8M9.1 22.9l-2.8 2.8"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>Ops Center</span>
+</a>
+
+{% endblock %}
+
+{# ── Sidebar ───────────────────────────────────────────────────────────────── #}
+{% block sidebar %}
+<div class="sidebar-content-scroller"
+     style="height:calc(100vh - 110px);overflow-y:auto;display:flex;flex-direction:column;">
+
+    {# ── Automation section ──────────────────────────────────────────────── #}
+    <div id="automation-section" class="dock-section active-dock-section">
+        <div class="sidebar-section">
+
+            <div class="sidebar-group-title">Live Automation</div>
+
+            {# Filter parameters summary card #}
+            <div class="filter-param-card">
+                <div class="filter-param-row">
+                    <span class="filter-param-lbl">FROM</span>
+                    <span class="filter-param-val">Today −7 days</span>
+                </div>
+                <div class="filter-param-row">
+                    <span class="filter-param-lbl">TO</span>
+                    <span class="filter-param-val">Today</span>
+                </div>
+                <div class="filter-param-row">
+                    <span class="filter-param-lbl">STATUS</span>
+                    <span class="filter-param-val" style="color:#fca5a5;font-weight:700;">Failed</span>
+                </div>
+                <div class="filter-param-note">
+                    Transactions + WVS Queue auto-run every 30 min
+                </div>
+            </div>
+
+            <div id="automationStatus" style="display:none;margin-top:8px;font-size:11px;color:#d1d5db;"></div>
+
+            <button id="btnLaunchEdge" class="edge-launch-btn" onclick="launchEdgeDebug()"
+                    style="margin-top:8px;">
+                🌐 Launch Edge Debug
+            </button>
+
+            {# Worker Statistics — collapsible instructions #}
+            <div class="sidebar-group-title wm-collapsible-header"
+                 onclick="toggleWmInstructions()"
+                 style="margin-top:16px; cursor:pointer; user-select:none; display:flex; align-items:center; justify-content:space-between;">
+                <span>Worker Statistics</span>
+                <span id="wmInstructionsArrow" style="font-size:10px; opacity:0.6; transition:transform 0.2s;">▼</span>
+            </div>
+
+            <div id="wmInstructionsPanel" style="display:none;">
+                <div class="filter-param-card">
+                    <div class="filter-param-note" style="font-style:normal;line-height:1.7;color:#d1d5db;">
+                        1. Open Job Statistics in Edge manually<br>
+                        2. Click <strong style="color:#fbbf24;">Display Summary Statistics</strong><br>
+                        3. Wait ~2 min for data to load<br>
+                        4. Click <strong style="color:#86efac;">Collect Stats</strong> in toolbar
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-auto-footer">
+                <div id="filterLastRun" style="display:none;color:#86efac;">
+                    Last run: <span id="filterLastRunTime">—</span>
+                </div>
+                <div id="autoRefreshStatus" style="color:#94a3b8;font-size:10px;">
+                    Auto-refresh: every 30 min
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {# ── Reports section ─────────────────────────────────────────────────── #}
+    <div id="reports-section" class="dock-section" style="display:none;">
+        <div class="sidebar-section">
+
+            <div class="sidebar-group-title">Export Reports</div>
+
+            <button class="action-sidebar-btn" onclick="exportTable('transactionsTable','failures')">
+                📥 Export Failures
+            </button>
+            <button class="action-sidebar-btn" onclick="exportTable('wvsQueueTable','wvs_queue')">
+                📥 Export WVS Queue
+            </button>
+            <button class="action-sidebar-btn" onclick="exportTable('workerStatsTable','worker_stats')">
+                📥 Export Workers
+            </button>
+
+            {# Help link #}
+            <div class="collector-help-link">
+                <a href="#" onclick="toggleHelpSystemModal(); return false;">
+                    How to set up Edge debug →
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    {# ── Log engine status bar ────────────────────────────────────────────── #}
+    <span id="wmLogTime" style="display:none;">—</span>
+
+</div>
+{% endblock %}
+
+{# ── Main content ──────────────────────────────────────────────────────────── #}
+{% block content %}
+
+{# Alert / notification overlay #}
+<div id="alertOverlay" class="wm-alert-overlay" style="display:none;" onclick="closeAlert()">
+    <div class="wm-alert-modal" onclick="event.stopPropagation()">
+        <div class="wm-alert-header" id="alertHeader">
+            <span class="wm-alert-icon" id="alertIcon">🚨</span>
+            <span class="wm-alert-title" id="alertTitle">Alert</span>
+            <button class="wm-alert-close" onclick="closeAlert()">✕</button>
+        </div>
+        <div class="wm-alert-body" id="alertBody"></div>
+        <div class="wm-alert-footer">
+            <button class="wm-alert-dismiss" onclick="closeAlert()">Acknowledge</button>
+        </div>
+    </div>
+</div>
+
+{# ── DASHBOARD SECTION ─────────────────────────────────────────────────────── #}
+<div id="dashboardSection" class="operations-section active-section">
+
+    {# KPI tiles — 3 cards with left-border accent (same height as OPS) #}
+    <div class="wm-kpi-row">
+
+        <div class="wm-kpi-tile wm-kpi-fail" onclick="showSection('failure')">
+            <div class="wm-kpi-icon">⚠️</div>
+            <div class="wm-kpi-val" id="kpiTotalFailures">—</div>
+            <div class="wm-kpi-label">Integration Failures</div>
+            <div class="wm-kpi-sub">Last 7 days · Failed status</div>
+        </div>
+
+        <div class="wm-kpi-tile wm-kpi-wvs" onclick="showSection('wvs')">
+            <div class="wm-kpi-icon">⚡</div>
+            <div class="wm-kpi-val" id="kpiTotalWvsJobs">—</div>
+            <div class="wm-kpi-label">Active WVS Jobs</div>
+            <div class="wm-kpi-sub" id="kpiWvsSub">Ready + Executing + Failed</div>
+        </div>
+
+        <div class="wm-kpi-tile wm-kpi-worker" onclick="showSection('worker')">
+            <div class="wm-kpi-icon">🖥️</div>
+            <div class="wm-kpi-val" id="kpiTotalWorkers">—</div>
+            <div class="wm-kpi-label">Worker Nodes</div>
+            <div class="wm-kpi-sub" id="kpiUnstableWorkers">loading…</div>
+        </div>
+
+    </div>
+
+    {# Mini cards — 3 columns, left-border row separators, thin scrollbar #}
+    <div class="wm-cards-grid">
+
+        {# Failures mini card #}
+        <div class="wm-mini-card">
+            <div class="wm-card-header">
+                <span class="wm-card-title">⚠️ Integration Failures</span>
+                <a class="wm-card-link" onclick="showSection('failure')">View All →</a>
+            </div>
+            <div class="wm-card-body" id="dashFailureContainer">
+                <div class="wm-empty-msg">Click <strong>▶ Run Now</strong> in the toolbar.</div>
+            </div>
+            <div class="wm-card-footer">
+                <span class="wm-foot-label">⚙️ Last filter run</span>
+                <span id="coreFooterTime" class="wm-foot-time">—</span>
+            </div>
+        </div>
+
+        {# WVS Queue mini card #}
+        <div class="wm-mini-card">
+            <div class="wm-card-header">
+                <span class="wm-card-title">⚡ WVS Job Queues</span>
+                <a class="wm-card-link" onclick="showSection('wvs')">View All →</a>
+            </div>
+            <div class="wm-card-body" id="dashWvsContainer">
+                <div class="wm-empty-msg">Click <strong>Refresh Data</strong> or <strong>Run Now</strong>.</div>
+            </div>
+            <div class="wm-card-footer">
+                <span class="wm-foot-label">⚡ Queue loaded</span>
+                <span id="wvsFooterTime" class="wm-foot-time">—</span>
+            </div>
+        </div>
+
+        {# Worker Stats mini card #}
+        <div class="wm-mini-card">
+            <div class="wm-card-header">
+                <span class="wm-card-title">🖥️ CAD Worker Stats</span>
+                <a class="wm-card-link" onclick="showSection('worker')">View All →</a>
+            </div>
+            <div class="wm-card-body" id="dashWorkerContainer">
+                <div class="wm-empty-msg">Click <strong>📥 Collect Stats</strong> in the toolbar.</div>
+            </div>
+            <div class="wm-card-footer">
+                <span class="wm-foot-label">🖥️ Workers loaded</span>
+                <span id="workerFooterTime" class="wm-foot-time">—</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{# ── WORKER SECTION ────────────────────────────────────────────────────────── #}
+<div id="workerSection" class="operations-section" style="display:none;flex-direction:column;">
+    <div class="wm-title-strip">
+        <span class="section-title">CAD Worker Statistics</span>
+        <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
+    </div>
+    <div class="wm-kpi-strip">
+        <div class="ops-section-kpi-bar" id="workerKpiBar"></div>
+    </div>
+    <div id="workerAlertBadge" class="wm-section-badge" style="display:none;">
+        ⚠ High failure rate detected
+    </div>
+    <div class="table-wrapper" style="flex:1;overflow:auto;">
+        <table class="ops-table" id="workerStatsTable">
+            <colgroup>
+                <col style="width:200px"><col><col><col><col><col><col>
+            </colgroup>
+            <thead><tr>
+                <th>Worker</th><th>Total</th><th>Failed</th>
+                <th>Success</th><th>% Failed</th><th>% Success</th><th>Busy Time</th>
+            </tr></thead>
+            <tbody id="workerStatsBody"></tbody>
+        </table>
+    </div>
+</div>
+
+{# ── WVS SECTION ───────────────────────────────────────────────────────────── #}
+<div id="wvsSection" class="operations-section" style="display:none;flex-direction:column;">
+    <div id="wvsStaleBanner" style="display:none;background:#fffbeb;border:1px solid #fde68a;
+         border-radius:7px;padding:8px 14px;margin:8px 14px 0;font-size:12px;
+         color:#92400e;font-weight:600;"></div>
+    <div class="ops-section-title-row">
+        <span class="section-title">WVS Job Queue Status</span>
+        <div class="ops-section-kpi-bar" id="wvsKpiBar"></div>
+        <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
+    </div>
+    <span class="wm-section-badge wm-badge-wvs" id="wvsAlertBadge" style="display:none;margin:6px 14px 0;">
+        ⚡ High queue volume
+    </span>
+    <div class="table-wrapper" style="flex:1;overflow:auto;">
+        <table class="ops-table" id="wvsQueueTable">
+            <thead><tr>
+                <th>#</th><th>Queue</th><th>Job ID</th><th>Status</th>
+                <th>Number</th><th>Name</th><th>Ver</th><th>Context</th><th>User</th>
+            </tr></thead>
+            <tbody id="wvsQueueBody"></tbody>
+        </table>
+    </div>
+</div>
+
+{# ── FAILURE SECTION ───────────────────────────────────────────────────────── #}
+<div id="failureSection" class="operations-section" style="display:none;flex-direction:column;">
+    <div class="ops-section-title-row">
+        <span class="section-title">Integration Failure Log Analytics</span>
+        <div class="ops-section-kpi-bar" id="failureKpiBar"></div>
+        <button class="ops-section-back-btn" onclick="showSection('dashboard')">Back</button>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+        <div class="table-wrapper" style="margin-top:14px;">
+            <table class="ops-table" id="transactionsTable">
+                <thead><tr>
+                    <th style="width:18%;">Transaction ID</th>
+                    <th style="width:10%;">Timestamp</th>
+                    <th style="width:9%;">Target</th>
+                    <th style="width:12%;">Action</th>
+                    <th style="width:6%;">Status</th>
+                    <th style="width:16%;">Object</th>
+                    <th style="width:7%;">State</th>
+                    <th style="width:4%;" title="Attempts">Att.</th>
+                    <th style="width:18%;">Notes</th>
+                </tr></thead>
+                <tbody id="transactionsBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{# ── HELP MODAL — matches DCN Analytics layout ─────────────────────────────── #}
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">Windchill Monitoring — Help Guide</h2>
+            <button class="help-modal-close-btn" onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane" id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane">
+                <div class="help-empty-state">Select a topic from the left panel.</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block page_js %}
+<script src="{{ url_for('windchill_monitoring.static', filename='windchill_monitoring.js') }}"></script>
+
+<script>
+// =============================================================================
+//  WINDCHILL MONITORING — HELP SYSTEM
+//  Uses the platform's common help modal (#helpSystemModal) from main.html.
+//  common.js wires the ? button → toggleHelpSystemModal() → loadModuleHelpData().
+//  Topics are fetched from wm_help.py via GET /api/help/windchill-monitoring.
+// =============================================================================
+
+let _wmHelpTopics = [];
+
+async function loadModuleHelpData() {
+    const indexPane   = document.getElementById("helpModalIndexPane");
+    const contentPane = document.getElementById("helpModalContentPane");
+    const titleEl     = document.getElementById("helpModuleTitle");
+    if (!indexPane || !contentPane) return;
+
+    indexPane.innerHTML = "<div style='font-size:12px;color:#64748b;padding:10px;'>Loading topics…</div>";
+
+    try {
+        const res  = await fetch("/api/help/windchill-monitoring");
+        const data = await res.json();
+
+        if (titleEl) titleEl.innerText = data.module_title || "Windchill Help";
+        _wmHelpTopics = data.topics || [];
+        indexPane.innerHTML = "";
+
+        _wmHelpTopics.forEach((topic) => {
+            const btn = document.createElement("button");
+            btn.className = "help-index-item";
+            btn.innerText = topic.title;
+            btn.setAttribute("data-topic-id", topic.id);
+            btn.addEventListener("click", () => _wmHelpShow(topic.id));
+            indexPane.appendChild(btn);
+        });
+
+        if (_wmHelpTopics.length > 0) _wmHelpShow(_wmHelpTopics[0].id);
+
+    } catch (err) {
+        console.error("WM Help load error:", err);
+        indexPane.innerHTML = "<div style='font-size:12px;color:#ef4444;padding:10px;'>Error loading help.</div>";
+    }
+}
+
+function _wmHelpShow(topicId) {
+    const topic = _wmHelpTopics.find(t => t.id === topicId);
+    if (!topic) return;
+    const contentPane = document.getElementById("helpModalContentPane");
+    if (contentPane) contentPane.innerHTML = topic.content;
+    document.querySelectorAll("#helpModalIndexPane .help-index-item").forEach(b => {
+        b.classList.toggle("active-help-topic", b.getAttribute("data-topic-id") === topicId);
+    });
+}
+
+// Also wire the "How to set up Edge debug" link in sidebar to open help modal
+function openWmHelp() { toggleHelpSystemModal(); }
+
+// Toggle the Worker Statistics instructions panel
+function toggleWmInstructions() {
+    const panel = document.getElementById("wmInstructionsPanel");
+    const arrow = document.getElementById("wmInstructionsArrow");
+    if (!panel) return;
+    const isOpen = panel.style.display !== "none";
+    panel.style.display = isOpen ? "none" : "block";
+    if (arrow) arrow.style.transform = isOpen ? "" : "rotate(180deg)";
+}
+
+// Show progress bar using common IDs
+function wmSetProgress(visible, text) {
+    const wrapper = document.getElementById("progressWrapper");
+    const textEl  = document.getElementById("progressText");
+    if (wrapper) wrapper.classList.toggle("hidden", !visible);
+    if (textEl && text !== undefined) textEl.innerText = text;
+}
+</script>
+{% endblock %}

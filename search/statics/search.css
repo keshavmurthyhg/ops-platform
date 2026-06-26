@@ -234,11 +234,11 @@
 #searchResultsTable th:nth-child(3),
 #searchResultsTable td:nth-child(3) {
 
-    width: 260px;
+    width: 200px;
 
-    min-width: 260px;
+    min-width: 200px;
 
-    max-width: 260px;
+    max-width: 200px;
 
     text-align: left;
 }
@@ -672,79 +672,21 @@
    SEARCH PROGRESS
 ========================================= */
 
-.search-progress-wrapper {
-
-    margin-top: 10px;
-}
-
-.search-status-text {
-
-    color: white;
-
-    font-size: 13px;
-
-    margin-bottom: 10px;
-
-    line-height: 1.4;
-}
-
 
 /* =========================================
    PROGRESS BAR
 ========================================= */
-
-.search-progress-bar {
-
-    width: 100%;
-
-    height: 10px;
-
-    background: rgba(255,255,255,0.15);
-
-    border-radius: 20px;
-
-    overflow: hidden;
-
-    position: relative;
-}
 
 
 /* =========================================
    PROGRESS FILL
 ========================================= */
 
-.search-progress-fill {
-
-    height: 100%;
-
-    width: 0%;
-
-    background: linear-gradient(
-        90deg,
-        #22c55e,
-        #4ade80
-    );
-
-    border-radius: 20px;
-
-    transition: width 0.35s ease;
-}
-
 
 /* =========================================
    ACTIVE PROGRESS
 ========================================= */
 
-.search-progress-fill.active-progress {
-
-    animation: progressPulse 1.2s infinite linear;
-}
-
-@keyframes progressPulse {
-
-    0% {
-        filter: brightness(1);
-    }
 
     50% {
         filter: brightness(1.35);
@@ -1219,4 +1161,1820 @@
     font-size: 12px;
 
     line-height: 1.3;
+}
+/* =========================================
+   TABLE CONTROLS BAR (rows + pagination)
+========================================= */
+
+.table-controls-bar {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.results-summary-bar {
+
+    align-items: center;
+}
+
+/* =========================================
+   SEARCH IN SECTION
+========================================= */
+
+.search-in-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 4px 0;
+}
+
+.search-in-label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: white;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    line-height: 1.4;
+}
+
+.search-in-label input[type="checkbox"] {
+
+    width: 16px;
+
+    height: 16px;
+
+    cursor: pointer;
+
+    accent-color: #4c7dff;
+
+    flex-shrink: 0;
+}
+
+.search-in-label span {
+
+    color: rgba(255,255,255,0.85);
+}
+
+
+/* =========================================
+   USER GROUP MODAL OVERLAY
+========================================= */
+
+.ugm-overlay {
+
+    display: none;
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background: rgba(0,0,0,0.55);
+
+    z-index: 9999;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+.ugm-overlay.ugm-visible {
+
+    display: flex;
+}
+
+
+/* =========================================
+   MODAL DIALOG
+========================================= */
+
+.ugm-dialog {
+
+    background: #f5f7fa;
+
+    border: 2px solid #b0bec5;
+
+    border-radius: 6px;
+
+    width: 780px;
+
+    max-width: 95vw;
+
+    max-height: 90vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+
+/* =========================================
+   MODAL HEADER
+========================================= */
+
+.ugm-header {
+
+    background: #1e3a5f;
+
+    color: white;
+
+    padding: 12px 16px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-radius: 4px 4px 0 0;
+}
+
+.ugm-title {
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.3px;
+}
+
+.ugm-close-btn {
+
+    background: none;
+
+    border: none;
+
+    color: white;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    line-height: 1;
+
+    padding: 2px 6px;
+
+    border-radius: 4px;
+}
+
+.ugm-close-btn:hover {
+
+    background: rgba(255,255,255,0.2);
+}
+
+
+/* =========================================
+   MODAL BODY
+========================================= */
+
+.ugm-body {
+
+    display: flex;
+
+    gap: 0;
+
+    flex: 1;
+
+    overflow: hidden;
+
+    padding: 16px;
+
+    gap: 16px;
+}
+
+
+/* =========================================
+   LEFT PANEL
+========================================= */
+
+.ugm-left {
+
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    min-width: 0;
+}
+
+.ugm-field-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+.ugm-label {
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #2d3748;
+
+    min-width: 90px;
+}
+
+.ugm-text-input {
+
+    flex: 1;
+
+    border: 1px solid #b0bec5;
+
+    border-radius: 3px;
+
+    padding: 5px 8px;
+
+    font-size: 13px;
+
+    background: white;
+
+    outline: none;
+
+    min-width: 0;
+}
+
+.ugm-text-input:focus {
+
+    border-color: #4c7dff;
+
+    box-shadow: 0 0 0 2px rgba(76,125,255,0.15);
+}
+
+.ugm-search-btn,
+.ugm-clear-btn {
+
+    padding: 5px 12px;
+
+    border: 1px solid #b0bec5;
+
+    border-radius: 3px;
+
+    background: #e8edf2;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+.ugm-search-btn:hover,
+.ugm-clear-btn:hover {
+
+    background: #d0d9e4;
+}
+
+
+/* =========================================
+   LIST LABEL
+========================================= */
+
+.ugm-list-label {
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    color: #4a5568;
+
+    margin-bottom: 4px;
+}
+
+
+/* =========================================
+   USER LIST (left panel)
+========================================= */
+
+.ugm-user-list {
+
+    flex: 1;
+
+    border: 1px solid #b0bec5;
+
+    border-radius: 3px;
+
+    background: white;
+
+    overflow-y: auto;
+
+    min-height: 220px;
+
+    max-height: 280px;
+}
+
+.ugm-user-row {
+
+    padding: 6px 10px;
+
+    font-size: 13px;
+
+    color: #2d3748;
+
+    cursor: pointer;
+
+    border-bottom: 1px solid #f0f4f8;
+
+    user-select: none;
+}
+
+.ugm-user-row:hover {
+
+    background: #e8f0fe;
+}
+
+.ugm-user-row.ugm-selected {
+
+    background: #1e3a5f;
+
+    color: white;
+}
+
+.ugm-loading {
+
+    padding: 14px;
+
+    color: #94a3b8;
+
+    font-size: 13px;
+}
+
+.ugm-add-btn {
+
+    padding: 6px 18px;
+
+    background: #e8edf2;
+
+    border: 1px solid #b0bec5;
+
+    border-radius: 3px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    align-self: flex-start;
+
+    margin-top: 4px;
+}
+
+.ugm-add-btn:hover {
+
+    background: #d0d9e4;
+}
+
+
+/* =========================================
+   RIGHT PANEL
+========================================= */
+
+.ugm-right {
+
+    width: 240px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   MEMBER LIST (right panel)
+========================================= */
+
+.ugm-member-list {
+
+    flex: 1;
+
+    border: 1px solid #b0bec5;
+
+    border-radius: 3px;
+
+    background: white;
+
+    overflow-y: auto;
+
+    min-height: 260px;
+}
+
+.ugm-member-row {
+
+    padding: 6px 10px;
+
+    font-size: 13px;
+
+    color: #2d3748;
+
+    cursor: pointer;
+
+    border-bottom: 1px solid #f0f4f8;
+
+    user-select: none;
+}
+
+.ugm-member-row:hover {
+
+    background: #e8f0fe;
+}
+
+.ugm-member-row.ugm-selected {
+
+    background: #1e3a5f;
+
+    color: white;
+}
+
+.ugm-remove-btn {
+
+    padding: 6px 12px;
+
+    background: #e8edf2;
+
+    border: 1px solid #b0bec5;
+
+    border-radius: 3px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.ugm-remove-btn:hover {
+
+    background: #d0d9e4;
+}
+
+
+/* =========================================
+   MODAL FOOTER
+========================================= */
+
+.ugm-footer {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 12px 16px;
+
+    border-top: 1px solid #d1d5db;
+
+    background: #f5f7fa;
+
+    border-radius: 0 0 4px 4px;
+}
+
+.ugm-ok-btn,
+.ugm-apply-btn,
+.ugm-cancel-btn {
+
+    padding: 7px 22px;
+
+    border-radius: 4px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    border: 1px solid #b0bec5;
+}
+
+.ugm-ok-btn {
+
+    background: #1e3a5f;
+
+    color: white;
+
+    border-color: #1e3a5f;
+}
+
+.ugm-ok-btn:hover {
+
+    background: #16304f;
+}
+
+.ugm-apply-btn {
+
+    background: #4c7dff;
+
+    color: white;
+
+    border-color: #4c7dff;
+}
+
+.ugm-apply-btn:hover {
+
+    background: #3a6de8;
+}
+
+.ugm-cancel-btn {
+
+    background: #e8edf2;
+
+    color: #374151;
+}
+
+.ugm-cancel-btn:hover {
+
+    background: #d0d9e4;
+}
+
+/* =========================================
+   MODAL TABS
+========================================= */
+
+.ugm-tabs {
+
+    display: flex;
+
+    border-bottom: 2px solid #d1d5db;
+
+    background: #f0f4f8;
+
+    padding: 0 16px;
+
+    gap: 2px;
+}
+
+.ugm-tab {
+
+    padding: 9px 20px;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #6b7280;
+
+    cursor: pointer;
+
+    border-bottom: 3px solid transparent;
+
+    margin-bottom: -2px;
+
+    transition: all 0.15s ease;
+
+    border-radius: 4px 4px 0 0;
+}
+
+.ugm-tab:hover {
+
+    color: #1e3a5f;
+
+    background: rgba(30,58,95,0.06);
+}
+
+.active-ugm-tab {
+
+    color: #1e3a5f !important;
+
+    border-bottom: 3px solid #1e3a5f !important;
+
+    background: white !important;
+}
+
+.ugm-tab-hidden {
+
+    display: none !important;
+}
+
+.ugm-tab-panel {
+
+    flex: 1;
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+/* =========================================
+   REFRESH PANEL
+========================================= */
+
+.ugm-refresh-panel {
+
+    padding: 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 16px;
+
+    overflow-y: auto;
+
+    flex: 1;
+}
+
+.ugm-refresh-info {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+    background: #eef3ff;
+
+    border: 1px solid #c7d7fa;
+
+    border-radius: 8px;
+
+    padding: 14px 16px;
+}
+
+.ugm-refresh-icon {
+
+    font-size: 26px;
+
+    line-height: 1;
+}
+
+.ugm-refresh-desc {
+
+    font-size: 13px;
+
+    color: #374151;
+
+    line-height: 1.6;
+}
+
+.ugm-refresh-desc code {
+
+    background: #dce8ff;
+
+    padding: 1px 5px;
+
+    border-radius: 3px;
+
+    font-size: 12px;
+}
+
+.ugm-source-cards {
+
+    display: flex;
+
+    gap: 12px;
+}
+
+.ugm-source-card {
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 8px;
+
+    padding: 12px 14px;
+}
+
+.ugm-source-badge {
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    padding: 4px 9px;
+
+    border-radius: 5px;
+
+    letter-spacing: 0.5px;
+
+    flex-shrink: 0;
+}
+
+.azure-badge {
+
+    background: #dbeafe;
+
+    color: #1d4ed8;
+}
+
+.snow-badge {
+
+    background: #d1fae5;
+
+    color: #065f46;
+}
+
+.ptc-badge {
+
+    background: #fce7f3;
+
+    color: #9d174d;
+}
+
+.ugm-source-detail {
+
+    font-size: 12px;
+
+    color: #4b5563;
+
+    line-height: 1.5;
+}
+
+.ugm-source-detail strong {
+
+    color: #111827;
+}
+
+.ugm-source-detail em {
+
+    color: #6b7280;
+}
+
+.ugm-refresh-note {
+
+    font-size: 12px;
+
+    color: #6b7280;
+
+    background: #fafafa;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 6px;
+
+    padding: 9px 13px;
+}
+
+.ugm-refresh-btn {
+
+    padding: 10px 22px;
+
+    background: #1e3a5f;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 6px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    align-self: flex-start;
+
+    transition: background 0.15s;
+}
+
+.ugm-refresh-btn:hover:not(:disabled) {
+
+    background: #16304f;
+}
+
+.ugm-refresh-btn:disabled {
+
+    opacity: 0.6;
+
+    cursor: not-allowed;
+}
+
+.ugm-refresh-status {
+
+    font-size: 13px;
+
+    border-radius: 6px;
+
+    padding: 9px 13px;
+
+    display: none;
+}
+
+.ugm-refresh-status:not(:empty) {
+
+    display: block;
+}
+
+.ugm-status-info {
+
+    background: #eff6ff;
+
+    color: #1d4ed8;
+
+    border: 1px solid #bfdbfe;
+}
+
+.ugm-status-success {
+
+    background: #f0fdf4;
+
+    color: #166534;
+
+    border: 1px solid #bbf7d0;
+}
+
+.ugm-status-error {
+
+    background: #fef2f2;
+
+    color: #991b1b;
+
+    border: 1px solid #fecaca;
+}
+
+.ugm-refresh-preview {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.ugm-count-badge {
+
+    display: inline-block;
+
+    background: #1e3a5f;
+
+    color: white;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    padding: 2px 8px;
+
+    border-radius: 10px;
+
+    margin-left: 6px;
+}
+
+.ugm-refresh-user-list {
+
+    max-height: 180px;
+
+    overflow-y: auto;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 6px;
+
+    background: white;
+}
+
+.ugm-refresh-user-row {
+
+    padding: 5px 12px;
+
+    font-size: 12px;
+
+    color: #374151;
+
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.ugm-refresh-user-row:last-child {
+
+    border-bottom: none;
+}
+
+
+/* =========================================
+   EXISTING GROUPS TAB
+========================================= */
+
+.ugm-existing-panel {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    padding: 16px;
+
+    overflow: hidden;
+
+    flex: 1;
+}
+
+.ugm-existing-toolbar {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+.ugm-existing-hint {
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+.ugm-existing-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+
+    gap: 12px;
+
+    overflow-y: auto;
+
+    flex: 1;
+
+    padding-right: 4px;
+}
+
+.ugm-existing-card {
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+.ugm-existing-card-header {
+
+    background: #1e3a5f;
+
+    padding: 9px 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+.ugm-existing-card-title {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: white;
+
+    flex: 1;
+}
+
+.ugm-member-count {
+
+    font-size: 11px;
+
+    background: rgba(255,255,255,0.2);
+
+    color: white;
+
+    padding: 2px 7px;
+
+    border-radius: 10px;
+
+    white-space: nowrap;
+}
+
+.ugm-edit-group-btn {
+
+    background: rgba(255,255,255,0.15);
+
+    color: white;
+
+    border: 1px solid rgba(255,255,255,0.3);
+
+    border-radius: 4px;
+
+    font-size: 11px;
+
+    padding: 3px 8px;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+.ugm-edit-group-btn:hover {
+
+    background: rgba(255,255,255,0.28);
+}
+
+.ugm-existing-members {
+
+    padding: 8px 12px;
+
+    overflow-y: auto;
+
+    max-height: 150px;
+}
+
+.ugm-existing-member-row {
+
+    font-size: 12px;
+
+    color: #374151;
+
+    padding: 4px 0;
+
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.ugm-existing-member-row:last-child {
+
+    border-bottom: none;
+}
+
+/* =========================================
+   DIALOG FLEX LAYOUT FIX (for tabs)
+========================================= */
+
+.ugm-dialog {
+
+    max-height: 85vh;
+}
+
+.ugm-body {
+
+    flex: 1;
+
+    overflow: hidden;
+}
+
+/* =========================================
+   SERVER RESTART NOTICE
+========================================= */
+
+.ugm-restart-notice {
+
+    background: #fffbeb;
+
+    border: 1px solid #fde68a;
+
+    border-left: 4px solid #f59e0b;
+
+    border-radius: 6px;
+
+    padding: 10px 14px;
+
+    font-size: 12px;
+
+    color: #78350f;
+
+    line-height: 1.6;
+}
+
+.ugm-restart-notice code {
+
+    background: #fef3c7;
+
+    padding: 1px 5px;
+
+    border-radius: 3px;
+
+    font-size: 11px;
+
+    color: #92400e;
+}
+
+/* Allow HTML in error status */
+.ugm-refresh-status code {
+
+    background: rgba(0,0,0,0.08);
+
+    padding: 1px 5px;
+
+    border-radius: 3px;
+
+    font-size: 11px;
+}
+
+/* =========================================
+   OPS-CENTER STYLE PROGRESS BAR
+========================================= */
+
+
+/* State classes matching ops-center pattern */
+.search-progress-fill.ops-bar-processing {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
+    background-size: 200% 100%;
+    animation: opsBarSlide 1.4s linear infinite;
+    width: 70% !important;
+}
+
+.search-progress-fill.ops-bar-completed {
+    background: linear-gradient(90deg, #22c55e, #4ade80);
+    animation: none;
+    transition: width 0.3s ease;
+}
+
+.search-progress-fill.ops-bar-failed {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+    animation: none;
+    transition: width 0.3s ease;
+}
+
+@keyframes opsBarSlide {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Remove old pulse animation that conflicts */
+
+
+/* =========================================
+   KPI BAR (top of main content)
+========================================= */
+
+.search-kpi-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.search-kpi-tile {
+    flex: 1;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    border-top: 3px solid #94a3b8;
+}
+
+.search-kpi-tile.kpi-open     { border-top-color: #3b82f6; }
+.search-kpi-tile.kpi-closed   { border-top-color: #22c55e; }
+.search-kpi-tile.kpi-cancelled { border-top-color: #f59e0b; }
+
+.kpi-tile-label {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-tile-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #172b46;
+    line-height: 1;
+}
+
+
+/* =========================================
+   COMPACT PAGINATION
+========================================= */
+
+.results-summary-bar {
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.table-controls-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rows-select {
+    padding: 3px 6px;
+    font-size: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    height: 26px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.page-btn {
+    padding: 0 7px;
+    height: 26px;
+    min-width: 26px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #374151;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+    line-height: 1;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #f3f4f6;
+}
+
+.page-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-size: 12px;
+    color: #374151;
+    padding: 0 8px;
+    white-space: nowrap;
+}
+
+
+/* =========================================
+   SEARCH RESULTS CONTAINER — account for KPI bar
+========================================= */
+
+.search-results-container {
+    height: calc(100vh - 300px);
+}
+
+
+/* =========================================
+   SIDEBAR GROUP BUTTONS (individual collapsible)
+========================================= */
+
+.sidebar-group-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    margin-top: 6px;
+    border: none;
+    border-radius: 7px;
+    background: rgba(255,255,255,0.08);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-align: left;
+}
+
+.sidebar-group-btn:hover {
+    background: rgba(255,255,255,0.14);
+}
+
+.sidebar-group-btn.sidebar-group-active {
+    background: rgba(76,125,255,0.25);
+    border: 1px solid rgba(76,125,255,0.4);
+}
+
+.sidebar-group-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-group-count {
+    background: rgba(255,255,255,0.18);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.sidebar-group-arrow {
+    font-size: 10px;
+    opacity: 0.7;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+}
+
+.sidebar-group-panel {
+    display: none;
+    flex-direction: column;
+    background: rgba(0,0,0,0.15);
+    border-radius: 0 0 6px 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
+.sidebar-group-panel.sidebar-group-open {
+    display: flex;
+}
+
+.sidebar-group-member {
+    padding: 5px 12px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    line-height: 1.4;
+}
+
+.sidebar-group-member:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================
+   OPS-BAR COLOUR STATES
+   Extends common.css progress-bar-fill with animated states.
+   The progress-bar-fill base class is defined in common.css.
+========================================= */
+
+#progressFill.ops-bar-processing {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
+    background-size: 200% 100%;
+    animation: opsBarSlide 1.4s linear infinite;
+    width: 70% !important;
+    transition: none;
+}
+
+#progressFill.ops-bar-completed {
+    background: linear-gradient(90deg, #22c55e, #4ade80);
+    animation: none;
+    transition: width 0.3s ease;
+}
+
+#progressFill.ops-bar-failed {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+    animation: none;
+    transition: width 0.3s ease;
+}
+
+@keyframes opsBarSlide {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+
+/* =========================================
+   REPORT SECTION
+========================================= */
+
+.report-loading {
+    font-size: 12px;
+    color: var(--text-muted, #888);
+    padding: 8px 0;
+    text-align: center;
+}
+
+.report-source-block {
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color, #dde1e7);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.report-source-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 6px 10px;
+    text-transform: uppercase;
+}
+
+.report-source-icon {
+    font-size: 13px;
+}
+
+.snow-header {
+    background: #e8f4fd;
+    color: #1a5a8c;
+    border-bottom: 1px solid #b3d7f5;
+}
+
+.azure-header {
+    background: #eaf0fb;
+    color: #1e40af;
+    border-bottom: 1px solid #bfcfef;
+}
+
+.ptc-header {
+    background: #fef3e8;
+    color: #7c4a00;
+    border-bottom: 1px solid #f5ceaa;
+}
+
+.report-stats-row {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 6px;
+    background: var(--card-bg, #fff);
+}
+
+.report-stat-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+}
+
+.report-stat-label {
+    font-size: 10px;
+    color: var(--text-muted, #888);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.report-stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary, #222);
+    line-height: 1.1;
+}
+
+.report-stat-value.report-open {
+    color: #d97706;
+}
+
+.report-stat-value.report-closed {
+    color: #16a34a;
+}
+
+.report-subsection-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #888);
+    padding: 4px 10px 2px;
+    background: var(--card-bg, #fff);
+    border-top: 1px solid var(--border-color, #dde1e7);
+}
+
+.report-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 6px 10px 8px;
+    background: var(--card-bg, #fff);
+}
+
+.report-azure-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1e40af;
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
+    border-radius: 4px;
+    padding: 2px 7px;
+    cursor: default;
+    white-space: nowrap;
+}
+
+.report-refresh-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--text-muted, #888);
+}
+
+.report-refresh-btn {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color, #ccc);
+    background: var(--btn-bg, #f5f5f5);
+    cursor: pointer;
+    color: var(--text-primary, #333);
+}
+
+.report-refresh-btn:hover {
+    background: var(--btn-hover-bg, #e8e8e8);
+}
+
+
+/* =========================================
+   VENDOR TICKET & AZURE BUG COLUMNS
+========================================= */
+
+.vendor-ticket-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    font-family: monospace;
+    text-decoration: none;
+    cursor: pointer;
+}
+.vendor-ticket-badge:hover {
+    background: #fde68a;
+    border-color: #f59e0b;
+    color: #78350f;
+}
+
+.azure-bug-chip {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1e40af;
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    text-decoration: none;
+    margin-right: 3px;
+}
+
+.azure-bug-chip:hover {
+    background: #bfdbfe;
+    border-color: #60a5fa;
+    text-decoration: none;
+}
+
+/* Column width hints */
+#col-vendorticket { width: 110px; }
+#col-azurebug     { width: 120px; }
+
+
+/* =========================================
+   NUMBER LINKS — per-source colour coding
+========================================= */
+
+.number-link {
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    padding: 1px 4px;
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+
+/* SNOW / Incident — blue */
+.number-link--snow {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+.number-link--snow:hover {
+    background: #dbeafe;
+}
+
+/* Azure — indigo */
+.number-link--azure {
+    color: #4338ca;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+}
+.number-link--azure:hover {
+    background: #e0e7ff;
+}
+
+/* PTC — teal */
+.number-link--ptc {
+    color: #0f766e;
+    background: #f0fdfa;
+    border: 1px solid #99f6e4;
+}
+.number-link--ptc:hover {
+    background: #ccfbf1;
+}
+
+
+/* =========================================
+   AZURE VPA USER STORY & PTC ARTICLE CHIPS
+========================================= */
+
+.azure-vpa-chip {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4338ca;
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    text-decoration: none;
+    margin-right: 2px;
+}
+.azure-vpa-chip:hover {
+    background: #e0e7ff;
+    border-color: #a5b4fc;
+}
+
+.env-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 8px;
+    padding: 1px 5px;
+    margin-left: 2px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ptc-article-chip {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #7c3aed;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+    text-decoration: none;
+    margin-right: 2px;
+}
+.ptc-article-chip:hover {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+}
+
+/* Column width hints */
+#col-azureuserstory { width: 160px; }
+#col-ptcarticles    { width: 120px; }
+
+
+/* =========================================
+   SETTINGS PANEL
+========================================= */
+
+.settings-group {
+    margin-bottom: 14px;
+}
+
+.settings-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    padding: 5px 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.settings-toggle:hover {
+    color: #fff;
+}
+
+.settings-toggle input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    accent-color: #60a5fa;
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   ROW SOURCE HIGHLIGHT
+========================================= */
+
+.row-snow  { background: #f0f9ff; }
+.row-azure { background: #f5f3ff; }
+.row-ptc   { background: #fefce8; }
+
+.row-snow:hover  { background: #e0f2fe; }
+.row-azure:hover { background: #ede9fe; }
+.row-ptc:hover   { background: #fef9c3; }
+
+
+/* =========================================
+   AOM ROW HIGHLIGHT
+========================================= */
+
+.row-aom        { background: #ecfdf5; }
+.row-aom:hover  { background: #d1fae5; }
+
+/* AOM number link — green */
+.number-link--aom {
+    color: #065f46;
+    background: #d1fae5;
+    border: 1px solid #6ee7b7;
+}
+.number-link--aom:hover { background: #a7f3d0; }
+
+
+/* =========================================
+   SORTABLE COLUMN HEADERS
+========================================= */
+
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+th.sortable:hover { background: rgba(255,255,255,0.08); }
+th.sort-asc  { color: #60a5fa; }
+th.sort-desc { color: #60a5fa; }
+
+
+/* =========================================
+   SETTINGS SELECT DROPDOWNS
+========================================= */
+
+.settings-select {
+    width: 100%;
+    margin-top: 4px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
+    font-size: 12px;
+    cursor: pointer;
+    appearance: none;
+}
+.settings-select:focus {
+    outline: none;
+    border-color: #60a5fa;
+}
+
+
+/* =========================================
+   STATUS PILL IN TABLE
+========================================= */
+
+/* Status pills are inline-flex spans rendered by JS — no extra CSS needed
+   beyond ensuring the TD doesn't clip them */
+td:has(.status-pill) {
+    white-space: nowrap;
 }

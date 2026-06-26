@@ -1,346 +1,211 @@
 {% extends "main.html" %}
 
-{% block page_title %}
-Excel Merge
-{% endblock %}
+{% block page_title %}Excel Merge Tool{% endblock %}
 
 {% block page_css %}
-
 <link rel="stylesheet"
       href="{{ url_for('excel_merge_bp.static', filename='excel_merge.css') }}">
-
 {% endblock %}
 
+
+<!-- =========================================
+     SIDEBAR TOOLBAR
+========================================= -->
 {% block sidebar_toolbar %}
-
 <div class="sidebar-toolbar">
-
-    <button onclick="clearExcelWorkspace()">
-        Clear Workspace
-    </button>
-
-    <button onclick="mergeExcelFiles()">
-        Apply Filters
-    </button>
-
+    <button onclick="clearExcelWorkspace()">Clear Workspace</button>
+    <button onclick="alert('Filters coming soon')">Apply Filters</button>
 </div>
-
 {% endblock %}
 
+
+<!-- =========================================
+     TOP CENTER
+========================================= -->
 {% block top_center %}
-
-<div class="module-title-pill">
-    Excel Merge Tool
-</div>
-
+<div class="module-title-pill">Excel Merge Tool</div>
 {% endblock %}
 
-
-<!-- =====================================================
-TOOLBAR
-===================================================== -->
-
-{% block toolbar_left %}
-
-<div class="excel-toolbar-group">
-
-    <!-- OLD FILE -->
-    <div class="toolbar-upload-group">
-
-        <label
-            for="file1"
-            class="primary-btn upload-btn">
-
-            Choose Old Excel
-
-        </label>
-
-        <input
-            type="file"
-            id="file1"
-            accept=".xlsx,.xls"
-            onchange="updateFileNames()"
-        >
-
-        <span
-            id="file1Name"
-            class="toolbar-file-name">
-
-            No file selected
-
-        </span>
-
-    </div>
-
-
-    <!-- NEW FILE -->
-    <div class="toolbar-upload-group">
-
-        <label
-            for="file2"
-            class="primary-btn upload-btn">
-
-            Choose New Excel
-
-        </label>
-
-        <input
-            type="file"
-            id="file2"
-            accept=".xlsx,.xls"
-            onchange="updateFileNames()"
-        >
-
-        <span
-            id="file2Name"
-            class="toolbar-file-name">
-
-            No file selected
-
-        </span>
-
-    </div>
-
-</div>
-
-{% endblock %}
-
-{% block toolbar_right %}
-
-<div class="excel-toolbar-actions">
-
-    <button
-        id="mergeBtn"
-        class="primary-btn">
-
-        Merge Files
-
-    </button>
-
-    <button
-        id="downloadBtn"
-        class="primary-btn hidden">
-
-        Download Output
-
-    </button>
-
-</div>
-
-{% endblock %}
 
 <!-- =========================================
      DOCK ICONS
 ========================================= -->
 {% block dock_icons %}
 
-<!-- ACTIONS -->
 <div class="dock-item active-dock"
      title="Actions"
-     onclick="showExcelSection('actions', event)">
-
-    ⚙️
-
-</div>
-
-<!-- KPI -->
-<div class="dock-item"
-     title="KPI"
-     onclick="showExcelSection('kpi', event)">
-
-    📊
-
-</div>
+     onclick="showExcelSection('actions', event)">⚙️</div>
 
 {% endblock %}
 
 
-
 <!-- =========================================
-     SIDEBAR
+     SIDEBAR — Actions only (KPI moved to main)
 ========================================= -->
 {% block sidebar %}
 
-<!-- =========================================
-     ACTION SECTION
-========================================= -->
-<div id="actions-section"
-     class="dock-section active-section">
-
+<div id="actions-section" class="dock-section active-section">
     <div class="sidebar-card">
+        <div class="card-title">Actions</div>
 
-        <div class="card-title">
-            Actions
-        </div>
-
-        <!-- UNIQUE KEY -->
+        <label class="sidebar-input-label">Unique Key Column</label>
         <input type="text"
                id="uniqueKeyColumn"
-               placeholder="Unique Key Column">
+               placeholder="e.g. number">
 
-        <!-- MERGE MODE -->
+        <label class="sidebar-input-label">Merge Strategy</label>
         <select id="mergeMode">
-
-            <option value="prefer_new">
-                Prefer New File
-            </option>
-
-            <option value="prefer_old">
-                Prefer Old File
-            </option>
-
+            <option value="prefer_new">Prefer New File</option>
+            <option value="prefer_old">Prefer Old File</option>
         </select>
 
-        <!-- DATE COLUMN -->
+        <label class="sidebar-input-label">Date Column (optional)</label>
         <input type="text"
                id="dateColumn"
-               placeholder="Date Column">
-
+               placeholder="e.g. created">
     </div>
-
 </div>
+
+{% endblock %}
+
 
 <!-- =========================================
-     KPI SECTION
+     PROCESSING STATUS
 ========================================= -->
-<div id="kpi-section"
-     class="dock-section">
-
-    <div class="sidebar-card">
-
-        <div class="card-title">
-            KPI
-        </div>
-
-        <div class="excel-kpi-grid">
-
-            <div class="excel-kpi-mini">
-
-                <span>Total</span>
-
-                <strong id="totalRows">
-                    0
-                </strong>
-
-            </div>
-
-            <div class="excel-kpi-mini">
-
-                <span>Updated</span>
-
-                <strong id="updatedRows">
-                    0
-                </strong>
-
-            </div>
-
-            <div class="excel-kpi-mini">
-
-                <span>New</span>
-
-                <strong id="newRows">
-                    0
-                </strong>
-
-            </div>
-
-            <div class="excel-kpi-mini">
-
-                <span>Duplicates</span>
-
-                <strong id="duplicatesRemoved">
-                    0
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-{% endblock %}
-
-<!-- =====================================================
-CONTENT
-===================================================== -->
-
-{% block content %}
-
-<!-- PREVIEW -->
-<div class="content-card excel-preview-card">
-
-    <h2>
-        Excel Merge Output
-    </h2>
-
-    <p class="preview-placeholder">
-        Merged records preview
-    </p>
-
-    <div class="table-scroll-wrapper">
-
-        <table id="mergeResultsTable">
-
-            <thead id="mergeTableHead">
-            </thead>
-
-            <tbody id="mergeTableBody">
-
-                <tr>
-
-                    <td
-                        colspan="20"
-                        class="empty-search-message">
-
-                        Merge results will appear here
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
-{% endblock %}
-
-<!-- =====================================================
-PROCESSING STATUS
-===================================================== -->
-
 {% block module_status %}
 
-<div
-    id="progressWrapper"
-    class="search-progress-wrapper hidden">
+<div class="report-status-meta">
+    <div class="status-row">
+        <span class="status-label">Old File:</span>
+        <span id="statusOldFile">—</span>
+    </div>
+    <div class="status-row">
+        <span class="status-label">New File:</span>
+        <span id="statusNewFile">—</span>
+    </div>
+    <div class="status-row">
+        <span class="status-label">Last Action:</span>
+        <span id="lastAction">Waiting for input</span>
+    </div>
+</div>
 
-    <div
-        id="progressText"
-        class="search-status-text">
+{% endblock %}
 
+
+<!-- =========================================
+     TOOLBAR LEFT — compare-tool style stubs
+========================================= -->
+{% block toolbar_left %}
+
+<div class="toolbar-upload-strip">
+
+    <div class="file-stub" onclick="document.getElementById('file1').click()">
+        <span class="stub-badge removed">OLD</span>
+        <span id="file1Name" class="stub-text">Select Old Excel...</span>
+        <input type="file" id="file1" accept=".xlsx,.xls" hidden>
     </div>
 
-    <div class="search-progress-bar">
-
-        <div
-            id="progressFill"
-            class="search-progress-fill">
-        </div>
-
+    <div class="file-stub" onclick="document.getElementById('file2').click()">
+        <span class="stub-badge added">NEW</span>
+        <span id="file2Name" class="stub-text">Select New Excel...</span>
+        <input type="file" id="file2" accept=".xlsx,.xls" hidden>
     </div>
+
+    <button id="mergeBtn" class="primary-btn">⚡ Merge Files</button>
 
 </div>
 
 {% endblock %}
 
+
+<!-- =========================================
+     TOOLBAR RIGHT — download
+========================================= -->
+{% block toolbar_right %}
+
+<button id="downloadBtn" class="primary-btn hidden">
+    ⬇ Download Output
+</button>
+
+{% endblock %}
+
+
+<!-- =========================================
+     MAIN CONTENT
+========================================= -->
+{% block content %}
+
+<!-- KPI STRIP — above the table -->
+<div class="em-kpi-strip hidden" id="kpiStrip">
+    <div class="em-kpi-card total">
+        <strong id="totalRows">0</strong>
+        <span>Total Rows</span>
+    </div>
+    <div class="em-kpi-card updated">
+        <strong id="updatedRows">0</strong>
+        <span>Updated Rows</span>
+    </div>
+    <div class="em-kpi-card new">
+        <strong id="newRows">0</strong>
+        <span>New Rows</span>
+    </div>
+    <div class="em-kpi-card dupes">
+        <strong id="duplicatesRemoved">0</strong>
+        <span>Duplicates Removed</span>
+    </div>
+</div>
+
+<!-- PREVIEW CARD -->
+<div class="content-card excel-preview-card">
+
+    <div class="em-preview-header">
+        <div>
+            <h2>Excel Merge Output</h2>
+            <p class="preview-placeholder">Merged records preview</p>
+        </div>
+        <!-- Legend -->
+        <div class="em-legend">
+            <span class="em-legend-item new-cell">New Row</span>
+            <span class="em-legend-item updated-cell">Updated Cell</span>
+        </div>
+    </div>
+
+    <div class="table-scroll-wrapper">
+        <table id="mergeResultsTable">
+            <thead id="mergeTableHead"></thead>
+            <tbody id="mergeTableBody">
+                <tr>
+                    <td colspan="20" class="empty-search-message">
+                        Merge results will appear here
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     HELP MODAL
+========================================= -->
+<div id="helpSystemModal" class="help-modal-backdrop hidden">
+    <div class="help-modal-window">
+        <div class="help-modal-header">
+            <h2 id="helpModuleTitle">💡 Excel Merge Tool — Help</h2>
+            <button class="help-modal-close-btn"
+                    onclick="toggleHelpSystemModal()">✕</button>
+        </div>
+        <div class="help-modal-body">
+            <div class="help-modal-left-pane"  id="helpModalIndexPane"></div>
+            <div class="help-modal-right-pane" id="helpModalContentPane"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
 {% block page_js %}
-
 <script src="{{ url_for('excel_merge_bp.static', filename='excel_merge.js') }}"></script>
-
 {% endblock %}

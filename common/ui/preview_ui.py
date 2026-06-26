@@ -4,6 +4,7 @@ from common.utils.formatters import (
     format_date,
     safe_text
 )
+from common.utils.links import parse_ptc_cases
 
 import os
 
@@ -22,34 +23,45 @@ def _format_multiline(text):
     return safe_text(text).replace("\n", "<br>")
 
 
+# ServiceNow incident URL
+_SNOW_URL  = "https://volvoitsm.service-now.com/nav_to.do?uri=incident.do?sysparm_query=number={}"
+# Azure DevOps bug URL (VCEWindchillPLM project — Azure Bug field)
+_AZURE_URL = "https://dev.azure.com/VolvoGroup-DVP/VCEWindchillPLM/_workitems/edit/{}"
+# PTC support case URL
+_PTC_URL   = "https://support.ptc.com/appserver/cs/view/case.jsp?n={}"
+
+
 def _link(value, type_):
+    """
+    Build a clickable anchor for a single value.
+    For type_ == "ptc", supports comma-separated and alpha-prefixed case numbers
+    (e.g. "17979095, C1234567") — each rendered as an individual link.
+    """
     value = safe_text(value)
 
     if value == "-":
         return "-"
 
     if type_ == "incident":
-        url = (
-            "https://volvoitsm.service-now.com/"
-            f"nav_to.do?uri=incident.do?sysparm_query=number={value}"
-        )
+        url = _SNOW_URL.format(value)
+        return f'<a href="{url}" target="_blank">{value}</a>'
 
     elif type_ == "azure":
-        url = (
-            "https://dev.azure.com/VolvoGroup-DVP/"
-            f"VCEWindchillPLM/_workitems/edit/{value}"
-        )
+        url = _AZURE_URL.format(value)
+        return f'<a href="{url}" target="_blank">{value}</a>'
 
     elif type_ == "ptc":
-        url = (
-            "https://support.ptc.com/appserver/"
-            f"cs/view/solution.jsp?n={value}"
-        )
+        cases = parse_ptc_cases(value)
+        if not cases:
+            return value
+        parts = []
+        for display, num_id in cases:
+            url = _PTC_URL.format(num_id)
+            parts.append(f'<a href="{url}" target="_blank">{display}</a>')
+        return ", ".join(parts)
 
     else:
         return value
-
-    return f'<a href="{url}" target="_blank">{value}</a>'
 
 
 def render_images(image_list):
@@ -92,10 +104,12 @@ def render_preview_html(
     resolution=None,
     problem_images=None,
     root_images=None,
-    resolution_images=None
+    resolution_images=None,
+    references=None,          # list of reference dicts from references_service
 ):
     """
-    Main preview renderer
+    Main preview renderer — renders incident header, description,
+    RCA sections (with images), and a References table when references are found.
     """
 
     if not data:
@@ -198,6 +212,32 @@ def render_preview_html(
     </table>
     """
 
+    # -----------------------------------
+    # REFERENCES TABLE (Azure VPA + PTC articles)
+    # -----------------------------------
+    # Use references passed in, or fall back to what prepare_data stored
+    refs_list = references if references is not None else (data.get("references") or [])
+
+    if refs_list:
+        try:
+            from report.module.services.references_service import render_references_html
+            refs_html = render_references_html(refs_list)
+        except ImportError:
+            refs_html = ""
+    else:
+        refs_html = ""
+
+    references_section = f"""
+    <table class="tbl preview-table">
+        <tr>
+            <td class="hdr" style="width:180px;">REFERENCES</td>
+            <td>
+                {refs_html if refs_html else "<span style='color:#94a3b8;font-size:12px;'>No Azure user stories or PTC articles found in notes.</span>"}
+            </td>
+        </tr>
+    </table>
+    """ if refs_list else ""
+
     html = f"""
     <div class="preview-wrapper">
         <div class="preview-table-container">
@@ -210,6 +250,8 @@ def render_preview_html(
             <br>
 
             {rca_table}
+
+            {"<br>" + references_section if references_section else ""}
         </div>
     </div>
     """

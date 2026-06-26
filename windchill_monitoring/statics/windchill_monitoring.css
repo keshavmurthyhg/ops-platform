@@ -1,0 +1,1059 @@
+/* =====================================================
+   WINDCHILL OPERATIONS MONITORING — MASTER CORE STYLES
+   ===================================================== */
+
+.monitoring-dashboard {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 160px);
+    padding: 16px;
+    box-sizing: border-box;
+    gap: 16px;
+    background: #f3f4f6;
+}
+
+/* Three-Column Viewport Span (No Scroll) */
+.monitoring-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+}
+
+.monitoring-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.monitoring-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 8px;
+}
+
+.monitoring-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Master Table Layout Configuration */
+.monitoring-table-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    min-height: 0;
+}
+
+.monitoring-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.monitoring-data-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f28c38;
+    color: #ffffff;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.monitoring-data-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 11px;
+    color: #374151;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.monitoring-data-table tbody tr:hover {
+    background: #fff7ed;
+}
+
+/* Status Pill Configurations */
+.status-pill {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.status-failed { background: #fee2e2; color: #dc2626; }
+.status-ready { background: #fef3c7; color: #d97706; }
+.status-success { background: #dcfce7; color: #16a34a; }
+
+/* Filter & Layout Controls Container Drawer */
+.sidebar-filter-group {
+    margin-bottom: 14px;
+}
+
+.sidebar-filter-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #cfd8e3;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.sidebar-select-input {
+    width: 100%;
+    height: 34px;
+    background: #445b7c;
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 0 8px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.action-sidebar-btn {
+    width: 100%;
+    height: 36px;
+    background: #f28c38;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.action-sidebar-btn:hover {
+    background: #e07b2c;
+}
+
+/* =====================================================
+   WINDCHILL OPERATIONS MONITORING — STYLE EXTENSIONS
+   ===================================================== */
+
+/* Prevents elements from overlapping behind the processing footer layout container drawer */
+.sidebar-content-scroller {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px;
+    box-sizing: border-box;
+    max-height: calc(100vh - 290px);
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* Sync display lists wrapper box properties */
+.sync-pills-container {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: rgba(248, 246, 246, 0.15);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+
+.sync-pill-item {
+    font-size: 10px;
+    color: #cfd8e3;
+    font-weight: 500;
+}
+
+.sync-lbl-time {
+    color: #4ade80;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+/* Scrollable container adjustments for expanded grid viewing */
+.table-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.ops-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ops-table th {
+    background: #f28c38;
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.ops-table td {
+    padding: 8px 10px;
+    font-size: 11px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #111827;
+}
+
+.ops-table tbody tr:hover {
+    background: #fdf8f2;
+}
+
+/* --- Optimized Three-Zone Toolbar Blueprint --- */
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0;
+    overflow: visible;
+}
+
+/* Zone 1 & 3: Structural alignment block dimensions */
+.toolbar-left > .primary-btn:not(.tracker-btn),
+.toolbar-left {
+    flex: 0 0 140px;
+    height: 32px;
+    box-sizing: border-box;
+}
+
+/* Zone 2: Centered tab matrix box container */
+.nav-tabs-center-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+}
+
+.nav-tabs-center-group .tracker-btn {
+    min-width: 130px; /* Slightly higher base room since Windchill labels are descriptive */
+    max-width: 160px;
+    height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* ═══ COMPACT TRANSACTION TABLE ROWS ══════════════════════════════════════ */
+.tx-compact-row td { padding:5px 8px !important; font-size:11px !important; line-height:1.3 !important; vertical-align:middle !important; border-bottom:1px solid #f1f5f9 !important; }
+.tx-compact-row:hover td { background:#fff8f0 !important; }
+.tx-code { font-size:10px !important; font-family:'Courier New',monospace; color:#374151; background:#f3f4f6; padding:1px 4px; border-radius:3px; letter-spacing:-0.3px; }
+.tx-time { white-space:nowrap; color:#374151; }
+.tx-obj  { color:#1d4ed8; font-weight:500; }
+.tx-att  { color:#6b7280; font-size:10px !important; }
+.tx-notes { color:#6b7280; font-style:italic; }
+.tx-notes-alert { color:#dc2626 !important; font-style:normal !important; font-weight:500; }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DOCK ICON — filter image
+   ═══════════════════════════════════════════════════════════════ */
+.dock-filter-icon {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.dock-filter-icon img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+    opacity: .75;
+    transition: opacity .15s;
+}
+.dock-filter-icon:hover img,
+.dock-filter-icon.active-dock img { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR — LIVE AUTOMATION FILTER & LAUNCH CONTROLS
+    New design: compact parameter summary card with "Run Filter" button, plus status box feedback.
+   ═══════════════════════════════════════════════════════════════ */
+.filter-param-card {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(34,197,94,.2);
+    border-radius: 8px;
+    padding: 11px 13px;
+    margin: 10px 0 13px;
+    font-size: 11.5px;
+}
+.filter-param-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.filter-param-row:last-of-type { border-bottom: none; }
+.filter-param-lbl {
+    color: #9ca3af;
+    font-weight: 600;
+    min-width: 46px;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.filter-param-val { color: #e5e7eb; font-weight: 500; }
+.filter-param-note {
+    color: #6b7280;
+    font-size: 10px;
+    font-style: italic;
+    margin-top: 7px;
+}
+
+
+.filter-last-run {
+    margin-top: 8px;
+    font-size: 10px;
+    color: #6b7280;
+    text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STATUS BOXES (filter feedback)
+   ═══════════════════════════════════════════════════════════════ */
+.filter-status-box   { border-radius:8px; padding:10px 12px; font-size:11px; line-height:1.5; animation:fadeInBox .3s ease; }
+.filter-status-running { background:#1c2a3a; border:1px solid #3b82f6; color:#93c5fd; }
+.filter-status-success { background:#052e16; border:1px solid #22c55e; color:#86efac; }
+.filter-status-error   { background:#2d1515; border:1px solid #ef4444; color:#fca5a5; }
+.filter-status-title   { font-weight:700; margin-bottom:4px; font-size:12px; }
+.filter-status-msg     { opacity:.9; word-break:break-word; }
+.filter-status-detail  { margin-top:5px; opacity:.75; font-size:10px; }
+@keyframes fadeInBox { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+
+/* ═══════════════════════════════════════════════════════════════
+   EDGE LAUNCH BUTTON & FOOTER STRIP
+   ═══════════════════════════════════════════════════════════════ */
+.edge-launch-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 9px;
+    border-radius: 7px;
+    border: 1.5px solid #3b82f6;
+    background: rgba(59,130,246,.12);
+    color: #93c5fd;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+}
+.edge-launch-btn:hover { background: rgba(59,130,246,.25); }
+.edge-launch-btn:disabled { opacity:.5; cursor:not-allowed; }
+.filter-auto-footer {
+    margin-top: 10px;
+    font-size: 10px;
+    color: #6b7280;
+    text-align: center;
+    line-height: 1.8;
+}
+.sidebar-bottom-strip {
+    padding: 8px 12px;
+    border-top: 1px solid rgba(255,255,255,.07);
+    font-size: 10px;
+    color: #6b7280;
+    text-align: center;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WM v10b — LIGHT THEME (matching OPS Center dashboard style)
+   KPI tiles and mini-cards use light white backgrounds.
+   Mini-cards use flex layout to fill viewport without cutting off.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── KPI TILES — light cards matching OPS Center style ────────────────────── */
+.wm-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+.wm-kpi-tile {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.wm-kpi-tile:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); transform: translateY(-2px); }
+.wm-kpi-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+}
+.wm-kpi-fail::before   { background: #ef4444; }
+.wm-kpi-wvs::before    { background: #f59e0b; }
+.wm-kpi-worker::before { background: #3b82f6; }
+
+.wm-kpi-icon  { font-size: 24px; margin-bottom: 6px; }
+.wm-kpi-val   { font-size: 38px; font-weight: 800; line-height: 1.1; margin-bottom: 4px; }
+.wm-kpi-fail   .wm-kpi-val { color: #ef4444; }
+.wm-kpi-wvs    .wm-kpi-val { color: #f59e0b; }
+.wm-kpi-worker .wm-kpi-val { color: #3b82f6; }
+.wm-kpi-label { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 2px; }
+.wm-kpi-sub   { font-size: 10px; color: #9ca3af; }
+
+/* ── MINI-CARDS GRID ───────────────────────────────────────────────────────── */
+/* Use flex row + fixed-height cards, not calc(100vh) to avoid cut-off */
+.wm-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    /* Fixed height — enough for ~8 rows, footer always visible */
+    height: 420px;
+}
+.wm-mini-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    height: 100%;   /* fill grid cell */
+    min-height: 0;
+}
+.wm-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+.wm-card-title { font-size: 12px; font-weight: 700; color: #1e293b; }
+.wm-card-link  { font-size: 10px; color: #f59e0b; cursor: pointer; }
+.wm-card-link:hover { text-decoration: underline; }
+
+/* SCROLLABLE BODY */
+.wm-card-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 8px;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.wm-card-body::-webkit-scrollbar       { width: 5px; }
+.wm-card-body::-webkit-scrollbar-track { background: transparent; }
+.wm-card-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+.wm-empty-msg {
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    line-height: 1.6;
+}
+.wm-empty-msg strong { color: #64748b; }
+
+/* FOOTER — always visible at bottom of card */
+.wm-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    border-top: 1px solid #f1f5f9;
+    background: #f8fafc;
+    flex-shrink: 0;
+}
+.wm-foot-label { font-size: 10px; color: #94a3b8; font-weight: 500; }
+.wm-foot-time  { font-size: 10px; color: #22c55e; font-weight: 600; }
+
+/* ── TABLE CARDS — light theme ─────────────────────────────────────────────── */
+.wm-table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+/* Override any dark overrides for table cards (light theme) */
+.wm-table-light .ops-table thead tr { background: #f97316; }
+.wm-table-light .ops-table thead th { color: #fff; }
+.wm-table-light .ops-table tbody tr { background: #fff; }
+.wm-table-light .ops-table tbody tr:nth-child(even) { background: #fafafa; }
+.wm-table-light .ops-table tbody td { color: #374151; border-bottom: 1px solid #f1f5f9; }
+.wm-table-light .ops-table tbody tr:hover td { background: #fff7ed !important; }
+
+/* ── FAILURE TABLE HEADER with KPI bar ─────────────────────────────────────── */
+.failure-card-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 4px;
+}
+.failure-kpi-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+}
+.failure-kpi-total {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    background: #fef2f2;
+    border: 1.5px solid #ef4444;
+    border-radius: 8px;
+    padding: 4px 12px;
+}
+.failure-kpi-num  { font-size: 18px; font-weight: 800; color: #ef4444; line-height: 1; }
+.failure-kpi-lbl  { font-size: 10px; font-weight: 600; color: #ef4444; text-transform: uppercase; letter-spacing: .04em; }
+.failure-kpi-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: 1.5px solid;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    background: transparent;
+    white-space: nowrap;
+}
+.failure-kpi-chip-count { font-weight: 800; font-size: 12px; }
+.failure-kpi-chip-name  { font-weight: 500; font-size: 10px; }
+
+/* ── TRANSACTION MINI-CARDS (light theme) ─────────────────────────────────── */
+.tx-mini-card {
+    border-left: 3px solid #ef4444;
+    padding: 7px 8px 6px;
+    margin-bottom: 5px;
+    border-radius: 0 6px 6px 0;
+    background: #fef2f2;
+    transition: background .15s;
+}
+.tx-mini-card:hover { background: #fee2e2; }
+.tx-mini-row1 { display:flex; align-items:center; gap:5px; margin-bottom:3px; }
+.tx-mini-obj {
+    font-size: 12px; font-weight: 700; color: #1e293b;
+    flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.tx-mini-target {
+    font-size: 9px; font-weight: 700; letter-spacing:.04em; text-transform:uppercase;
+    background: #1e3a5f; color: #93c5fd;
+    padding: 1px 5px; border-radius: 4px; white-space:nowrap; flex-shrink:0;
+}
+.tx-mini-time { font-size: 9px; color: #64748b; white-space:nowrap; flex-shrink:0; }
+.tx-mini-row2 { display:flex; align-items:center; gap:5px; }
+.tx-mini-status {
+    font-size: 9.5px; font-weight: 700;
+    padding: 1px 6px; border-radius: 4px;
+    white-space: nowrap; flex-shrink: 0; border: 1px solid;
+}
+.tx-mini-status-fail { background:#fee2e2; color:#dc2626; border-color:#ef4444; }
+.tx-mini-status-ok   { background:#f0fdf4; color:#16a34a; border-color:#22c55e; }
+.tx-mini-notes {
+    font-size: 10.5px;
+    color: #dc2626;    /* dark red — clearly readable on light pink background */
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    flex:1; min-width:0;
+}
+.tx-mini-notes.empty { color: #94a3b8; font-style:italic; }
+
+/* ── WVS MINI-CARDS (light theme) ──────────────────────────────────────────── */
+.wvs-card {
+    border-left: 3px solid #f59e0b;
+    padding: 7px 8px;
+    margin-bottom: 5px;
+    border-radius: 0 6px 6px 0;
+    background: #fffbeb;
+    transition: background .15s;
+}
+.wvs-card:hover { background: #fef3c7; }
+.wvs-card-row1 { display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+.wvs-num { font-size:12px; font-weight:700; color:#1e293b; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wvs-status-badge {
+    font-size: 9.5px; font-weight: 700;
+    padding: 2px 7px; border-radius: 10px; border: 1px solid;
+    white-space: nowrap; flex-shrink: 0;
+}
+.wvs-card-row2 { margin-bottom:2px; }
+.wvs-name {
+    font-size: 11px;
+    color: #92400e;    /* dark amber — readable on light yellow */
+    display: block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    font-weight: 600;
+}
+.wvs-card-row3 { display:flex; gap:8px; }
+.wvs-ctx, .wvs-ver { font-size:9.5px; color:#78716c; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ── WORKER MINI-ROWS (light theme) ─────────────────────────────────────────── */
+.wcard-row {
+    display:flex; align-items:center; gap:6px;
+    padding:6px 4px;
+    border-bottom:1px solid #f1f5f9;
+}
+.wcard-row:last-child { border-bottom:none; }
+.wcard-name  { font-size:11px; font-weight:600; color:#374151; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wcard-total { font-size:10px; color:#64748b; white-space:nowrap; }
+.wcard-pill  { font-size:10px; font-weight:700; padding:1px 7px; border-radius:10px; white-space:nowrap; }
+.wcard-ok    { background:#f0fdf4; color:#16a34a; }
+.wcard-fail  { background:#fef2f2; color:#dc2626; }
+
+/* Mini-card grid: use flex container height minus KPI row.
+   KPI row is ~130px + 14px margin = 144px.
+   We set cards-grid to fill the remaining space. */
+#dashboardSection {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    background: transparent !important;
+    height: 100%;
+}
+
+.wm-kpi-row {
+    flex-shrink: 0 !important;
+    margin-bottom: 14px !important;
+}
+
+/* Cards grid fills remaining height — footer always visible */
+.wm-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    height: auto !important;       /* remove fixed pixel height */
+}
+
+/* Mini card fills its grid cell */
+.wm-mini-card {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06) !important;
+}
+
+/* Card body: flex-grow fills between header and footer */
+.wm-card-body {
+    flex: 1 1 0% !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+/* Footer always at bottom, never cut */
+.wm-card-footer {
+    flex-shrink: 0 !important;
+    border-top: 1px solid #f1f5f9 !important;
+    background: #f8fafc !important;
+    padding: 7px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+/* KPI tiles: ensure visible */
+.wm-kpi-tile {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08) !important;
+    min-height: 110px;
+}
+.wm-kpi-fail   .wm-kpi-val { color: #ef4444 !important; }
+.wm-kpi-wvs    .wm-kpi-val { color: #f59e0b !important; }
+.wm-kpi-worker .wm-kpi-val { color: #3b82f6 !important; }
+.wm-kpi-label { color: #374151 !important; }
+.wm-kpi-sub   { color: #9ca3af !important; }
+
+/* Kill legacy blocks */
+.collection-status, .collection-title, .collection-value,
+.sync-pills-container, .collection-refresh,
+.dashboard-kpi-row, .sidebar-bottom-strip { display: none !important; }
+
+/* Status pills */
+.status-info { background: #dbeafe; color: #1d4ed8; }
+.status-warn { background: #fff7ed; color: #c2410c; }
+
+/* Section badges */
+.wm-section-badge {
+    display: inline-block; margin-left: 12px; padding: 2px 10px;
+    border-radius: 12px; font-size: 11px; font-weight: 700;
+    vertical-align: middle; background: #fee2e2; color: #dc2626;
+}
+.wm-badge-wvs { background: #fef3c7; color: #d97706; }
+
+/* Alert overlay */
+.wm-alert-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,.55); display: flex;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(3px);
+}
+.wm-alert-modal {
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    width: min(560px, 92vw); max-height: 80vh;
+    overflow-y: auto; display: flex; flex-direction: column;
+}
+.wm-alert-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 18px 20px 14px; border-bottom: 1px solid #f3f4f6;
+    background: #fef2f2; border-radius: 12px 12px 0 0;
+}
+.wm-alert-icon  { font-size: 22px; }
+.wm-alert-title { font-size: 15px; font-weight: 700; color: #1f2937; flex: 1; }
+.wm-alert-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #6b7280; padding: 2px 6px; border-radius: 4px; }
+.wm-alert-close:hover { background: #fee2e2; color: #dc2626; }
+.wm-alert-body  { padding: 20px; flex: 1; }
+.wm-alert-intro { margin: 0 0 14px; font-size: 13px; color: #374151; }
+.wm-alert-worker-list { display: flex; flex-direction: column; gap: 8px; }
+.wm-alert-worker-row  {
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 8px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.wm-alert-worker-name   { font-size: 12px; font-weight: 700; color: #1f2937; flex: 1; min-width: 140px; font-family: monospace; }
+.wm-alert-worker-pct    { font-size: 12px; font-weight: 700; color: #dc2626; }
+.wm-alert-worker-detail { font-size: 11px; color: #6b7280; }
+.wm-alert-stat-row  { display: flex; align-items: baseline; gap: 10px; background: #fef9c3; border: 1px solid #fde047; border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+.wm-alert-stat-num  { font-size: 32px; font-weight: 800; color: #d97706; }
+.wm-alert-stat-lbl  { font-size: 13px; color: #92400e; font-weight: 600; }
+.wm-alert-action { margin: 16px 0 0; font-size: 12px; color: #6b7280; }
+.wm-alert-footer { padding: 14px 20px; border-top: 1px solid #f3f4f6; display: flex; justify-content: flex-end; }
+.wm-alert-dismiss { padding: 8px 20px; background: #dc2626; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.wm-alert-dismiss:hover { background: #b91c1c; }
+
+/* Worker table alert row */
+.wm-row-alert     { background: #fff7f7 !important; }
+.wcard-row-alert  { border-left: 3px solid #ef4444 !important; padding-left: 6px; }
+.wcard-warn       { background: #fff7ed; color: #c2410c; }
+
+/* Table cards fill viewport */
+.wm-table-card {
+    background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;
+    padding: 20px; box-sizing: border-box; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    display: flex; flex-direction: column;
+    height: calc(100vh - 120px); overflow: hidden;
+}
+.wm-table-card .table-wrapper {
+    flex: 1; overflow-y: auto; min-height: 0;
+}
+
+/* Ensure inactive sections take no space */
+.operations-section[style*="display:none"],
+.operations-section[style*="display: none"] {
+    display: none !important; height: 0 !important;
+    overflow: hidden !important; margin: 0 !important; padding: 0 !important;
+}
+
+/* stale banner */
+.wm-stale-banner {
+    background: #fef9c3; border: 1px solid #fde047;
+    border-radius: 6px; padding: 8px 10px;
+    font-size: 11px; color: #92400e;
+    margin-bottom: 8px; line-height: 1.5;
+}
+
+/* ── APP-SWITCHER BUTTON — match OPS style ────────────────────────────────
+   Replaces the purple icon with the same gear-spin blue button as OPS.        */
+
+.wm-switcher {
+    flex: 0 0 auto !important;
+    width: fit-content !important;
+    margin-left: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    height: 30px !important;
+    padding: 0 10px !important;
+    background: linear-gradient(135deg, #1e3a5f, #1a2e4a) !important;
+    color: #93c5fd !important;
+    border: 1px solid #2563eb !important;
+    border-radius: 7px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    transition: background 0.2s, color 0.2s !important;
+}
+
+.app-switcher-icon:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a5f 100%);
+    border-color: #60a5fa;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(37,99,235,0.4);
+    transform: translateY(-1px);
+}
+
+/* Spinning gear icon inside the switcher */
+.wm-switcher-gear {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    animation: wm-gear-spin 8s linear infinite;
+}
+.app-switcher-icon:hover .wm-switcher-gear {
+    animation-duration: 1.5s;
+}
+@keyframes wm-gear-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ── KPI TILES — left-border accent, compact height matching OPS ──────────
+   Removes the top-bar ::before, adds left border like OPS dashboard tiles.    */
+.wm-kpi-tile {
+    padding: 14px 16px;        /* compact — same as OPS .dashboard-kpi-tile    */
+    gap: 4px;
+}
+.wm-kpi-tile::before {
+    content: none !important;  /* remove top colour strip                       */
+}
+
+/* ── Left-border accents (4 px, same palette as OPS) */
+.wm-kpi-fail   { border-left: 4px solid #ef4444 !important; }
+.wm-kpi-wvs    { border-left: 4px solid #f59e0b !important; }
+.wm-kpi-worker { border-left: 4px solid #3b82f6 !important; }
+
+.wm-kpi-icon  { font-size: 22px; margin-bottom: 2px; }
+.wm-kpi-val   { font-size: 28px; font-weight: 700; line-height: 1; }
+.wm-kpi-label { font-size: 12px; font-weight: 600; color: #374151; }
+.wm-kpi-sub   { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+/* =============================================================================
+   WM FINAL UNIFIED OVERHAUL
+   ============================================================================= */
+
+/* Section containers — proper padding */
+.operations-section {
+    padding: 0 !important;
+    gap: 10px !important;
+    display: none !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    min-height: 0 !important;
+}
+.operations-section[style*="display:flex"],
+.operations-section[style*="display: flex"] {
+    display: flex !important;
+}
+
+/* Table cards — inner padding */
+.wm-table-card {
+    padding: 14px 14px !important;
+    margin: 0 !important;
+    border-radius: 10px !important;
+}
+
+/* ── 10. Run Now and Collect Stats toolbar buttons ─────────────────────────── */
+.wm-run-btn {
+    background: linear-gradient(135deg, #16a34a, #15803d) !important;
+    color: #fff !important;
+    border-color: #15803d !important;
+}
+.wm-run-btn:hover { opacity: 0.9 !important; }
+.wm-collect-btn {
+    background: linear-gradient(135deg, #1e3a5f, #1a2e4a) !important;
+    color: #93c5fd !important;
+    border-color: #2563eb !important;
+}
+.wm-collect-btn:hover { opacity: 0.9 !important; }
+
+/* ── Snapshot buttons (Refresh/Run/Collect) ─────────────────────────────── */
+.snapshot-btn {
+    flex-shrink: 0 !important;
+    height: 32px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+}
+
+/* ── Nav tab group — fills remaining space, shrinks */
+.wm-nav-tabs-group {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    overflow: hidden !important;
+}
+.wm-nav-tabs-group .tracker-btn {
+    flex: 0 1 auto !important;
+    min-width: 60px !important;
+    max-width: 100px !important;
+    font-size: 11px !important;
+    padding: 0 6px !important;
+    height: 30px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* ── Operations-section fill — no extra whitespace ─────────────────────── */
+.operations-section.active-section {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+/* ── Worker number + queue badge in single cell ─────────────────────────── */
+.wk-num {
+    font-weight: 700;
+    font-size: 13px;
+    color: #1e293b;
+    display: inline-block;
+    margin-right: 6px;
+}
+.wk-q-badge {
+    font-size: 9px !important;
+    padding: 1px 6px !important;
+    vertical-align: middle;
+}
+/* Worker mini-card: flex row, name + badge left, stats right */
+.wcard-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+.wcard-name {
+    font-weight: 700;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.wcard-total {
+    font-size: 11px;
+    color: #6b7280;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Worker section 3-zone layout ──────────────────────────────────────────── */
+/* Zone 1: title + back btn side by side, no KPI chips here */
+.wm-title-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 6px;
+    border-bottom: none;
+    flex-shrink: 0;
+}
+.wm-title-strip .section-title {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+}
+/* Zone 2: KPI chips centred */
+.wm-kpi-strip {
+    display: flex;
+    justify-content: center;
+    padding: 4px 14px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+}
+.wm-kpi-strip .ops-section-kpi-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+/* Zone 3: Alert banner (below chips, above table) */
+#workerSection .wm-section-badge {
+    margin: 4px 14px 6px;
+    flex-shrink: 0;
+}
+
+/* ── Worker cell: name + badge side by side ───────────────────────────────── */
+.wk-cell {
+    display: flex !important;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    padding: 4px 8px !important;
+}
+.wk-num {
+    font-weight: 700;
+    font-size: 12px;
+    color: #1e293b;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.wk-q-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Compact worker table rows — show all 28 without scroll ──────────────── */
+#workerStatsTable {
+    font-size: 11.5px;
+}
+#workerStatsTable thead th {
+    padding: 5px 8px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+#workerStatsTable tbody td {
+    padding: 3px 8px;
+    line-height: 1.3;
+}
+#workerStatsTable tbody .status-pill {
+    font-size: 10px;
+    padding: 1px 6px;
+}
+/* First column wider, others auto */
+#workerStatsTable colgroup col:first-child { width: 220px; }

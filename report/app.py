@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from flask import Flask, redirect, url_for
 from report.report_routes import report_bp
 from common.common_blueprint import common_bp
+#from report.report_help import report_help_bp
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -29,6 +30,7 @@ app.config["OUTPUT_FOLDER"] = OUTPUT_FOLDER
 
 app.register_blueprint(common_bp)
 app.register_blueprint(report_bp)
+#app.register_blueprint(report_help_bp)
 
 
 @app.route("/")

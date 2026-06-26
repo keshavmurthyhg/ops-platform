@@ -1,0 +1,10 @@
+{
+  "digest_type": "weekly_summary",
+  "subject": "[OPS WEEKLY] Summary 22 Jun \u2013 28 Jun 2026 \u2014 0 failures, 1305 incidents, 3 WM tx failed",
+  "from": "keshavamurthy.hg@consultant.volvo.com",
+  "to": "keshavamurthy.hg@consultant.volvo.com",
+  "generated_at": "2026-06-25 14:28:34",
+  "date": "2026-06-25",
+  "is_alert": false,
+  "html_file": "data\\email_digests\\2026-06-25\\weekly_summary\\email_body.html"
+}

@@ -1,0 +1,10 @@
+{
+  "digest_type": "support_emails",
+  "subject": "[OPS] Support Emails \u2014 0 today/yesterday, 0 action required \u2014 23 Jun \u2013 24 Jun 2026",
+  "from": "keshavamurthy.hg@consultant.volvo.com",
+  "to": "keshavamurthy.hg@consultant.volvo.com",
+  "generated_at": "2026-06-24 15:16:21",
+  "date": "2026-06-24",
+  "is_alert": false,
+  "html_file": "data\\email_digests\\2026-06-24\\support_emails\\email_body.html"
+}

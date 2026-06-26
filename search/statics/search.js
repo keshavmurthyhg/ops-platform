@@ -3,33 +3,74 @@
 ========================================= */
 
 let currentResults = [];
-
 let currentPage = 1;
-
 let rowsPerPage = 10;
+
+// UGM modal state
+let ugmAllUsers = [];
+let ugmGroupMembers = [];
+
+/* =========================================
+   PROCESSING STATUS
+   Uses common.js IDs + hidden class. Extends progress-bar-fill
+   with ops-bar colour classes defined in search.css.
+========================================= */
+
+function updateProcessingStatus(message, detail = "", state = "completed") {
+
+    const statusEl  = document.getElementById("statusMessage");
+    const textEl    = document.getElementById("progressText");
+    const fillEl    = document.getElementById("progressFill");
+    const wrapperEl = document.getElementById("progressWrapper");
+
+    if (statusEl) statusEl.innerText = message;
+    if (textEl)   textEl.innerText   = detail;
+
+    if (!fillEl || !wrapperEl) return;
+
+    wrapperEl.classList.remove("hidden");
+    fillEl.classList.remove("ops-bar-processing", "ops-bar-completed", "ops-bar-failed");
+
+    if (state === "processing") {
+        fillEl.style.width = "70%";
+        fillEl.classList.add("ops-bar-processing");
+
+    } else if (state === "completed") {
+        fillEl.style.width = "100%";
+        fillEl.classList.add("ops-bar-completed");
+        setTimeout(() => {
+            fillEl.style.width = "0%";
+            fillEl.classList.remove("ops-bar-completed");
+            wrapperEl.classList.add("hidden");
+        }, 2000);
+
+    } else {
+        // failed
+        fillEl.style.width = "100%";
+        fillEl.classList.add("ops-bar-failed");
+        setTimeout(() => {
+            fillEl.style.width = "0%";
+            fillEl.classList.remove("ops-bar-failed");
+            wrapperEl.classList.add("hidden");
+        }, 3000);
+    }
+}
 
 /* =========================================
    SHOW SEARCH SECTION
 ========================================= */
-function showSearchSection(section) {
+function showSearchSection(section, el) {
 
-    document
-        .querySelectorAll(".dock-section")
-        .forEach(el => {
-            el.classList.remove("active-section");
-        });
+    document.querySelectorAll(".dock-section")
+        .forEach(e => e.classList.remove("active-section"));
 
-    document
-        .querySelectorAll(".dock-item")
-        .forEach(el => {
-            el.classList.remove("active-dock");
-        });
+    document.querySelectorAll(".dock-item")
+        .forEach(e => e.classList.remove("active-dock"));
 
-    document
-        .getElementById(section + "-section")
-        .classList.add("active-section");
+    const target = document.getElementById(section + "-section");
+    if (target) target.classList.add("active-section");
 
-    event.currentTarget.classList.add("active-dock");
+    if (el) el.classList.add("active-dock");
 }
 
 /* =========================================
@@ -98,6 +139,17 @@ function populateDropdown(id, values, label) {
 }
 
 /* =========================================
+   GET SEARCH-IN FIELDS
+========================================= */
+
+function getSearchInFields() {
+
+    return Array.from(
+        document.querySelectorAll(".search-in-item:checked")
+    ).map(el => el.value);
+}
+
+/* =========================================
    SEARCH
 ========================================= */
 
@@ -105,189 +157,101 @@ async function performSearch() {
 
     try {
 
-        // -----------------------------------
-        // QUERY
-        // -----------------------------------
         const query =
-            document.getElementById(
-                "searchInput"
-            ).value.trim();
+            document.getElementById("searchInput").value.trim();
 
+        updateProcessingStatus("Searching issues…", query || "all records", "processing");
 
-        // -----------------------------------
-        // STATUS UI
-        // -----------------------------------
-        document.getElementById(
-            "searchStatusText"
-        ).innerText = "Searching issues...";
-
-
-        const progressBar =
-            document.getElementById(
-                "searchProgressFill"
-            );
-
-        progressBar.style.width = "70%";
-
-        progressBar.classList.add(
-            "active-progress"
-        );
-
-
-        // -----------------------------------
-        // SOURCE FILTERS
-        // -----------------------------------
         const selectedSources = Array.from(
-
-            document.querySelectorAll(
-                ".source-item:checked"
-            )
-
+            document.querySelectorAll(".source-item:checked")
         ).map(el => el.value);
 
+        const searchInFields = getSearchInFields();
 
-        // -----------------------------------
-        // DROPDOWN FILTERS
-        // -----------------------------------
         const selectedStatus =
-            document.getElementById(
-                "statusFilter"
-            ).value;
+            document.getElementById("statusFilter").value;
 
         const selectedPriority =
-            document.getElementById(
-                "priorityFilter"
-            ).value;
+            document.getElementById("priorityFilter").value;
 
         const selectedGroup =
-            document.getElementById(
-                "groupFilter"
-            ).value;
+            document.getElementById("groupFilter").value;
 
-
-        // -----------------------------------
-        // DATE FILTERS
-        // -----------------------------------
         const dateField =
-            document.getElementById(
-                "dateField"
-            ).value;
+            document.getElementById("dateField").value;
 
-        const startDate =
-            document.getElementById(
-                "startDate"
-            ).value;
+        // ── Resolve start/end dates from whichever filter mode is active ──
+        let startDate = "";
+        let endDate   = "";
 
-        const endDate =
-            document.getElementById(
-                "endDate"
-            ).value;
+        const filterType = document.getElementById("dateFilterType").value;
 
+        if (filterType === "range") {
+            // Direct date inputs
+            startDate = document.getElementById("startDate").value;
+            endDate   = document.getElementById("endDate").value;
 
-        // -----------------------------------
-        // API CALL
-        // -----------------------------------
-        const response = await fetch(
-            "/search/issues",
-            {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    query: query,
-
-                    sources: selectedSources,
-
-                    status: selectedStatus,
-
-                    priority: selectedPriority,
-
-                    group: selectedGroup,
-
-                    date_field: dateField,
-
-                    start_date: startDate,
-
-                    end_date: endDate
-                })
+        } else if (filterType === "year") {
+            const yr = document.getElementById("yearFilter").value;
+            if (yr) {
+                startDate = `${yr}-01-01`;
+                endDate   = `${yr}-12-31`;
             }
-        );
 
+        } else if (filterType === "quick") {
+            const days = parseInt(document.getElementById("quickDate").value);
+            if (days) {
+                const now   = new Date();
+                const from  = new Date();
+                from.setDate(now.getDate() - days);
+                const pad   = n => String(n).padStart(2, "0");
+                startDate = `${from.getFullYear()}-${pad(from.getMonth()+1)}-${pad(from.getDate())}`;
+                endDate   = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+            }
+        }
 
-        // -----------------------------------
-        // RESPONSE
-        // -----------------------------------
-        const data =
-            await response.json();
+        const response = await fetch("/search/issues", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                query,
+                sources: selectedSources,
+                search_in: searchInFields,
+                status: selectedStatus,
+                priority: selectedPriority,
+                group: selectedGroup,
+                date_field: dateField,
+                start_date: startDate,
+                end_date: endDate
+            })
+        });
 
+        const data = await response.json();
 
-        // -----------------------------------
-        // ERROR
-        // -----------------------------------
         if (data.error) {
-
-            document.getElementById(
-                "searchStatusText"
-            ).innerText = data.error;
-
-            progressBar.style.width = "0%";
-
-            progressBar.classList.remove(
-                "active-progress"
-            );
-
+            updateProcessingStatus("Search failed", data.error, "failed");
             return;
         }
 
-
-        // -----------------------------------
-        // TABLE
-        // -----------------------------------
         currentResults = data.results;
-
         currentPage = 1;
-
+        // Apply preference sort only if user has explicitly changed it
+        if (_sortKey && _prefSortApplied) {
+            applySort();
+        }
         renderCurrentPage();
-
         updateSummary(currentResults);
 
-        // -----------------------------------
-        // COMPLETE
-        // -----------------------------------
-        document.getElementById(
-            "searchStatusText"
-        ).innerText =
-            "Search completed successfully";
-
-
-        progressBar.style.width = "100%";
-
-        progressBar.classList.remove(
-            "active-progress"
+        updateProcessingStatus(
+            "Search completed",
+            `${currentResults.length} result${currentResults.length !== 1 ? "s" : ""} found`,
+            "completed"
         );
 
-    }
-
-    catch(error) {
+    } catch(error) {
 
         console.error(error);
-
-        document.getElementById(
-            "searchStatusText"
-        ).innerText =
-            "Search failed";
-
-        document.getElementById(
-            "searchProgressFill"
-        ).classList.remove(
-            "active-progress"
-        );
+        updateProcessingStatus("Search failed", error.message, "failed");
     }
 }
 
@@ -321,24 +285,12 @@ function clearSearchWorkspace() {
 
     document.getElementById("searchResultsBody").innerHTML = `
         <tr>
-            <td colspan="11"
-                class="empty-search-message">
-                Workspace cleared
-            </td>
+            <td colspan="15" class="empty-search-message">Workspace cleared</td>
         </tr>
     `;
 
     updateSummary([]);
-
-    document.getElementById("searchStatusText").innerText =
-        "Workspace cleared";
-
-    const progressBar =
-        document.getElementById("searchProgressFill");
-
-    progressBar.style.width = "0%";
-
-    progressBar.classList.remove("active-progress");
+    updateProcessingStatus("Workspace cleared", "", "completed");
 }
 
 
@@ -398,7 +350,7 @@ function populateSearchTableRows(results) {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="11"
+                <td colspan="15"
                     class="empty-search-message">
                     No records found
                 </td>
@@ -410,38 +362,129 @@ function populateSearchTableRows(results) {
 
 
     // -----------------------------------
-    // LIMIT LARGE DATASETS
-    // -----------------------------------
-    const limitedResults = results.slice(0, 500);
-
-
-    // -----------------------------------
     // BUILD HTML STRING
     // -----------------------------------
     let rowsHtml = "";
 
+    const startIndex = (currentPage - 1) * rowsPerPage;
 
-    limitedResults.forEach((item, index) => {
+    results.forEach((item, index) => {
+
+        // ── Vendor Ticket (SNOW only) — PTC case link
+        // Values: numeric like 18076027 or C18028229 → support.ptc.com case URL
+        function vendorTicketUrl(v) {
+            if (!v) return "";
+            // Strip leading C if present to get numeric case ID
+            const id = v.replace(/^C/i, "");
+            return `https://support.ptc.com/appserver/cs/view/case.jsp?n=${id}`;
+        }
+        const vendorTicketCell = (item.source === "SNOW" && item.vendor_ticket && item.vendor_ticket !== "nan")
+            ? item.vendor_ticket.split(",").map(v => v.trim()).filter(Boolean)
+                .map(v => `<a href="${vendorTicketUrl(v)}" target="_blank" class="vendor-ticket-badge">${v}</a>`)
+                .join(" ")
+            : "";
+
+        // ── Azure Bug (VCEWindchill, from Resolution Notes only)
+        let azureBugCell = "";
+        if (item.source === "SNOW" && item.azure_bug && item.azure_bug !== "nan") {
+            azureBugCell = item.azure_bug.split(",").map(s => s.trim()).filter(Boolean)
+                .map(id => {
+                    const url = `https://dev.azure.com/VolvoGroup-DVP/VCEWindchillPLM/_workitems/edit/${id}`;
+                    return `<a href="${url}" target="_blank" class="azure-bug-chip">${id}</a>`;
+                }).join(", ");
+        }
+
+        // ── Azure User Story (VPA, from Work Notes + Additional Comments)
+        // Stored as "ID|ENV, ID|ENV, ..."
+        const ENV_COLORS = {PROD:"#16a34a", QA:"#d97706", TEST:"#0891b2",
+                            UAT:"#7c3aed", DEV:"#64748b", WC13:"#0f766e", STAGE:"#64748b"};
+        let azureUserStoryCell = "";
+        if (item.source === "SNOW" && item.azure_user_story && item.azure_user_story !== "nan") {
+            azureUserStoryCell = item.azure_user_story.split(",").map(s => s.trim()).filter(Boolean)
+                .map(entry => {
+                    const [id, env] = entry.split("|");
+                    if (!id) return "";
+                    const url = `https://dev.azure.com/VolvoGroup-DVP/VPA/_workitems/edit/${id}`;
+                    const envBadge = env
+                        ? `<span class="env-badge" style="background:${ENV_COLORS[env]||"#64748b"}">${env}</span>`
+                        : "";
+                    return `<a href="${url}" target="_blank" class="azure-vpa-chip">${id}</a>${envBadge}`;
+                }).join(", ");
+        }
+
+        // ── PTC Articles (from Work Notes + Additional Comments)
+        let ptcArticlesCell = "";
+        if (item.source === "SNOW" && item.ptc_articles && item.ptc_articles !== "nan") {
+            ptcArticlesCell = item.ptc_articles.split(",").map(s => s.trim()).filter(Boolean)
+                .map(aid => {
+                    const url = `https://www.ptc.com/en/support/article/${aid}`;
+                    return `<a href="${url}" target="_blank" class="ptc-article-chip">${aid}</a>`;
+                }).join(", ");
+        }
+
+        // ── Status colour map
+        const STATUS_DOT_COLOR = {
+            "open":        "#D97706",
+            "in progress": "#2563EB",
+            "on hold":     "#DB2777",
+            "resolved":    "#059669",
+            "closed":      "#059669",
+            "cancelled":   "#6B7280",
+            "new":         "#7C3AED",
+        };
+        const STATUS_TEXT_COLOR = {
+            "open":        "#92400E",
+            "in progress": "#1E40AF",
+            "on hold":     "#9D174D",
+            "resolved":    "#065F46",
+            "closed":      "#065F46",
+            "cancelled":   "#374151",
+            "new":         "#4C1D95",
+        };
+        const STATUS_BG_COLOR = {
+            "open":        "#FEF3C7",
+            "in progress": "#DBEAFE",
+            "on hold":     "#FCE7F3",
+            "resolved":    "#D1FAE5",
+            "closed":      "#D1FAE5",
+            "cancelled":   "#F3F4F6",
+            "new":         "#EDE9FE",
+        };
+
+        const statusKey  = (item.status || "").toLowerCase().trim();
+        const dotColor   = STATUS_DOT_COLOR[statusKey]  || "#9CA3AF";
+        const textColor  = STATUS_TEXT_COLOR[statusKey] || "#111827";
+        const statusBg   = STATUS_BG_COLOR[statusKey]   || "transparent";
+        const statusDot  = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};margin-right:5px;vertical-align:middle;flex-shrink:0"></span>`;
+        const statusCell = `<span style="display:inline-flex;align-items:center;color:${textColor};font-weight:600;font-size:11px;background:${statusBg};padding:2px 7px;border-radius:10px;white-space:nowrap">${statusDot}${item.status}</span>`;
+        const numberDot  = `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${dotColor};margin-right:4px;vertical-align:middle;flex-shrink:0"></span>`;
+
+        // Build the number URL: prefer server-supplied url, fall back to known patterns
+        function buildNumberUrl(src, num) {
+            if (!num) return "";
+            if (src === "SNOW")  return `https://volvoitsm.service-now.com/nav_to.do?uri=incident.do?sysparm_query=number=${num}`;
+            if (src === "AZURE") return `https://dev.azure.com/VolvoGroup-DVP/VCEWindchillPLM/_workitems/edit/${num}`;
+            if (src === "PTC")   return `https://support.ptc.com/appserver/cs/view/case.jsp?n=${num}`;
+            if (src === "AOM")   return `https://dev.azure.com/VolvoGroup-DVP/VPA/_workitems/edit/${num}`;
+            return "";
+        }
+        const numberUrl = item.url || buildNumberUrl(item.source, item.number);
 
         rowsHtml += `
-            <tr>
+            <tr data-source="${item.source}">
 
-                <td>${index + 1}</td>
+                <td>${startIndex + index + 1}</td>
 
                 <td>
 
                     ${
-                        item.url
-                            ? `
-                                <a href="${item.url}"
+                        numberUrl
+                            ? `<a href="${numberUrl}"
                                 target="_blank"
-                                class="number-link">
-
-                                    ${item.number}
-
-                                </a>
-                            `
-                            : item.number
+                                class="number-link number-link--${(item.source || "").toLowerCase()}">
+                                    ${numberDot}${item.number}
+                               </a>`
+                            : `${numberDot}${item.number}`
                     }
 
                 </td>
@@ -450,9 +493,17 @@ function populateSearchTableRows(results) {
                     ${truncate(item.description, 45)}
                 </td>
 
+                <td>${vendorTicketCell}</td>
+
+                <td>${azureBugCell}</td>
+
+                <td>${azureUserStoryCell}</td>
+
+                <td>${ptcArticlesCell}</td>
+
                 <td>${item.priority}</td>
 
-                <td>${item.status}</td>
+                <td>${statusCell}</td>
 
                 <td>${item.created_by}</td>
 
@@ -473,26 +524,8 @@ function populateSearchTableRows(results) {
     // -----------------------------------
     tbody.innerHTML = rowsHtml;
 
-
-    // -----------------------------------
-    // LARGE RESULT WARNING
-    // -----------------------------------
-    if (results.length > 500) {
-
-        tbody.innerHTML += `
-            <tr>
-
-                <td colspan="9"
-                    class="empty-search-message">
-
-                    Showing first 500 records out of
-                    ${results.length}
-
-                </td>
-
-            </tr>
-        `;
-    }
+    applyColClasses();
+    if (_rowColorsEnabled) applyRowColors();
 }
 
 /* =========================================
@@ -596,6 +629,9 @@ function updateSummary(results) {
 
     document.getElementById("ptcCount").innerText =
         results.filter(x => x.source === "PTC").length;
+
+    const aomEl = document.getElementById("aomCount");
+    if (aomEl) aomEl.innerText = results.filter(x => x.source === "AOM").length;
 }
 
 
@@ -928,268 +964,12 @@ document.addEventListener(
     }
 );
 
-/* =========================================
-   ACTIVATE MANAGE GROUP
-========================================= */
-
-function activateManageGroup() {
-
-    const panel =
-        document.getElementById(
-            "groupManagePanel"
-        );
-
-    panel.classList.toggle(
-        "active-group-panel"
-    );
-
-    loadUsersForGroupMapping();
-    loadExistingGroups();
-}
-
 
 /* =========================================
-   LOAD USERS
-========================================= */
-
-async function loadUsersForGroupMapping() {
-
-    const container =
-        document.getElementById(
-            "groupUsersContainer"
-        );
-
-    container.innerHTML =
-        `<div class="loading-users">
-            Loading users...
-        </div>`;
-
-    try {
-
-        const response = await fetch(
-            "/search/group-users"
-        );
-
-        const data =
-            await response.json();
-
-        const users =
-            data.users || [];
-
-        container.innerHTML = "";
-
-        users
-            .sort()
-            .forEach(user => {
-
-                container.innerHTML += `
-                    <label>
-
-                        <input
-                            type="checkbox"
-                            value="${user}"
-                        >
-
-                        <span>${user}</span>
-
-                    </label>
-                `;
-            });
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-
-        container.innerHTML =
-            `<div class="loading-users">
-                Failed to load users
-            </div>`;
-    }
-}
-
-/* =========================================
-   SAVE GROUP
-========================================= */
-
-async function saveGroupMapping() {
-
-    const groupName =
-        document.getElementById(
-            "groupNameInput"
-        ).value.trim();
-
-    const users = Array.from(
-
-        document.querySelectorAll(
-            "#groupUsersContainer input:checked"
-        )
-
-    ).map(cb => cb.value);
-
-
-    if (!groupName) {
-
-        alert(
-            "Enter group name"
-        );
-
-        return;
-    }
-
-
-    const response = await fetch(
-        "/search/save-group",
-        {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type":
-                    "application/json"
-            },
-
-            body: JSON.stringify({
-
-                group_name: groupName,
-
-                users: users
-            })
-        }
-    );
-
-    const result =
-        await response.json();
-
-
-    if (result.success) {
-
-        alert(
-            "Group saved successfully"
-        );
-
-        loadFilterOptions();
-        loadExistingGroups();
-    }
-}
-
-/* =========================================
-   LOAD EXISTING GROUPS
-========================================= */
-
-async function loadExistingGroups() {
-
-    const container =
-        document.getElementById(
-            "existingGroupsContainer"
-        );
-
-    container.innerHTML = "";
-
-    try {
-
-        const response =
-            await fetch(
-                "/search/group-members"
-            );
-
-        const data =
-            await response.json();
-
-        const groups =
-            data.groups || {};
-
-        Object.keys(groups)
-            .sort()
-            .forEach(group => {
-
-                const users =
-                    groups[group];
-
-                let usersHtml = "";
-
-                users.forEach(user => {
-
-                    usersHtml += `
-                        <div class="group-member-row">
-                            ${user}
-                        </div>
-                    `;
-                });
-
-                container.innerHTML += `
-
-                    <div class="group-card">
-
-                        <div class="group-card-title">
-                            ${group}
-                        </div>
-
-                        <div class="group-card-users">
-
-                            ${usersHtml}
-
-                        </div>
-
-                    </div>
-                `;
-            });
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-    }
-}
-
-/* =========================================
-   TOGGLE MANAGE GROUP
-========================================= */
-
-function toggleManageGroupSection() {
-
-    const manage =
-        document.getElementById(
-            "manageGroupSection"
-        );
-
-    const existing =
-        document.getElementById(
-            "existingGroupsSection"
-        );
-
-    const isVisible =
-        manage.classList.contains(
-            "active-group-section"
-        );
-
-    manage.classList.toggle(
-        "active-group-section",
-        !isVisible
-    );
-
-    existing.classList.remove(
-        "active-group-section"
-    );
-
-    if (!isVisible) {
-
-        loadUsersForGroupMapping();
-    }
-}
-
-/* =========================================
-   TOGGLE EXISTING GROUPS
+   EXISTING GROUPS (sidebar)
 ========================================= */
 
 function toggleExistingGroupsSection() {
-
-    const manage =
-        document.getElementById(
-            "manageGroupSection"
-        );
 
     const existing =
         document.getElementById(
@@ -1206,15 +986,355 @@ function toggleExistingGroupsSection() {
         !isVisible
     );
 
-    manage.classList.remove(
-        "active-group-section"
-    );
-
     if (!isVisible) {
 
         loadExistingGroups();
     }
 }
+
+
+/* =========================================
+   LOAD EXISTING GROUPS (sidebar — individual collapsible)
+========================================= */
+
+async function loadExistingGroups() {
+
+    const container = document.getElementById("existingGroupsContainer");
+    container.innerHTML = "";
+
+    try {
+
+        const response = await fetch("/search/group-members");
+        const data     = await response.json();
+        const groups   = data.groups || {};
+
+        if (!Object.keys(groups).length) {
+            container.innerHTML =
+                `<div style="color:rgba(255,255,255,0.5);font-size:12px;padding:8px 0;">No groups defined yet.</div>`;
+            return;
+        }
+
+        Object.keys(groups).sort().forEach(groupName => {
+
+            const members = groups[groupName];
+            const safeId  = groupName.replace(/\W/g, "_");
+            const btnId   = "grp-btn-"   + safeId;
+            const panelId = "grp-panel-" + safeId;
+
+            // Group toggle button
+            const btn = document.createElement("button");
+            btn.className = "sidebar-group-btn";
+            btn.id = btnId;
+            btn.innerHTML =
+                `<span class="sidebar-group-name">${groupName}</span>` +
+                `<span class="sidebar-group-count">${members.length}</span>` +
+                `<span class="sidebar-group-arrow">▾</span>`;
+
+            btn.addEventListener("click", () => {
+                const panel = document.getElementById(panelId);
+                const arrow = btn.querySelector(".sidebar-group-arrow");
+                const isOpen = panel.classList.contains("sidebar-group-open");
+
+                // Collapse all other panels
+                document.querySelectorAll(".sidebar-group-panel").forEach(p => p.classList.remove("sidebar-group-open"));
+                document.querySelectorAll(".sidebar-group-btn").forEach(b => {
+                    b.classList.remove("sidebar-group-active");
+                    b.querySelector(".sidebar-group-arrow").textContent = "▾";
+                });
+
+                if (!isOpen) {
+                    panel.classList.add("sidebar-group-open");
+                    btn.classList.add("sidebar-group-active");
+                    arrow.textContent = "▴";
+                }
+            });
+
+            // Member panel
+            const panel = document.createElement("div");
+            panel.className = "sidebar-group-panel";
+            panel.id = panelId;
+
+            members.forEach(m => {
+                const row = document.createElement("div");
+                row.className = "sidebar-group-member";
+                row.textContent = m;
+                panel.appendChild(row);
+            });
+
+            container.appendChild(btn);
+            container.appendChild(panel);
+        });
+
+    } catch(error) {
+        console.error(error);
+    }
+}
+
+
+/* =========================================
+   USER GROUP MODAL — OPEN
+========================================= */
+
+async function openUserGroupModal() {
+
+    document.getElementById("userGroupModal").classList.add("ugm-visible");
+    document.getElementById("ugmGroupNameInput").value = "";
+    ugmGroupMembers = [];
+    renderUgmGroupMembers();
+
+    // Always open on Manage tab
+    switchUgmTab("manage");
+    await loadUgmAllUsers();
+}
+
+
+/* =========================================
+   TAB SWITCHING
+========================================= */
+
+function switchUgmTab(tab) {
+
+    // Deactivate all tabs + panels
+    document.querySelectorAll(".ugm-tab").forEach(t => t.classList.remove("active-ugm-tab"));
+    document.querySelectorAll(".ugm-tab-panel").forEach(p => p.classList.add("ugm-tab-hidden"));
+
+    document.getElementById("tab-" + tab).classList.add("active-ugm-tab");
+    document.getElementById("panel-" + tab).classList.remove("ugm-tab-hidden");
+
+    if (tab === "existing") {
+        loadUgmExistingGroups();
+    }
+}
+
+
+/* =========================================
+   USER GROUP MODAL — CLOSE
+========================================= */
+
+function closeUserGroupModal() {
+    document.getElementById("userGroupModal").classList.remove("ugm-visible");
+}
+
+function closeUserGroupModalOutside(event) {
+    if (event.target === document.getElementById("userGroupModal")) {
+        closeUserGroupModal();
+    }
+}
+
+
+/* =========================================
+   LOAD ALL USERS INTO MODAL
+========================================= */
+
+async function loadUgmAllUsers() {
+
+    const container = document.getElementById("ugmAllUsersList");
+    container.innerHTML = `<div class="ugm-loading">Loading users...</div>`;
+
+    try {
+
+        const response = await fetch("/search/group-users");
+        const data = await response.json();
+
+        ugmAllUsers = (data.users || []).sort();
+        renderUgmAllUsers(ugmAllUsers);
+
+    } catch(error) {
+
+        container.innerHTML = `<div class="ugm-loading">Failed to load users</div>`;
+        console.error(error);
+    }
+}
+
+
+/* =========================================
+   RENDER ALL USERS LIST
+========================================= */
+
+function renderUgmAllUsers(users) {
+
+    const container = document.getElementById("ugmAllUsersList");
+    container.innerHTML = "";
+
+    if (!users.length) {
+        container.innerHTML = `<div class="ugm-loading">No users found</div>`;
+        return;
+    }
+
+    users.forEach(user => {
+
+        // skip already in group
+        if (ugmGroupMembers.includes(user)) return;
+
+        const row = document.createElement("div");
+        row.className = "ugm-user-row";
+        row.dataset.user = user;
+        row.textContent = user;
+
+        row.addEventListener("click", function() {
+            document.querySelectorAll(".ugm-user-row.ugm-selected")
+                .forEach(r => r.classList.remove("ugm-selected"));
+            row.classList.toggle("ugm-selected");
+        });
+
+        row.addEventListener("dblclick", function() {
+            addUserToGroup(user);
+        });
+
+        container.appendChild(row);
+    });
+}
+
+
+/* =========================================
+   FILTER USERS
+========================================= */
+
+function filterUgmUsers() {
+
+    const query = document.getElementById("ugmSearchUserInput").value.toLowerCase();
+    const filtered = ugmAllUsers.filter(u => u.toLowerCase().includes(query));
+    renderUgmAllUsers(filtered);
+}
+
+function clearUgmSearch() {
+    document.getElementById("ugmSearchUserInput").value = "";
+    renderUgmAllUsers(ugmAllUsers);
+}
+
+
+/* =========================================
+   ADD SELECTED USERS TO GROUP
+========================================= */
+
+function addSelectedToGroup() {
+
+    const selected = Array.from(
+        document.querySelectorAll(".ugm-user-row.ugm-selected")
+    ).map(el => el.dataset.user);
+
+    if (!selected.length) {
+        // try to add all visible if none selected
+        return;
+    }
+
+    selected.forEach(user => addUserToGroup(user));
+}
+
+function addUserToGroup(user) {
+
+    if (!ugmGroupMembers.includes(user)) {
+        ugmGroupMembers.push(user);
+        ugmGroupMembers.sort();
+    }
+
+    renderUgmGroupMembers();
+
+    // refresh left list
+    const query = document.getElementById("ugmSearchUserInput").value.toLowerCase();
+    const filtered = ugmAllUsers.filter(u => u.toLowerCase().includes(query));
+    renderUgmAllUsers(filtered);
+}
+
+
+/* =========================================
+   RENDER GROUP MEMBERS (right panel)
+========================================= */
+
+function renderUgmGroupMembers() {
+
+    const container = document.getElementById("ugmGroupMembersList");
+    container.innerHTML = "";
+
+    ugmGroupMembers.forEach(user => {
+
+        const row = document.createElement("div");
+        row.className = "ugm-member-row";
+        row.dataset.user = user;
+        row.textContent = user;
+
+        row.addEventListener("click", function() {
+            document.querySelectorAll(".ugm-member-row.ugm-selected")
+                .forEach(r => r.classList.remove("ugm-selected"));
+            row.classList.toggle("ugm-selected");
+        });
+
+        container.appendChild(row);
+    });
+}
+
+
+/* =========================================
+   REMOVE SELECTED FROM GROUP
+========================================= */
+
+function removeSelectedFromGroup() {
+
+    const selected = Array.from(
+        document.querySelectorAll(".ugm-member-row.ugm-selected")
+    ).map(el => el.dataset.user);
+
+    ugmGroupMembers = ugmGroupMembers.filter(u => !selected.includes(u));
+
+    renderUgmGroupMembers();
+
+    const query = document.getElementById("ugmSearchUserInput").value.toLowerCase();
+    const filtered = ugmAllUsers.filter(u => u.toLowerCase().includes(query));
+    renderUgmAllUsers(filtered);
+}
+
+
+/* =========================================
+   SAVE GROUP FROM MODAL
+========================================= */
+
+async function saveGroupMappingFromModal() {
+
+    const groupName = document.getElementById("ugmGroupNameInput").value.trim();
+
+    if (!groupName) {
+        alert("Please enter a group name.");
+        return;
+    }
+
+    if (!ugmGroupMembers.length) {
+        alert("Please add at least one member to the group.");
+        return;
+    }
+
+    try {
+
+        const response = await fetch("/search/save-group", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                group_name: groupName,
+                users: ugmGroupMembers
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`Group "${groupName}" saved successfully.`);
+            loadFilterOptions();
+            loadExistingGroups();
+        } else {
+            alert("Save failed: " + (result.message || "Unknown error"));
+        }
+
+    } catch(error) {
+
+        console.error(error);
+        alert("Save failed.");
+    }
+}
+
+async function saveAndCloseGroupModal() {
+    await saveGroupMappingFromModal();
+    closeUserGroupModal();
+}
+
 
 /* =========================================
    DOWNLOAD RESULTS EXCEL
@@ -1232,110 +1352,461 @@ document
 function downloadResults() {
 
     if (!currentResults.length) {
-
         alert("No results available");
-
         return;
     }
 
-    // -----------------------------------
-    // FORMAT DATA
-    // -----------------------------------
-    const exportData = currentResults.map(row => ({
+    // Sort by number descending before sending
+    const sorted = [...currentResults].sort((a, b) => {
+        const na = parseInt(String(a.number || "").replace(/\D/g, "")) || 0;
+        const nb = parseInt(String(b.number || "").replace(/\D/g, "")) || 0;
+        return nb - na;
+    });
 
-        "Number": row.number,
-        "Description": row.description,
-        "Priority": row.priority,
-        "Status": row.status,
-        "Created By": cleanUserDisplay(row.created_by),
-        "Created Date": row.created_date,
-        "Assigned To": cleanUserDisplay(row.assigned_to),
-        "Resolved Date": row.resolved_date,
-        "Source": row.source
+    const btn = document.getElementById("downloadBtn");
+    const origText = btn ? btn.textContent : "";
+    if (btn) { btn.textContent = "Building…"; btn.disabled = true; }
 
-    }));
+    fetch("/search/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: sorted })
+    })
+    .then(res => {
+        if (!res.ok) return res.json().then(e => { throw new Error(e.error || res.statusText); });
+        // Extract filename from Content-Disposition header
+        const cd  = res.headers.get("Content-Disposition") || "";
+        const m   = cd.match(/filename[^;=\n]*=(['"]?)([^\n;]+)\1/);
+        const fn  = m ? m[2].trim() : "search-report.xlsx";
+        return res.blob().then(blob => ({ blob, fn }));
+    })
+    .then(({ blob, fn }) => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement("a");
+        a.href    = url;
+        a.download = fn;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+        console.error("Download error:", err);
+        alert("Download failed: " + err.message);
+    })
+    .finally(() => {
+        if (btn) { btn.textContent = origText; btn.disabled = false; }
+    });
+}
 
 
-    // -----------------------------------
-    // CREATE SHEET
-    // -----------------------------------
-    const worksheet =
-        XLSX.utils.json_to_sheet(exportData);
+function cleanUserDisplay(value) {
+    if (!value) return "";
+    return String(value).replace(/<.*?>/g, "").trim();
+}
 
+/* =========================================
+   REFRESH USERS FROM DATA FILES
+========================================= */
 
-    // -----------------------------------
-    // COLUMN WIDTHS
-    // -----------------------------------
-    worksheet["!cols"] = [
+async function runCollectUsers() {
 
-        { wch: 18 }, // Number
-        { wch: 50 }, // Description
-        { wch: 14 }, // Priority
-        { wch: 16 }, // Status
-        { wch: 28 }, // Created By
-        { wch: 16 }, // Created Date
-        { wch: 28 }, // Assigned To
-        { wch: 16 }, // Resolved Date
-        { wch: 12 }  // Source
+    const btn = document.getElementById("ugmRefreshBtn");
+    const status = document.getElementById("ugmRefreshStatus");
+    const preview = document.getElementById("ugmRefreshPreview");
+    const countBadge = document.getElementById("ugmRefreshCount");
+    const userList = document.getElementById("ugmRefreshUserList");
 
-    ];
+    btn.disabled = true;
+    btn.textContent = "⏳ Collecting...";
+    status.className = "ugm-refresh-status ugm-status-info";
+    status.textContent = "Reading data files and parsing user names...";
+    preview.classList.add("ugm-tab-hidden");
 
+    try {
 
-    // -----------------------------------
-    // CREATE WORKBOOK
-    // -----------------------------------
-    const workbook =
-        XLSX.utils.book_new();
+        const response = await fetch("/search/collect-users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+        });
 
-    XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        "Search Results"
-    );
-
-    /* =========================================
-    CLEAN USER DISPLAY
-    ========================================= */
-
-    function cleanUserDisplay(value) {
-
-        if (!value) {
-            return "";
+        // Guard against HTML error pages (404, 500, server not restarted)
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+            const html = await response.text();
+            status.className = "ugm-refresh-status ugm-status-error";
+            if (response.status === 404) {
+                status.innerHTML = `
+                    ❌ <strong>Route not found (404)</strong> — the server needs to be restarted
+                    to load the new <code>/search/collect-users</code> endpoint.<br><br>
+                    <strong>Fix:</strong> Stop the server and run <code>python search/app.py</code> again,
+                    then click Refresh Users.
+                `;
+            } else {
+                status.innerHTML = `❌ Server error (HTTP ${response.status}). Please restart the server and try again.`;
+            }
+            return;
         }
 
-        return String(value)
-            .replace(/<.*?>/g, "")
-            .trim();
-    }    
+        const data = await response.json();
 
-    /* =========================================
-    FILE NAME
-    ========================================= */
+        if (!data.success) {
+            status.className = "ugm-refresh-status ugm-status-error";
+            status.textContent = "❌ Error: " + (data.error || "Unknown error");
+            return;
+        }
 
-    const today = new Date();
+        // Success
+        status.className = "ugm-refresh-status ugm-status-success";
+        status.textContent = `✅ Successfully collected ${data.count} unique users and saved to user_group_mapping.csv`;
 
-    const day =
-        String(today.getDate()).padStart(2, "0");
+        countBadge.textContent = data.count;
 
-    const month =
-        today.toLocaleString(
-            "en-US",
-            { month: "short" }
-        ).toUpperCase();
+        // Render preview list
+        userList.innerHTML = "";
+        (data.users || []).forEach(u => {
+            const row = document.createElement("div");
+            row.className = "ugm-refresh-user-row";
+            row.textContent = u;
+            userList.appendChild(row);
+        });
 
-    const year =
-        today.getFullYear();
+        preview.classList.remove("ugm-tab-hidden");
 
-    const fileName =
-        `Case_Report_${day}${month}${year}.xlsx`;
+        // Also refresh the main user list so new users appear immediately
+        ugmAllUsers = data.users || [];
+
+    } catch(error) {
+
+        status.className = "ugm-refresh-status ugm-status-error";
+        status.textContent = "❌ Network error: " + error.message;
+        console.error(error);
+
+    } finally {
+
+        btn.disabled = false;
+        btn.textContent = "🔄 Refresh Users from Data Files";
+    }
+}
 
 
-    /* =========================================
-    DOWNLOAD FILE
-    ========================================= */
+/* =========================================
+   LOAD EXISTING GROUPS (modal tab)
+========================================= */
 
-    XLSX.writeFile(
-        workbook,
-        fileName
-    );
+async function loadUgmExistingGroups() {
+
+    const container = document.getElementById("ugmExistingGroupsContainer");
+    container.innerHTML = `<div class="ugm-loading">Loading groups...</div>`;
+
+    try {
+
+        const response = await fetch("/search/group-members");
+        const data = await response.json();
+        const groups = data.groups || {};
+
+        if (!Object.keys(groups).length) {
+            container.innerHTML = `<div class="ugm-loading">No groups defined yet. Use "Manage Group" to create one.</div>`;
+            return;
+        }
+
+        container.innerHTML = "";
+
+        Object.keys(groups).sort().forEach(groupName => {
+
+            const members = groups[groupName];
+
+            const card = document.createElement("div");
+            card.className = "ugm-existing-card";
+
+            const header = document.createElement("div");
+            header.className = "ugm-existing-card-header";
+
+            const title = document.createElement("div");
+            title.className = "ugm-existing-card-title";
+            title.textContent = groupName;
+
+            const editBtn = document.createElement("button");
+            editBtn.className = "ugm-edit-group-btn";
+            editBtn.textContent = "✏ Edit";
+            editBtn.onclick = () => loadGroupForEditing(groupName, members);
+
+            const countPill = document.createElement("span");
+            countPill.className = "ugm-member-count";
+            countPill.textContent = members.length + " member" + (members.length !== 1 ? "s" : "");
+
+            header.appendChild(title);
+            header.appendChild(countPill);
+            header.appendChild(editBtn);
+
+            const memberDiv = document.createElement("div");
+            memberDiv.className = "ugm-existing-members";
+
+            members.forEach(m => {
+                const row = document.createElement("div");
+                row.className = "ugm-existing-member-row";
+                row.textContent = m;
+                memberDiv.appendChild(row);
+            });
+
+            card.appendChild(header);
+            card.appendChild(memberDiv);
+            container.appendChild(card);
+        });
+
+    } catch(error) {
+
+        container.innerHTML = `<div class="ugm-loading">Failed to load groups.</div>`;
+        console.error(error);
+    }
+}
+
+
+/* =========================================
+   LOAD GROUP FOR EDITING
+========================================= */
+
+async function loadGroupForEditing(groupName, members) {
+
+    // Switch to Manage tab
+    switchUgmTab("manage");
+
+    // Pre-fill group name
+    document.getElementById("ugmGroupNameInput").value = groupName;
+
+    // Pre-fill members
+    ugmGroupMembers = [...members];
+    renderUgmGroupMembers();
+
+    // Refresh user list if empty
+    if (!ugmAllUsers.length) {
+        await loadUgmAllUsers();
+    } else {
+        renderUgmAllUsers(ugmAllUsers);
+    }
+}
+
+/* =========================================
+   SEARCH HELP MODAL
+   Integrates with common.js toggleHelpSystemModal() via
+   loadModuleHelpData() callback — called automatically when
+   the top-nav ? button is clicked.
+========================================= */
+
+let helpSections = [];
+
+// Called by common.js toggleHelpSystemModal() when modal opens
+async function loadModuleHelpData() {
+
+    if (helpSections.length) {
+        // Already loaded — just make sure first item is selected
+        if (!document.querySelector(".help-index-item.active-help-topic")) {
+            if (helpSections.length) showHelpSection(helpSections[0].id);
+        }
+        return;
+    }
+
+    try {
+        const response = await fetch("/search/help-data");
+        const data = await response.json();
+        helpSections = data.sections || [];
+        renderHelpNav();
+        if (helpSections.length) showHelpSection(helpSections[0].id);
+    } catch(e) {
+        const nav = document.getElementById("helpNav");
+        if (nav) nav.innerHTML = `<div class="help-empty-state">Failed to load help.</div>`;
+    }
+}
+
+// Close when clicking backdrop
+function handleHelpBackdropClick(event) {
+    if (event.target === document.getElementById("helpSystemModal")) {
+        toggleHelpSystemModal();
+    }
+}
+
+function renderHelpNav() {
+
+    const nav = document.getElementById("helpNav");
+    if (!nav) return;
+    nav.innerHTML = "";
+
+    helpSections.forEach(section => {
+
+        const btn = document.createElement("button");
+        btn.className = "help-index-item";    // common.css class
+        btn.id = "help-nav-" + section.id;
+        btn.innerHTML = `<span style="margin-right:8px">${section.icon}</span>${section.title}`;
+        btn.addEventListener("click", () => showHelpSection(section.id));
+        nav.appendChild(btn);
+    });
+}
+
+function showHelpSection(id) {
+
+    const section = helpSections.find(s => s.id === id);
+    if (!section) return;
+
+    // Highlight active nav item using common.css class
+    document.querySelectorAll(".help-index-item")
+        .forEach(b => b.classList.remove("active-help-topic"));
+    const navBtn = document.getElementById("help-nav-" + id);
+    if (navBtn) navBtn.classList.add("active-help-topic");
+
+    // Render content into right pane
+    const pane = document.getElementById("helpContent");
+    if (pane) {
+        pane.innerHTML =
+            `<h3>${section.icon} ${section.title}</h3>` +
+            section.content;
+    }
+}
+
+
+/* =========================================
+   TABLE COLUMN SORTING
+========================================= */
+
+// ── Sort state ──────────────────────────────────────────────────────────────
+let _sortKey          = "";     // empty = no sort applied yet
+let _sortDir          = "asc";
+let _prefSortApplied  = false;  // true only after user sets a preference sort
+
+function sortResults(key) {
+    // Toggle direction if same key, else new key ascending
+    if (_sortKey === key) {
+        _sortDir = (_sortDir === "asc") ? "desc" : "asc";
+    } else {
+        _sortKey = key;
+        _sortDir = "asc";
+    }
+    _prefSortApplied = false;   // manual column click, not preference
+
+    // Update header arrow indicators
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+        th.classList.remove("sort-asc","sort-desc");
+        if (th.dataset.sort === key) {
+            th.classList.add(_sortDir === "asc" ? "sort-asc" : "sort-desc");
+        }
+    });
+
+    applySort();
+    currentPage = 1;
+    renderCurrentPage();
+}
+
+function applySort() {
+    if (!_sortKey || !currentResults.length) return;
+    const key = _sortKey;
+    const dir = _sortDir;
+    currentResults.sort((a, b) => {
+        let va = a[key] || "";
+        let vb = b[key] || "";
+
+        // Numeric sort for Number column (strip non-digits)
+        if (key === "number") {
+            const na = parseInt(String(va).replace(/\D/g, "")) || 0;
+            const nb = parseInt(String(vb).replace(/\D/g, "")) || 0;
+            return dir === "asc" ? na - nb : nb - na;
+        }
+        // Date sort
+        if (key === "created_date" || key === "resolved_date") {
+            const da = va ? new Date(va) : new Date(0);
+            const db = vb ? new Date(vb) : new Date(0);
+            return dir === "asc" ? da - db : db - da;
+        }
+        // String sort (case-insensitive)
+        va = String(va).toLowerCase();
+        vb = String(vb).toLowerCase();
+        if (va < vb) return dir === "asc" ? -1 : 1;
+        if (va > vb) return dir === "asc" ?  1 : -1;
+        return 0;
+    });
+}
+
+function applyPreferenceSort() {
+    const byEl  = document.getElementById("pref-sort-by");
+    const dirEl = document.getElementById("pref-sort-dir");
+    if (!byEl || !dirEl || !currentResults.length) return;
+    _sortKey         = byEl.value;
+    _sortDir         = dirEl.value;
+    _prefSortApplied = true;
+
+    // Clear column header arrows (preference overrides manual click)
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+        th.classList.remove("sort-asc","sort-desc");
+    });
+
+    applySort();
+    currentPage = 1;
+    renderCurrentPage();
+}
+
+/* =========================================
+   SETTINGS / PREFERENCES
+========================================= */
+
+// --- Column visibility ---
+const _hiddenCols = new Set();
+
+function toggleColumn(colKey, visible) {
+    const col = document.getElementById(`col-${colKey}`);
+    const ths = document.querySelectorAll(`th[data-column="${colKey}"]`);
+    const tds = document.querySelectorAll(`td.col-${colKey}`);
+
+    if (visible) {
+        _hiddenCols.delete(colKey);
+        if (col) col.style.display = "";
+        ths.forEach(el => el.style.display = "");
+        tds.forEach(el => el.style.display = "");
+    } else {
+        _hiddenCols.add(colKey);
+        if (col) col.style.display = "none";
+        ths.forEach(el => el.style.display = "none");
+        tds.forEach(el => el.style.display = "none");
+    }
+
+    // Re-render so new rows get the right class
+    renderCurrentPage();
+}
+
+// Attach col class to each <td> so toggleColumn can target them
+// Called after populateSearchTableRows builds innerHTML
+function applyColClasses() {
+    const table = document.querySelector("#searchResultsBody");
+    if (!table) return;
+    const colOrder = [
+        "slno","number","description",
+        "vendorticket","azurebug","azureuserstory","ptcarticles",
+        "priority","status","createdby","createddate","assignedto","resolveddate"
+    ];
+    table.querySelectorAll("tr").forEach(tr => {
+        Array.from(tr.cells).forEach((td, i) => {
+            if (colOrder[i]) td.classList.add(`col-${colOrder[i]}`);
+            // Apply hidden state
+            if (colOrder[i] && _hiddenCols.has(colOrder[i])) {
+                td.style.display = "none";
+            }
+        });
+    });
+}
+
+// --- Row source colouring ---
+let _rowColorsEnabled = true;
+
+function toggleRowColors(enabled) {
+    _rowColorsEnabled = enabled;
+    renderCurrentPage();
+}
+
+function applyRowColors() {
+    if (!_rowColorsEnabled) return;
+    document.querySelectorAll("#searchResultsBody tr").forEach(tr => {
+        const src = tr.dataset.source || "";
+        tr.classList.remove("row-snow","row-azure","row-ptc","row-aom");
+        if (src === "SNOW")  tr.classList.add("row-snow");
+        if (src === "AZURE") tr.classList.add("row-azure");
+        if (src === "PTC")   tr.classList.add("row-ptc");
+        if (src === "AOM")   tr.classList.add("row-aom");
+    });
 }

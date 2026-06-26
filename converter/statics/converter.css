@@ -275,3 +275,878 @@
 .hidden {
     display: none;
 }
+
+/* =========================================
+   APP SWITCHER BUTTONS (toolbar-right)
+========================================= */
+
+.app-switcher-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+    white-space: nowrap;
+}
+
+.app-switcher-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+
+/* =========================================
+   ANIMATED PROGRESS BAR — OPS style
+========================================= */
+
+@keyframes ops-shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+}
+
+.ops-bar-processing {
+    background: linear-gradient(
+        90deg,
+        #3b82f6 0%,
+        #60a5fa 40%,
+        #3b82f6 60%,
+        #1d4ed8 100%
+    ) !important;
+    background-size: 200% auto !important;
+    animation: ops-shimmer 1.6s linear infinite !important;
+}
+
+.ops-bar-completed {
+    background: #22c55e !important;
+    transition: width 0.4s ease !important;
+}
+
+.ops-bar-failed {
+    background: #ef4444 !important;
+}
+
+
+/* =========================================
+   STATUS META ROWS (sidebar footer)
+========================================= */
+
+.report-status-meta {
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.75);
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    gap: 6px;
+}
+
+.status-label {
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    flex-shrink: 0;
+}
+
+/* =========================================
+   HELP MODAL LEFT PANE BUTTONS
+   Dark text on light background (#f8fafc)
+   matches common.css help-modal-left-pane
+========================================= */
+
+.help-topic-btn,
+.help-index-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 14px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.help-topic-btn:hover,
+.help-index-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-left-color: #cbd5e1;
+}
+
+.help-topic-btn.active-help-topic,
+.help-index-item.active-help-topic {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
+    border-left-color: #0ea5e9;
+}
+
+
+
+/* =========================================
+   FORMAT RADIO OPTIONS (Download section)
+========================================= */
+
+.format-option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.format-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: background 0.15s;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.format-option:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.format-option input[type="radio"] {
+    accent-color: #4da6ff;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+/* Download buttons */
+.dl-btn {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    transition: opacity 0.2s;
+}
+
+.dl-btn:hover { opacity: 0.88; }
+
+.dl-word { background: #2f80ed; }
+.dl-pdf  { background: #e74c3c; }
+.dl-both { background: #8e44ad; }
+
+
+/* =========================================
+   OPTIONS PANEL (like Bulk)
+========================================= */
+
+.option-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.option-group:last-child {
+    border-bottom: none;
+}
+
+.option-label {
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.option-select {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+}
+
+.option-select option {
+    background: #1d3557;
+    color: white;
+}
+
+
+/* =========================================
+   TOGGLE SWITCH
+========================================= */
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.2);
+    border-radius: 22px;
+    transition: background 0.2s;
+}
+
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: #27ae60;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+}
+
+
+
+
+
+/* =====================================================
+   SIDEBAR — compact
+===================================================== */
+.sb-panel { padding: 6px 0; }
+.sb-row   { display:flex; gap:6px; margin-bottom:6px; }
+.sb-action-btn {
+    flex:1; border:none; border-radius:7px;
+    padding:8px 6px; font-size:11px; font-weight:700;
+    cursor:pointer; background:#2f80ed; color:white;
+    transition:opacity .15s;
+}
+.sb-action-btn:hover { opacity:.85; }
+.sidebar-hint { font-size:10px; color:rgba(255,255,255,.4); margin:4px 0 0; line-height:1.4; }
+
+
+/* RCA sidebar rows */
+.rca-sidebar-rows { display:flex; flex-direction:column; gap:3px; margin-bottom:8px; }
+.rca-sb-row {
+    display:flex; align-items:center; gap:7px;
+    padding:6px 8px; border-radius:7px;
+    background:rgba(255,255,255,.07); cursor:pointer;
+    transition:background .15s;
+}
+.rca-sb-row:hover { background:rgba(255,255,255,.12); }
+.rca-sb-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.rca-sb-dot.problem    { background:#f87171; }
+.rca-sb-dot.rootcause  { background:#fbbf24; }
+.rca-sb-dot.resolution { background:#34d399; }
+.rca-sb-label  { font-size:11px; color:rgba(255,255,255,.8); font-weight:500; flex:1; }
+.rca-sb-chip {
+    font-size:10px; padding:1px 6px; border-radius:10px;
+    background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-weight:700;
+}
+.rca-sb-chip.has-content { background:#3b82f6; color:white; }
+.rca-sb-chevron { font-size:12px; color:rgba(255,255,255,.3); }
+.sb-divider { height:1px; background:rgba(255,255,255,.1); margin:8px 0; }
+
+/* download buttons compact */
+.sb-dl-btns { display:flex; flex-direction:column; gap:5px; margin-top:8px; }
+.sb-dl-btn {
+    border:none; border-radius:7px; padding:8px 10px;
+    font-size:11px; font-weight:700; cursor:pointer; color:white;
+    transition:opacity .15s; width:100%;
+}
+.sb-dl-btn:hover  { opacity:.85; }
+.sb-dl-btn.word   { background:#2f80ed; }
+.sb-dl-btn.pdf    { background:#e74c3c; }
+.sb-dl-btn.both   { background:#8e44ad; }
+.sb-dl-btn.pptx   { background:#7c3aed; }
+
+.sb-img-dl-label { font-size:10px; color:rgba(255,255,255,.5); font-weight:700; text-transform:uppercase; letter-spacing:.4px; margin-bottom:5px; }
+.sb-img-dl-btn {
+    width:100%; border:1px solid rgba(255,255,255,.2); background:transparent;
+    color:rgba(255,255,255,.7); border-radius:7px; padding:6px;
+    font-size:11px; cursor:pointer; margin-bottom:4px;
+    transition:background .15s, color .15s;
+}
+.sb-img-dl-btn:hover { background:rgba(255,255,255,.1); color:white; }
+
+/* Prefill status */
+.rca-prefill-status { display:none; align-items:center; justify-content:space-between; background:rgba(52,211,153,.15); border:1px solid rgba(52,211,153,.3); border-radius:6px; padding:5px 8px; margin-bottom:6px; }
+.rca-prefill-badge  { font-size:10px; color:#6ee7b7; font-weight:600; }
+.rca-prefill-clear  { background:transparent; border:none; color:#6ee7b7; cursor:pointer; font-size:11px; }
+
+.rca-generate-btn {
+    width:100%; background:#f59e0b; color:white; border:none;
+    border-radius:7px; padding:9px; font-size:11px; font-weight:700;
+    cursor:pointer; margin-top:4px; transition:opacity .15s;
+}
+.rca-generate-btn:hover    { opacity:.85; }
+.rca-generate-btn:disabled { background:#4b5563; cursor:not-allowed; }
+.rca-clear-btn {
+    width:100%; background:transparent; border:1px solid rgba(255,255,255,.2);
+    color:rgba(255,255,255,.55); border-radius:7px; padding:6px;
+    font-size:10px; cursor:pointer; margin-top:4px; transition:border-color .15s;
+}
+.rca-clear-btn:hover { border-color:rgba(255,255,255,.4); color:rgba(255,255,255,.8); }
+
+/* format radio options compact */
+.format-option-group { display:flex; flex-direction:column; gap:4px; }
+.format-option { display:flex; align-items:center; gap:7px; padding:5px 8px; border-radius:6px; background:rgba(255,255,255,.07); cursor:pointer; color:rgba(255,255,255,.8); font-size:11px; }
+.format-option input { accent-color:#4da6ff; }
+
+
+/* =====================================================
+   SLIDE GRID
+===================================================== */
+.slide-grid-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.slide-grid-header h3 { margin:0; }
+.slide-grid-actions { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.sg-btn { border:1px solid #e2e8f0; background:white; border-radius:5px; padding:4px 10px; font-size:11px; color:#475569; cursor:pointer; font-weight:600; }
+.sg-btn:hover { background:#f1f5f9; }
+
+.ppt-preview-card { position:relative; background:#f5f7fa; padding:10px; border-radius:10px; border:1px solid #ddd; transition:outline .15s; }
+.ppt-preview-card.selected { outline:2px solid #3b82f6; }
+.ppt-card-check {
+    position:absolute; top:8px; left:8px; z-index:2;
+    width:19px; height:19px; background:rgba(255,255,255,.92);
+    border:1.5px solid #cbd5e1; border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:#64748b; cursor:pointer; transition:all .12s;
+}
+.ppt-card-check.checked { background:#3b82f6; border-color:#3b82f6; color:white; }
+.ppt-card-footer { display:flex; align-items:center; justify-content:space-between; padding:4px 2px 0; }
+.ppt-card-label  { font-size:11px; color:#64748b; font-weight:600; }
+.ppt-card-dl { border:none; background:transparent; color:#94a3b8; cursor:pointer; font-size:14px; padding:2px 4px; border-radius:4px; }
+.ppt-card-dl:hover { color:#3b82f6; background:#eff6ff; }
+
+/* Zone dots on slide cards */
+.ppt-card-zone-dots { display:flex; gap:3px; margin-top:4px; flex-wrap:wrap; }
+.zone-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+
+
+/* =====================================================
+   RCA PANEL
+===================================================== */
+.rca-assignment-panel { margin-top:24px; padding:20px; }
+.rca-panel-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; gap:12px; }
+.rca-panel-header h3 { margin:0 0 3px; font-size:15px; font-weight:700; }
+.rca-subtitle { font-size:12px; color:#64748b; margin:0; }
+.rca-expand-all-btn { border:1px solid #e2e8f0; background:white; border-radius:6px; padding:4px 10px; font-size:11px; color:#475569; cursor:pointer; flex-shrink:0; }
+.rca-expand-all-btn:hover { background:#f1f5f9; }
+
+.rca-tray-label { font-size:11px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+.rca-slide-tray { display:flex; gap:9px; overflow-x:auto; padding:9px 6px 10px; margin-bottom:14px; min-height:90px; align-items:flex-start; border:2px dashed #e2e8f0; border-radius:10px; background:#f8fafc; scrollbar-width:thin; scrollbar-color:#cbd5e1 transparent; }
+.rca-slide-tray:empty::after { content:"Convert slides first"; color:#94a3b8; font-size:12px; padding:16px; align-self:center; }
+
+.rca-thumb { flex-shrink:0; width:100px; cursor:grab; border-radius:7px; border:2.5px solid transparent; background:white; padding:3px; box-shadow:0 1px 4px rgba(0,0,0,.10); position:relative; user-select:none; transition:border-color .15s, transform .12s; }
+.rca-thumb:hover    { transform:translateY(-2px); }
+.rca-thumb.dragging { opacity:.35; cursor:grabbing; }
+.rca-thumb.selected { box-shadow:0 0 0 3px rgba(59,130,246,.3); }
+.rca-thumb img      { width:100%; border-radius:4px; display:block; pointer-events:none; }
+.rca-thumb-label    { font-size:9px; text-align:center; color:#64748b; margin-top:3px; }
+.rca-thumb-select   { position:absolute; top:3px; right:3px; width:14px; height:14px; background:rgba(255,255,255,.9); border:1.5px solid #cbd5e1; border-radius:50%; font-size:7px; display:flex; align-items:center; justify-content:center; color:transparent; }
+.rca-thumb.selected .rca-thumb-select { background:#3b82f6; border-color:#3b82f6; color:white; }
+
+.rca-quick-assign { display:none; align-items:center; gap:7px; flex-wrap:wrap; padding:8px 12px; background:#f1f5f9; border-radius:8px; margin-bottom:14px; border:1px solid #e2e8f0; }
+.rca-quick-assign.visible { display:flex; }
+.rca-qa-label { font-size:11px; color:#64748b; font-weight:600; white-space:nowrap; }
+.rca-quick-btn { border:none; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer; }
+.rca-quick-btn.problem    { background:#fee2e2; color:#991b1b; }
+.rca-quick-btn.rootcause  { background:#fef3c7; color:#92400e; }
+.rca-quick-btn.resolution { background:#dcfce7; color:#166534; }
+.rca-quick-btn.deselect   { background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; }
+
+.rca-zones { display:flex; flex-direction:column; gap:10px; }
+.rca-zone { border-radius:10px; border:2px solid #e2e8f0; background:#f8fafc; overflow:hidden; transition:border-color .15s; }
+.rca-zone.dragover { border-color:#3b82f6; background:#eff6ff; }
+.rca-zone.collapsed .rca-zone-body { display:none; }
+
+.rca-collapsible-header { display:flex; align-items:center; gap:9px; padding:11px 14px; cursor:pointer; user-select:none; transition:background .12s; }
+.rca-collapsible-header:hover { background:rgba(0,0,0,.03); }
+.rca-zone-icon { width:26px; height:26px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.rca-zone-icon.problem    { background:#fee2e2; }
+.rca-zone-icon.rootcause  { background:#fef3c7; }
+.rca-zone-icon.resolution { background:#dcfce7; }
+.rca-zone-title { font-size:13px; font-weight:700; color:#1e293b; }
+.rca-zone-meta  { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.rca-img-count  { font-size:11px; color:#64748b; font-weight:600; }
+.rca-text-status { font-size:10px; color:#94a3b8; }
+.rca-text-status.has-text { color:#16a34a; }
+.rca-zone-hint  { font-size:10px; color:#94a3b8; }
+.rca-chevron    { font-size:12px; color:#94a3b8; }
+.rca-zone-body  { padding:0 14px 14px; }
+
+/* Zone images */
+.rca-zone-images-label { font-size:10px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.5px; margin:8px 0; display:flex; align-items:center; gap:5px; }
+.rca-img-count-inline  { font-size:10px; color:#3b82f6; font-weight:700; }
+.rca-zone-images { display:flex; flex-wrap:wrap; gap:9px; min-height:28px; }
+.rca-zone-images:empty::after { content:"No images assigned — drag or click-assign from tray above"; color:#cbd5e1; font-size:11px; font-style:italic; }
+.rca-zone-thumb { position:relative; width:90px; flex-shrink:0; }
+.rca-zone-thumb img { width:100%; border-radius:5px; display:block; border:2px solid #e2e8f0; }
+.rca-remove-btn { position:absolute; top:-5px; right:-5px; width:16px; height:16px; background:#ef4444; border:none; border-radius:50%; color:white; font-size:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:2; }
+
+/* Insert row */
+.rca-insert-row { display:flex; gap:4px; flex-wrap:wrap; padding:5px 6px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:0 0 7px 7px; margin-bottom:10px; }
+.rca-insert-row button { border:1px solid #e2e8f0; background:white; border-radius:4px; padding:2px 7px; font-size:10px; color:#475569; cursor:pointer; font-weight:600; }
+.rca-insert-row button:hover { background:#e2e8f0; }
+.rca-clear-text-btn { margin-left:auto !important; color:#ef4444 !important; }
+
+
+/* =====================================================
+   RICH TEXT EDITOR
+===================================================== */
+.rta-toolbar { display:flex; align-items:center; gap:2px; flex-wrap:wrap; padding:4px 7px; background:#f8fafc; border:1px solid #e2e8f0; border-bottom:none; border-radius:7px 7px 0 0; }
+.rta-btn { border:1px solid transparent; background:transparent; border-radius:4px; padding:3px 6px; cursor:pointer; font-size:12px; color:#475569; font-family:inherit; min-width:24px; text-align:center; transition:background .1s; }
+.rta-btn:hover { background:#e2e8f0; }
+.rta-allcaps   { font-size:10px; font-weight:700; letter-spacing:.4px; }
+.rta-reset     { font-size:10px; margin-left:auto; }
+.rta-reset:hover { background:#fee2e2; color:#ef4444; }
+.rta-color-btn { min-width:24px; font-size:13px; }
+.rta-sep { width:1px; height:16px; background:#e2e8f0; margin:0 2px; flex-shrink:0; }
+.rta-font-size { border:1px solid #e2e8f0; border-radius:4px; padding:2px 3px; font-size:11px; color:#475569; background:white; width:42px; }
+
+/* contenteditable editor */
+.rta-editor {
+    min-height:100px; padding:10px 12px;
+    font-size:13px; line-height:1.7; color:#1e293b;
+    background:white; border:1px solid #e2e8f0;
+    box-sizing:border-box; outline:none;
+    overflow-y:auto; font-family:inherit;
+}
+.rta-editor:empty::before { content:attr(placeholder); color:#94a3b8; pointer-events:none; display:block; }
+.rta-editor:focus { background:#fafffe; }
+.rta-editor.problem    { border-left:3px solid #fca5a5; }
+.rta-editor.rootcause  { border-left:3px solid #fcd34d; }
+.rta-editor.resolution { border-left:3px solid #86efac; }
+/* Fix list indentation */
+.rta-editor ul, .rta-editor ol { padding-left:1.5em; margin:4px 0; }
+.rta-editor li { margin:2px 0; }
+
+
+/* =====================================================
+   COLOUR GRID POPUP
+===================================================== */
+.color-grid-popup { position:fixed; background:white; border-radius:10px; border:1px solid #e2e8f0; padding:10px; box-shadow:0 8px 32px rgba(0,0,0,.18); z-index:99999; width:220px; }
+.color-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:4px; margin-bottom:8px; }
+.color-swatch { width:20px; height:20px; border-radius:4px; cursor:pointer; border:1.5px solid rgba(0,0,0,.1); transition:transform .1s; }
+.color-swatch:hover { transform:scale(1.25); border-color:rgba(0,0,0,.3); }
+.color-more-row { display:flex; align-items:center; justify-content:space-between; padding-top:6px; border-top:1px solid #f1f5f9; }
+.color-more-lbl { font-size:11px; color:#475569; font-weight:600; cursor:pointer; }
+.color-more-input { width:28px; height:28px; border-radius:50%; border:1.5px solid #e2e8f0; cursor:pointer; padding:0; }
+
+
+/* =====================================================
+   LIGHTBOX
+===================================================== */
+.lb-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:9997; }
+.lb-overlay  { display:none; position:fixed; inset:0; z-index:9998; align-items:center; justify-content:center; pointer-events:none; }
+.lb-overlay.lb-visible + .lb-backdrop,
+.lb-overlay.lb-visible { display:flex; }
+.lb-overlay.lb-visible + .lb-backdrop { display:block; }
+
+.lb-window {
+    background:#1e293b; border-radius:12px; display:flex; flex-direction:column;
+    max-width:90vw; max-height:92vh; box-shadow:0 24px 80px rgba(0,0,0,.6);
+    overflow:hidden; pointer-events:all; position:relative; z-index:9999;
+}
+.lb-topbar { display:flex; align-items:center; justify-content:space-between; padding:9px 14px; background:#0f172a; border-bottom:1px solid #334155; flex-shrink:0; }
+.lb-title   { font-size:12px; color:#e2e8f0; font-weight:600; }
+.lb-controls { display:flex; gap:5px; }
+.lb-btn { border:1px solid #334155; background:#1e293b; color:#94a3b8; border-radius:6px; padding:3px 9px; cursor:pointer; font-size:11px; transition:background .12s; }
+.lb-btn:hover { background:#334155; color:white; }
+.lb-img-wrap { overflow:auto; flex:1; display:flex; align-items:center; justify-content:center; padding:14px; min-height:0; }
+.lb-img { max-width:100%; max-height:100%; border-radius:6px; box-shadow:0 8px 32px rgba(0,0,0,.4); transform-origin:center; transition:transform .2s; }
+.lb-zone-bar { display:flex; align-items:center; gap:8px; padding:8px 14px; background:#162032; border-top:1px solid #1e3050; flex-shrink:0; flex-wrap:wrap; }
+.lb-zone-label { font-size:11px; color:#64748b; font-weight:600; white-space:nowrap; }
+.lb-zone-btn { border:none; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer; transition:opacity .15s, transform .1s; }
+.lb-zone-btn:hover { opacity:.82; transform:translateY(-1px); }
+.lb-zone-btn.problem    { background:#fee2e2; color:#991b1b; }
+.lb-zone-btn.rootcause  { background:#fef3c7; color:#92400e; }
+.lb-zone-btn.resolution { background:#dcfce7; color:#166534; }
+.lb-zone-btn.lb-zone-active { outline:2px solid currentColor; }
+.lb-nav { display:flex; align-items:center; justify-content:center; gap:20px; padding:8px 14px; border-top:1px solid #334155; flex-shrink:0; }
+.lb-nav-btn { border:1px solid #334155; background:#1e293b; color:#cbd5e1; border-radius:7px; padding:5px 18px; cursor:pointer; font-size:12px; font-weight:600; }
+.lb-nav-btn:hover { background:#334155; }
+.lb-nav-pos { font-size:11px; color:#64748b; min-width:50px; text-align:center; }
+
+
+/* =====================================================
+   TOOLBAR ACTION BUTTONS (next to Preview in top bar)
+===================================================== */
+.toolbar-action-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: white;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+}
+.toolbar-action-btn:hover { opacity: 0.85; }
+.toolbar-action-btn.update { background: #2f80ed; }
+.toolbar-action-btn.rca    { background: #f59e0b; }
+
+/* Section labels in sidebar download panel */
+.sb-dl-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    margin-top: 2px;
+}
+
+/* PPT download button variant */
+.sb-dl-btn.pptx    { background: #7c3aed; margin-top: 4px; }
+.sb-dl-btn.pptx-dl { background: #5b21b6; margin-top: 4px; }
+
+
+/* =====================================================
+   OPTIONS SECTION — clean layout fixes
+===================================================== */
+
+/* Section title inside sidebar panels */
+.sb-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,.55);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 10px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.sb-section-title:first-child { margin-top: 0; }
+
+/* Fix option-group to prevent label/control overlap */
+.option-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 0;
+    flex-wrap: nowrap;
+    min-height: 32px;
+}
+
+.option-label {
+    font-size: 12px;
+    color: rgba(255,255,255,.8);
+    font-weight: 500;
+    flex-shrink: 0;
+    min-width: 80px;
+}
+
+.option-select {
+    background: rgba(255,255,255,.12);
+    color: white;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 11px;
+    flex: 1;
+    min-width: 0;
+    max-width: 130px;
+    cursor: pointer;
+    outline: none;
+}
+.option-select option { background: #1d3557; color: white; }
+
+/* Toggle switch compact */
+.toggle-switch {
+    position: relative;
+    display: inline-flex;
+    width: 38px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,.2);
+    border-radius: 20px;
+    transition: background .2s;
+}
+.toggle-slider::before {
+    content: "";
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform .2s;
+}
+.toggle-switch input:checked + .toggle-slider { background: #27ae60; }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+
+/* =====================================================
+   IMAGES IN REPORT — radio button group
+===================================================== */
+.option-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 4px 0;
+}
+
+.option-radio-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    background: rgba(255,255,255,.07);
+    cursor: pointer;
+    transition: background .15s;
+}
+.option-radio-item:hover { background: rgba(255,255,255,.12); }
+.option-radio-item input[type="radio"] {
+    accent-color: #4da6ff;
+    margin-top: 2px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.option-radio-label {
+    font-size: 11px;
+    color: rgba(255,255,255,.85);
+    font-weight: 600;
+    line-height: 1.3;
+}
+.option-radio-hint {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,.4);
+    margin-top: 2px;
+    line-height: 1.3;
+}
+
+/* Make radio-item show sub-layout */
+.option-radio-item { flex-direction: row; align-items: flex-start; }
+.option-radio-item > div,
+.option-radio-item > span.option-radio-label {
+    display: flex; flex-direction: column;
+}
+
+
+/* =====================================================
+   RTA EDITOR — alphabet list + list indentation
+===================================================== */
+
+/* Fix list indentation to match paragraph start, not page edge */
+.rta-editor ul,
+.rta-editor ol {
+    padding-left: 1.6em;
+    margin: 4px 0 4px 0;
+}
+.rta-editor li {
+    margin: 2px 0;
+}
+
+/* Alphabet sub-list (lower-alpha applied via JS) */
+.rta-editor ol[style*="lower-alpha"] {
+    list-style-type: lower-alpha;
+}
+
+/* Nested lists indentation */
+.rta-editor ul ul,
+.rta-editor ol ol,
+.rta-editor ul ol,
+.rta-editor ol ul {
+    padding-left: 1.4em;
+    margin: 2px 0;
+}
+
+/* Case-cycle button styling */
+.rta-allcaps {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #475569;
+}
+
+
+/* ── PPT Export button — same width/style as other download buttons ── */
+#exportPptBtn {
+    width: 100%;
+    margin-top: 4px;
+    transition: opacity .15s, background .15s;
+}
+#exportPptBtn:hover { opacity: .85; }
+
+
+/* ── Slide preview grid — more images per row ─────────────────────────────── */
+.slide-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.ppt-preview-card {
+    padding: 8px !important;
+}
+
+.slide-preview-image {
+    width: 100%;
+    max-height: 130px;
+    object-fit: contain;
+    border-radius: 5px;
+    display: block;
+}
+
+.ppt-card-footer {
+    padding: 3px 2px 0 !important;
+}
+
+.ppt-card-label {
+    font-size: 10px !important;
+}
+
+
+/* ── Incident preview — smaller inline RCA images ───────────────────────────
+   render_preview_html generates images inside <td> cells in a table.
+   Target those specifically without breaking the table layout.           */
+#previewContainer img {
+    max-width: 380px !important;
+    max-height: 240px !important;
+    height: auto !important;
+    width: auto !important;
+    display: block;
+    margin: 6px auto;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Remove the PPT export duplicate button CSS override (single button now) */
+#exportPptBtn {
+    width: 100%;
+    margin-top: 4px;
+}
+#exportPptBtn:hover { opacity: .85; }
+
+
+/* ── Incident preview — compact images in rows not stacked columns ─────────── */
+#previewContainer img {
+    max-width: 360px !important;
+    max-height: 220px !important;
+    height: auto !important;
+    width: auto !important;
+    display: inline-block !important;
+    margin: 4px 6px 4px 0 !important;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+/* Wrap image container divs so they flow horizontally */
+#previewContainer td div,
+#previewContainer .preview-images-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+
+/* =====================================================
+   INCIDENT PREVIEW — force images into horizontal rows
+   render_preview_html generates a .preview-table where
+   each RCA row's value <td> contains text then <img> tags.
+   We target those <img> elements to flow side-by-side.
+===================================================== */
+
+/* Reset any previous conflicting rules */
+#previewContainer img {
+    max-width: 340px !important;
+    max-height: 210px !important;
+    height: auto !important;
+    width: auto !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+    vertical-align: top !important;
+    margin: 4px 5px 4px 0 !important;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+/* The <td> cells that contain both text and images — make them wrap images inline */
+#previewContainer td {
+    vertical-align: top;
+}
+
+/* Specifically target the value cells (2nd column) of the RCA summary table */
+#previewContainer table td:last-child,
+#previewContainer table td:nth-child(2) {
+    /* allow images to flow horizontally */
+}
+
+/* Wrap ALL img siblings inside a td so they appear side by side */
+#previewContainer td > img,
+#previewContainer p > img,
+#previewContainer div > img {
+    display: inline-block !important;
+    margin: 3px 4px 3px 0 !important;
+}
+
+/* If images are in a <p> or <div> wrapper, make that wrapper flex */
+#previewContainer td p:has(img),
+#previewContainer td div:has(img),
+#previewContainer .preview-images,
+#previewContainer .section-images {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    align-items: flex-start !important;
+    margin-top: 8px;
+}
+
+/* Force the preview table to be wide enough */
+#previewContainer .preview-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+#previewContainer .preview-table td:first-child {
+    width: 180px;
+    min-width: 160px;
+}
